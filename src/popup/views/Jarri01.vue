@@ -12,8 +12,9 @@
       <div id="editor">
         <h3 class="header">
           <span id="name"></span>Family Cinema
-          <img class="large-action hidden" id="go2Settings" src="jarri/img/settings-white.svg" />
+          <img class="large-action hidden" id="go2Settings" src="v0/img/settings-white.svg" />
         </h3>
+
         <div id="sceneEditor" class="hidden" style="margin-top: 15px">
           <table id="table" width="100%">
             <thead>
@@ -29,17 +30,17 @@
           </table>
           <div class="controller">
             <span class="inline large-action tooltip" id="markCurrentTime">
-              <div><img src="jarri/img/add.svg" /></div>
+              <div><img src="v0/img/add.svg" /></div>
               <div>New filter</div>
               <span class="tooltiptext">(Ctrl+Shift+L)</span>
             </span>
             <span class="inline large-action" id="playPause">
-              <div><img src="jarri/img/play.svg" /></div>
+              <div><img src="v0/img/play.svg" /></div>
               <div>Play/Pause</div>
             </span>
             <h4 id="noscenes" style="width: 420px" class="inline-center"></h4>
             <span class="inline large-action tooltip" style="float: right; padding-right: 15px">
-              <div><img src="jarri/img/verified.svg" /></div>
+              <div><img src="v0/img/verified.svg" /></div>
               <div>Unkown</div>
               <span class="tooltiptext" style="margin-left: -55px"
                 >Some content might be untagged</span
@@ -52,7 +53,7 @@
           <div id="scene-type" class="active">
             <h4>
               What does this scene contain?
-              <img class="next" src="jarri/img/next-white.svg" />
+              <img class="next" src="v0/img/next-white.svg" />
             </h4>
             <label><input type="checkbox" value="Sex/Nudity" /><b>Sex/Nudity</b></label
             ><br />
@@ -63,8 +64,8 @@
           </div>
           <div id="sex-severity">
             <h4>
-              <img class="prev" src="jarri/img/prev-white.svg" />How graphic or erotic is it?
-              <img class="next" src="jarri/img/next-white.svg" />
+              <img class="prev" src="v0/img/prev-white.svg" />How graphic or erotic is it?
+              <img class="next" src="v0/img/next-white.svg" />
             </h4>
             <label
               ><input type="radio" name="sex-severity" value="Non erotic" /> <b>Non erotic</b> -
@@ -87,8 +88,8 @@
           </div>
           <div id="sex-type">
             <h4>
-              <img class="prev" src="jarri/img/prev-white.svg" />Does it contain any of the
-              following?<img class="next" src="jarri/img/next-white.svg" />
+              <img class="prev" src="v0/img/prev-white.svg" />Does it contain any of the
+              following?<img class="next" src="v0/img/next-white.svg" />
             </h4>
             <label
               ><input type="checkbox" value="No consent" /> <b>No consent</b> - Lack or inability to
@@ -113,8 +114,8 @@
           </div>
           <div id="vio-severity">
             <h4>
-              <img class="prev" src="jarri/img/prev-white.svg" />How graphic/gore is it?
-              <img class="next" src="jarri/img/next-white.svg" />
+              <img class="prev" src="v0/img/prev-white.svg" />How graphic/gore is it?
+              <img class="next" src="v0/img/next-white.svg" />
             </h4>
             <label
               ><input type="radio" name="vio-severity" value="Non gore" /> <b>Non gore</b> -
@@ -137,8 +138,8 @@
           </div>
           <div id="vio-type">
             <h4>
-              <img class="prev" src="jarri/img/prev-white.svg" />Does it contain any of the
-              following?<img class="next" src="jarri/img/next-white.svg" />
+              <img class="prev" src="v0/img/prev-white.svg" />Does it contain any of the
+              following?<img class="next" src="v0/img/next-white.svg" />
             </h4>
             <label
               ><input type="checkbox" value="Discrimination" /> <b>Discrimination</b> - Verbal of
@@ -161,8 +162,8 @@
           </div>
           <div id="other-type">
             <h4>
-              <img class="prev" src="jarri/img/prev-white.svg" />Which of the following does it
-              contain?<img class="next" src="jarri/img/next-white.svg" />
+              <img class="prev" src="v0/img/prev-white.svg" />Which of the following does it
+              contain?<img class="next" src="v0/img/next-white.svg" />
             </h4>
             <label
               ><input type="checkbox" value="Mild profanity" /> <b>Mild profanity</b> - Mild
@@ -187,8 +188,8 @@
           </div>
           <div id="what-to-do">
             <h4>
-              <img class="prev" src="jarri/img/prev-white.svg" />Anything else?
-              <img class="next" src="jarri/img/next-white.svg" />
+              <img class="prev" src="v0/img/prev-white.svg" />Anything else?
+              <img class="next" src="v0/img/next-white.svg" />
             </h4>
             <label
               ><input type="checkbox" value="Sound only" /> <b>Sound only</b> - Tags apply only to
@@ -217,9 +218,9 @@
         <div id="settingsWizard" class="hidden wizard">
           <div id="sex-tolerance" class="active">
             <h4>
-              <img class="prev" src="jarri/img/prev-white.svg" />What sex scenes would you like to
+              <img class="prev" src="v0/img/prev-white.svg" />What sex scenes would you like to
               skip?
-              <img class="next" src="jarri/img/next-white.svg" />
+              <img class="next" src="v0/img/next-white.svg" />
             </h4>
             <label
               ><input type="checkbox" name="sex-tolerance" value="Non erotic" /> <b>Non erotic</b> -
@@ -242,8 +243,8 @@
           </div>
           <div id="sex-type-tolerance">
             <h4>
-              <img class="prev" src="jarri/img/prev-white.svg" />Would you like to skip any of the
-              foll?<img class="next" src="jarri/img/next-white.svg" />
+              <img class="prev" src="v0/img/prev-white.svg" />Would you like to skip any of the
+              foll?<img class="next" src="v0/img/next-white.svg" />
             </h4>
             <label
               ><input type="checkbox" value="No consent" /> <b>No consent</b> - Lack or inability to
@@ -266,9 +267,9 @@
           </div>
           <div id="vio-tolerance">
             <h4>
-              <img class="prev" src="jarri/img/prev-white.svg" />What violent/gore scenes would you
+              <img class="prev" src="v0/img/prev-white.svg" />What violent/gore scenes would you
               like to skip??
-              <img class="next" src="jarri/img/next-white.svg" />
+              <img class="next" src="v0/img/next-white.svg" />
             </h4>
             <label
               ><input type="checkbox" name="vio-severity-tolerance" value="Non gore" />
@@ -292,8 +293,8 @@
           </div>
           <div id="vio-type-tolerance">
             <h4>
-              <img class="prev" src="jarri/img/prev-white.svg" />Does it contain any of the
-              following?<img class="next" src="jarri/img/next-white.svg" />
+              <img class="prev" src="v0/img/prev-white.svg" />Does it contain any of the
+              following?<img class="next" src="v0/img/next-white.svg" />
             </h4>
             <label
               ><input type="checkbox" value="Discrimination" /> <b>Discrimination</b> - Verbal of
@@ -316,8 +317,8 @@
           </div>
           <div id="other-type-tolerance">
             <h4>
-              <img class="prev" src="jarri/img/prev-white.svg" />Which of the following does it
-              contain?<img class="next" src="jarri/img/next-white.svg" />
+              <img class="prev" src="v0/img/prev-white.svg" />Which of the following does it
+              contain?<img class="next" src="v0/img/next-white.svg" />
             </h4>
             <label
               ><input type="checkbox" value="Mild profanity" /> <b>Mild profanity</b> - Mild
@@ -342,8 +343,8 @@
           </div>
           <div id="what-to-do-tolerance">
             <h4>
-              <img class="prev" src="jarri/img/prev-white.svg" />Anything else?
-              <img class="next" src="jarri/img/next-white.svg" />
+              <img class="prev" src="v0/img/prev-white.svg" />Anything else?
+              <img class="next" src="v0/img/next-white.svg" />
             </h4>
             <label
               ><input type="checkbox" value="Sound only" /> <b>Sound only</b> - Tags apply only to
@@ -387,15 +388,16 @@
 <script>
 export default {
   mounted() {
+    //inject the popup.js from jarri, as it is
     var script = document.createElement('script')
     script.type = 'text/javascript'
-    script.src = 'jarri/popup.js.'
+    script.src = 'v0/popup.js.'
     document.getElementsByTagName('head')[0].appendChild(script)
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import '/jarri/popup.css';
-@import '/jarri/multichip.css';
+@import '/v0/popup.css';
+@import '/v0/multichip.css';
 </style>

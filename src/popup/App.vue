@@ -1,28 +1,21 @@
 <template>
   <div>
     <v-app>
-      <v-app-bar app color="#00b359" dark dense>
+      <v-app-bar app color="#00b359" dark dense height="34px" flat>
+        <v-btn icon @click="drawer = !drawer">
+          <v-icon small>mdi-menu</v-icon>
+        </v-btn>
         <div class="d-flex align-center" @click="$router.push('/')">
-          <v-img
-            alt="Family Cinema  Logo"
-            class="shrink mr-2"
-            contain
-            src="../assets/logo.png"
-            transition="scale-transition"
-            width="40"
-          />
-          <h2>{{ extensionName }}</h2>
+          <h3>{{ extensionName }}</h3>
         </div>
 
         <v-spacer></v-spacer>
 
-        <v-btn icon @click="drawer = !drawer">
-          <v-icon>mdi-menu</v-icon>
-        </v-btn>
+        <v-icon small @click="go2Settings()">mdi-cog</v-icon>
       </v-app-bar>
 
       <!-- NAV DRAWER -->
-      <v-navigation-drawer v-model="drawer" left app temporary right>
+      <v-navigation-drawer v-model="drawer" left app temporary>
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title">Family Cinema</v-list-item-title>

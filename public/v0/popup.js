@@ -86,8 +86,8 @@ function pushIntoTable(scene, tableBody) {
           <td><input type="time" step="0.050" value="00:00"></td>
           <td style="width:300px"><div class='chip-input'></div></td>
           <td>
-              <img class="action" src="jarri/img/preview.svg">
-              <img class="action" src="jarri/img/delete.svg">
+              <img class="action" src="v0/img/preview.svg">
+              <img class="action" src="v0/img/delete.svg">
           </td>
         </tr>`
   newRow.innerHTML = row
