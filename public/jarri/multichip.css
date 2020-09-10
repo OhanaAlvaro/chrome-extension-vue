@@ -43,12 +43,12 @@
   position: relative;
   display: inline-block;
   margin: 2px;
-  padding: 0 8px;
+  padding: 3px 6px;
   overflow: hidden;
   font-size: 11px;
   border-radius: 20px;
   background-color: #ddd;
-  line-height: 24px;
+  line-height: 12px;
 }
 
 .drop-options .chip {
