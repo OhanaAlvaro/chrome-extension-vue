@@ -1,0 +1,244 @@
+.tooltip {
+  position: relative;
+}
+
+html {
+  height: fit-content;
+}
+
+body {
+  height: fit-content;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 90px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -45px;
+}
+
+.tooltip .tooltiptext::after {
+  content: ' ';
+  position: absolute;
+  top: 100%;
+  /* At the bottom of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  transition-delay: 1s;
+}
+
+input[type='time']::-webkit-clear-button {
+  display: none;
+}
+
+/* Up/Down arrows for incrementing/decrementing the value */
+input[type='time']::-webkit-inner-spin-button {
+  display: none;
+}
+
+table {
+  border-collapse: collapse;
+  /*width: 100%;*/
+}
+
+th,
+td {
+  text-align: center;
+  padding: 2px;
+}
+
+tr:nth-child(even) {
+  background-color: #f3f3f3;
+}
+
+th {
+  border-bottom: 1px solid;
+  font-size: 12px;
+}
+
+input::-ms-clear {
+  -webkit-appearance: none;
+  display: none;
+}
+
+input::-webkit-clear-button {
+  -webkit-appearance: none;
+  display: none;
+}
+
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  display: none;
+}
+
+input::-webkit-calendar-picker-indicator {
+  -webkit-appearance: none;
+  display: none;
+}
+
+input {
+  padding: 5px;
+  display: inline-block;
+  border: 0px solid #ccc;
+  border-radius: 4px;
+  background-color: transparent;
+  /*font-size: 12px;*/
+}
+
+.button {
+  background-color: #4caf50;
+  color: white;
+  padding: 5px 10px;
+  margin: 0px 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.action {
+  width: 21px;
+  opacity: 60%;
+  margin: 2px 5px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.large-action {
+  opacity: 60%;
+  margin: 2px 5px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.header {
+  background-color: #4caf50;
+
+  padding: 10 15px;
+  color: white;
+  width: 100%;
+  text-align: center;
+  display: inline-block;
+}
+
+.inline {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.inline-center {
+  width: 100%;
+  text-align: center;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.controller {
+  padding: 10px;
+  margin: 8px 0px;
+  width: 100%;
+}
+
+#go2Settings {
+  opacity: 100%;
+  float: right;
+}
+
+#options {
+  width: 100%;
+  border: none;
+  margin: 5 5 5 5px;
+}
+
+#options:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+#skip {
+  border-bottom: 1px dashed #555;
+  margin-right: 5px;
+}
+
+.left {
+  float: left;
+}
+
+.chip-input {
+  cursor: pointer;
+  width: 100%;
+  min-height: 28px;
+}
+
+.active {
+  display: block !important;
+}
+
+.wizard input {
+  margin: 5px;
+  padding: 5px;
+}
+
+.wizard {
+  box-shadow: 10px 10px 9px 0px rgba(0, 0, 0, 0.75);
+  position: absolute;
+  top: 10%;
+  left: 15%;
+  width: 70%;
+  background-color: white;
+  z-index: 999;
+}
+
+.wizard div {
+  padding: 8px;
+  display: none;
+}
+
+.wizard h4 {
+  background-color: #4caf50;
+  margin: -8 -8 4 -8px;
+  padding: 8px;
+  color: white;
+  text-align: center;
+  font-size: 13px;
+}
+
+.parentDisable {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #000;
+  opacity: 0.6;
+  z-index: 998;
+  height: 100%;
+  width: 100%;
+}
+
+.next {
+  float: right;
+  cursor: pointer;
+}
+
+.prev {
+  float: left;
+  cursor: pointer;
+}

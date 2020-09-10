@@ -1,0 +1,142 @@
+@charset "UTF-8";
+/* CSS Document * Varun Dewan 2019 */
+
+.drop {
+  position: relative;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.drop .drop-options {
+  visibility: hidden;
+  background-color: white;
+  position: absolute;
+  width: 150%;
+  margin-left: -25%;
+  overflow-y: auto;
+  transition: all 0.25s linear;
+  z-index: 10;
+  line-height: 25px;
+  min-height: 25px;
+  text-align: center;
+}
+
+.drop:hover .drop-options {
+  visibility: visible;
+  transition-delay: 0.5s;
+  /*border: 1px solid black;
+    border-radius: 4px;
+    border-top: 0px none black;*/
+}
+
+.drop .drop-display {
+  position: relative;
+  width: 100%;
+  z-index: 1;
+  line-height: 25px;
+  min-height: 30px;
+}
+
+.chip {
+  position: relative;
+  display: inline-block;
+  margin: 2px;
+  padding: 0 8px;
+  overflow: hidden;
+  font-size: 11px;
+  border-radius: 20px;
+  background-color: #ddd;
+  line-height: 24px;
+}
+
+.drop-options .chip {
+  background-color: #f4f4f4;
+}
+
+.drop .chip {
+  cursor: pointer;
+}
+
+.chip.remove {
+  -webkit-animation: removeSelected 0.2s, hide 1s infinite;
+  animation: removeSelected 0.2s, hide 1s infinite;
+  -webkit-animation-delay: 0s, 0.2s;
+  animation-delay: 0s, 0.2s;
+}
+
+.chip.add {
+  -webkit-animation: addSelected 0.2s;
+  animation: addSelected 0.2s;
+}
+
+@-webkit-keyframes removeSelected {
+  from {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+
+  to {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  }
+}
+
+@keyframes removeSelected {
+  from {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+
+  to {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  }
+}
+
+@-webkit-keyframes addSelected {
+  from {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  }
+
+  to {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes addSelected {
+  from {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  }
+
+  to {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+
+@-webkit-keyframes hide {
+  from,
+  to {
+    max-height: 0px;
+    max-width: 0px;
+    padding: 0px;
+    margin: 0px;
+    border-width: 0px;
+  }
+}
+
+@keyframes hide {
+  from,
+  to {
+    max-height: 0px;
+    max-width: 0px;
+    padding: 0px;
+    margin: 0px;
+    border-width: 0px;
+  }
+}
