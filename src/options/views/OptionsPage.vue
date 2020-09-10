@@ -1,7 +1,6 @@
 <template>
   <div>
-    <h3>Options Page</h3>
-    <p>Stay tuned! We will add something here :)</p>
+    <h2>This is the options page</h2>
   </div>
 </template>
 

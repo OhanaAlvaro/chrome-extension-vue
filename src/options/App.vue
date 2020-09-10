@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import OptionsPage from '@/components/OptionsPage.vue'
+import OptionsPage from './views/OptionsPage.vue'
 
 export default {
   name: 'Options',
