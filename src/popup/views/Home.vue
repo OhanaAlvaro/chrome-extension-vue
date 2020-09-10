@@ -2,6 +2,7 @@
   <div>
     <h1>Home View</h1>
     <h1>Hey there my friend</h1>
+
     <hello-world />
   </div>
 </template>
