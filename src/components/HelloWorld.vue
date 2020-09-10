@@ -1,6 +1,8 @@
 <template>
   <div>
+    <h3>Hello World Component</h3>
     <p>{{ defaultText }}</p>
+    <span>...end of hello-world component</span>
   </div>
 </template>
 

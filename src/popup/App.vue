@@ -1,16 +1,13 @@
 <template>
   <div>
-    <h1>Hey there my friend</h1>
-    <hello-world />
+    <h1>Family Cinema</h1>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import HelloWorld from '@/components/HelloWorld.vue'
-
 export default {
-  name: 'App',
-  components: { HelloWorld }
+  name: 'PopupApp'
 }
 </script>
 
