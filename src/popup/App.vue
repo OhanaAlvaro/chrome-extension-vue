@@ -40,9 +40,10 @@
       <!-- -->
       <v-main>
         <v-container>
-          <router-link to="/home">Home</router-link> |
-          <router-link to="/about">About</router-link> |
-          <router-link to="/jarri">Jarri</router-link>
+          <router-link to="/home">Home</router-link>|
+          <router-link to="/about">About</router-link>|
+          <router-link to="/jarri">Jarri</router-link>|
+          <router-link to="/settings">Settings</router-link>
           <router-view></router-view>
         </v-container>
       </v-main>
