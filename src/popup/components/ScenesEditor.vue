@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2>Scene Editor</h2>
     <div id="scenesEditor" style="margin-top: 15px">
       <table id="table" width="100%">
         <thead>
@@ -12,76 +11,77 @@
             <th>Actions</th>
           </tr>
         </thead>
+        <tbody>
+          <tr v-for="scene in scenes" :key="scene.id">
+            <!-- Skip -->
+            <td>
+              <input type="checkbox" v-model="scene.skip" @change="updateScene(scene, 'skip')" />
+            </td>
 
-        <tr v-for="scene in data.scenes" :key="scene.id">
-          <p>{{ scene.start }}</p>
-          <td>
-            <time-editor v-model="scene.start"></time-editor>
-            <input type="checkbox" :value="scene.skip" @change="updateScene(scene)" />
-          </td>
-          <td>
-            <input type="time" step="0.050" v-model="scene.start" />
-          </td>
-          <td>
-            <input type="time" step="0.050" :value="ms2time(scene.end)" />
-          </td>
-          <td style="width:300px">
-            <div class="chip-input"></div>
-          </td>
-          <td>
-            <img class="action" src="v0/img/preview.svg" />
-            <img class="action" src="v0/img/delete.svg" />
-          </td>
-        </tr>
-        <tbody></tbody>
+            <!-- Start Time -->
+            <td>
+              <time-editor v-model="scene.start" @change="updateScene(scene, 'start')"></time-editor>
+            </td>
+
+            <!-- End Time -->
+            <td>
+              <time-editor v-model="scene.end" @change="updateScene(scene, 'end')"></time-editor>
+            </td>
+
+            <!-- Tags -->
+            <td style="width:300px">
+              <tags-editor v-model="scene.tags" @change="updateScene(scene, 'tags')"></tags-editor>
+            </td>
+
+            <!-- ACTIONS -->
+            <td>
+              <v-btn color="gray" small icon @click="sendMessage({ msg: 'preview', id: scene.id })">
+                <v-icon>mdi-eye</v-icon>
+              </v-btn>
+
+              <v-btn color="gray" icon small @click="sendMessage({ msg: 'remove', id: scene.id })">
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </td>
+          </tr>
+        </tbody>
       </table>
-      <div class="controller">
-        <span class="inline large-action tooltip" id="markCurrentTime">
-          <div>
-            <img src="v0/img/add.svg" />
-          </div>
-          <div>New filter</div>
-          <span class="tooltiptext">(Ctrl+Shift+L)</span>
-        </span>
-        <span class="inline large-action" id="playPause">
-          <div>
-            <img src="v0/img/play.svg" />
-          </div>
-          <div>Play/Pause</div>
-        </span>
-        <h4 id="noscenes" style="width: 420px" class="inline-center"></h4>
-        <span class="inline large-action tooltip" style="float: right; padding-right: 15px">
-          <div>
-            <img src="v0/img/verified.svg" />
-          </div>
-          <div>Unkown</div>
-          <span class="tooltiptext" style="margin-left: -55px">Some content might be untagged</span>
-        </span>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
 var fclib = require('../js/fclib')
+
 import TimeEditor from './TimeEditor'
+import TagsEditor from '../components/TagsEditor'
 
 export default {
   components: {
-    TimeEditor
+    TimeEditor,
+    TagsEditor
+  },
+  props: {
+    scenes: {
+      type: Array,
+      default: function() {
+        return []
+      }
+    }
   },
   data() {
     return {
-      data: { msg: '', scenes: [], settings: [] }
+      data: { msg: '', scenes: [], settings: [] },
+      tags_wizard: false,
+      dialog: false,
+      tags_aux: []
     }
   },
 
   methods: {
-    ms2time(time) {
-      return fclib.ms2time(time)
-    },
-    updateScene(scene) {
-      console.log('update-sceneee', scene)
+    updateScene(scene, field) {
+      //console.log('shall update scene', scene, field)
+      this.sendMessage({ msg: 'update-scene', scene: scene, field: field })
     },
     sendMessage(msg, callback) {
       console.log('[sendMessage]: ', msg)
@@ -90,18 +90,14 @@ export default {
           if (callback) callback(response)
         })
       })
-    },
-    changeData(newValue) {
-      emitData()
-    },
-    emitData(value) {
-      this.$emit('input', value)
     }
   },
   mounted() {
+    /*
     this.sendMessage({ msg: 'get-data' }, response => {
       this.data = response
     })
+    */
   }
 }
 </script>

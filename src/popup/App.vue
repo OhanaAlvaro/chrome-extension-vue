@@ -69,7 +69,7 @@ export default {
 
 <style>
 html {
-  width: 400px;
+  width: 600px;
   height: 400px;
 }
 </style>

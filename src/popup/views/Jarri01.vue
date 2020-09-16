@@ -56,6 +56,7 @@
             </span>
           </div>
         </div>
+
         <div id="disable"></div>
         <div id="sceneWizard" class="hidden wizard">
           <div id="scene-type" class="active">
