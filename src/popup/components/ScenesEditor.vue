@@ -1,5 +1,7 @@
 <template>
   <div>
+    <!-- value: {{ value }} -->
+
     <div id="scenesEditor" style="margin-top: 15px">
       <table id="table" width="100%">
         <thead>
@@ -13,6 +15,10 @@
         </thead>
         <tbody>
           <tr v-for="scene in scenes" :key="scene.id">
+            tagsas:
+            {{
+            scene.tags
+            }}
             <!-- Skip -->
             <td>
               <input type="checkbox" v-model="scene.skip" @change="updateScene(scene, 'skip')" />
@@ -39,7 +45,7 @@
                 <v-icon>mdi-eye</v-icon>
               </v-btn>
 
-              <v-btn color="gray" icon small @click="sendMessage({ msg: 'remove', id: scene.id })">
+              <v-btn color="gray" icon small @click="removeScene(scene)">
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </td>
@@ -54,31 +60,59 @@
 var fclib = require('../js/fclib')
 
 import TimeEditor from './TimeEditor'
-import TagsEditor from '../components/TagsEditor'
+import TagsEditor from './TagsEditor'
 
 export default {
   components: {
     TimeEditor,
     TagsEditor
   },
+
   props: {
-    scenes: {
+    value: {
+      //array with the scenes (data.scenes in the parent)
       type: Array,
       default: function() {
         return []
       }
     }
   },
+
+  watch: {
+    value: {
+      deep: true,
+      handler(newValue) {
+        this.scenes = newValue
+      }
+    },
+    scenes: {
+      deep: true,
+      handler(newValue) {
+        console.log('[alex] scenes-changed')
+        this.$emit('input', newValue)
+        this.$emit('change', newValue)
+      }
+    }
+  },
+
   data() {
     return {
-      data: { msg: '', scenes: [], settings: [] },
-      tags_wizard: false,
-      dialog: false,
-      tags_aux: []
+      scenes: [],
+      dialog: false
     }
   },
 
   methods: {
+    removeScene(scene) {
+      this.sendMessage({ msg: 'remove', id: scene.id }, response => {
+        //should check response to confirm it was removed...?
+        for (var i = 0; i < this.scenes.length; i++) {
+          if (this.scenes[i].id == scene.id) {
+            this.scenes.splice(i, 1)
+          }
+        }
+      })
+    },
     updateScene(scene, field) {
       //console.log('shall update scene', scene, field)
       this.sendMessage({ msg: 'update-scene', scene: scene, field: field })
@@ -91,13 +125,6 @@ export default {
         })
       })
     }
-  },
-  mounted() {
-    /*
-    this.sendMessage({ msg: 'get-data' }, response => {
-      this.data = response
-    })
-    */
   }
 }
 </script>
