@@ -9,7 +9,7 @@ var fclib = require('../js/fclib')
 export default {
   data() {
     return {
-      timeFormatted: 0
+      data: ''
     }
   },
   props: {
@@ -39,10 +39,6 @@ export default {
         this.$emit('change', fixed_ms)
       }
     }
-  },
-
-  mounted() {
-    this.timeFormatted = fclib.ms2time(parseInt(this.value))
   }
 }
 </script>

@@ -1,28 +1,48 @@
 <template>
   <div>
-    <h1>Auto filtered</h1>
-    <scenes-editor :scenes="data.scenes"></scenes-editor>
+    <!--<h3>Auto filtered</h3>-->
+
+    <!-- this is used for new scenes (wip) -->
+    new_scene_wizard: {{ new_scene_wizard }} new_scene_tags: {{ new_scene_tags }}
+    <tags-wizard :tags="new_scene_tags" v-model="new_scene_wizard" @change="newSceneTagsChange"></tags-wizard>
+
+    <scenes-editor v-model="data.scenes"></scenes-editor>
 
     <br />
     <br />
     <h1>Other scenes</h1>
-    <scenes-editor :scenes="data.scenes"></scenes-editor>
+    <scenes-editor v-model="data.scenes"></scenes-editor>
 
-    <div class="controller">
-      <span class="inline large-action tooltip" id="markCurrentTime">
-        <div>
-          <img src="v0/img/add.svg" />
-        </div>
-        <div>New filter</div>
-        <span class="tooltiptext">(Ctrl+Shift+L)</span>
-      </span>
-      <span class="inline large-action" id="playPause">
-        <div>
-          <img src="v0/img/play.svg" />
-        </div>
-        <div>Play/Pause</div>
-      </span>
-      <h4 id="noscenes" style="width: 420px" class="inline-center"></h4>
+    <br />
+    <br />
+    <br />
+    <br />
+
+    <v-footer fixed class="primary lighten-3" dense>
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            color="black"
+            @click="markCurrentTime()"
+            text
+            class="no-uppercase"
+            v-bind="attrs"
+            v-on="on"
+          >
+            <div v-if="isCreatingScene == false">
+              <v-icon>mdi-plus</v-icon>New filter
+            </div>
+            <div v-else>
+              <v-icon>mdi-plus</v-icon>End Filter
+            </div>
+          </v-btn>
+        </template>
+        <span>(Ctrl+Shift+L)</span>
+      </v-tooltip>|
+      <v-btn color="black" @click="sendMessage({ msg: 'play-pause' })" text class="no-uppercase">
+        <v-icon fab>mdi-play</v-icon>Play/Pause
+      </v-btn>
+      <v-spacer></v-spacer>
       <span class="inline large-action tooltip" style="float: right; padding-right: 15px">
         <div>
           <img src="v0/img/verified.svg" />
@@ -30,28 +50,78 @@
         <div>Unkown</div>
         <span class="tooltiptext" style="margin-left: -55px">Some content might be untagged</span>
       </span>
-    </div>
-
-    <v-btn color="success" @click="sendMessage({ msg: 'play-pause' })">Play/Pause</v-btn>
+      <br />
+      <v-snackbar bottom right v-model="snackbar" :timeout="snackbarTimeout" color="info">
+        {{
+        snackbarText
+        }}
+      </v-snackbar>
+    </v-footer>
   </div>
 </template>
 
 <script>
 import ScenesEditor from '../components/ScenesEditor'
+import TagsWizard from '../components/TagsWizard'
 
 import fclib from '../js/fclib'
 export default {
   name: 'Home',
   components: {
-    ScenesEditor
+    ScenesEditor,
+    TagsWizard
   },
   data() {
     return {
-      data: { msg: '', scenes: [], settings: [] } //default values, to avoid missing keys
+      data: { msg: '', scenes: [], settings: [] }, //default values, to avoid missing keys
+      auxx: '',
+      snackbarText: '',
+      snackbar: false,
+      snackbarTimeout: 6000,
+      isCreatingScene: false,
+
+      //when adding a new scene:
+
+      new_scene_wizard: false,
+      new_scene_tags: ['pending'],
+      new_scene_index: 0
     }
   },
 
   methods: {
+    newSceneTagsChange(tagsSoFar) {
+      this.data.scenes[this.new_scene_index].tags = tagsSoFar
+    },
+    markCurrentTime() {
+      this.sendMessage({ msg: 'mark-current-time' }, response => {
+        console.log(response)
+        if (response && response.scene) {
+          //scene created successfully (tbc: was it sent to the server before the response?)
+          var msg = [
+            'Wow! Did you just do that? Thank your for adding a new scene!',
+            'You are absolutely awesome!',
+            'Thank you!',
+            'The world would be a better place if everyone was like you!'
+          ]
+          this.snackbarText = msg[Math.floor(Math.random() * msg.length)]
+          this.snackbar = true
+          this.data.scenes.push(response.scene)
+          this.sendMessage({ msg: 'pause' })
+          this.isCreatingScene = false
+
+          //handle tags for new scene
+          this.new_scene_tags = ['pending']
+          this.new_scene_wizard = true
+          this.new_scene_index = this.data.scenes.length - 1
+        } else {
+          //Begin of scene:
+          this.isCreatingScene = true
+          console.log('[mark-current-time] No scene, assuming start')
+          this.snackbarText = 'Press again to mark the end of the scene'
+          this.snackbar = true
+        }
+      })
+    },
     sendMessage(msg, callback) {
       console.log('[sendMessage]: ', msg)
       chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
@@ -59,16 +129,34 @@ export default {
           if (callback) callback(response)
         })
       })
+    },
+    listenToMessages() {
+      /*chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        console.log('[listen-HOME] Received request: ', request)
+        if (request.msg == 'new-data') {
+          this.getData()
+        }
+        sendResponse(true)
+      })*/
+    },
+    getData() {
+      this.sendMessage({ msg: 'get-data' }, response => {
+        console.log('data-received', response)
+        this.data = response
+      })
     }
   },
+
   mounted() {
     //Let's get the data as soon as mounted
-    this.sendMessage({ msg: 'get-data' }, response => {
-      console.log('data-received', response)
-      this.data = response
-    })
+    this.getData()
+    this.listenToMessages()
   }
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.no-uppercase {
+  text-transform: none;
+}
+</style>

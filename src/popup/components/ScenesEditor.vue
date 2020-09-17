@@ -1,6 +1,7 @@
 <template>
   <div>
-    <!-- value: {{ value }} -->
+    <v-btn color="success" @click="wizardVisible = !wizardVisible">showWizard</v-btn>
+    <v-btn color="success" @click="tags_aux = { tags: ['Other'] }">reset tags-aux</v-btn>
 
     <div id="scenesEditor" style="margin-top: 15px">
       <table id="table" width="100%">
@@ -15,10 +16,6 @@
         </thead>
         <tbody>
           <tr v-for="scene in scenes" :key="scene.id">
-            tagsas:
-            {{
-            scene.tags
-            }}
             <!-- Skip -->
             <td>
               <input type="checkbox" v-model="scene.skip" @change="updateScene(scene, 'skip')" />
@@ -88,7 +85,6 @@ export default {
     scenes: {
       deep: true,
       handler(newValue) {
-        console.log('[alex] scenes-changed')
         this.$emit('input', newValue)
         this.$emit('change', newValue)
       }
@@ -97,8 +93,10 @@ export default {
 
   data() {
     return {
+      tags_aux: { tags: ['Sex/Nudity', 'Violence', 'Cruelty'] },
       scenes: [],
-      dialog: false
+      dialog: false,
+      wizardVisible: false
     }
   },
 

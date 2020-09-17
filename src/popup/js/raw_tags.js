@@ -2,10 +2,10 @@ var content = [
   {
     value: 'Sex/Nudity',
     title: 'Sex/Nudity',
-    description: '',
+    description: 'Verde limon',
     color: 'green',
-    severity_title: 'aa',
-    types_title: 'aa',
+    severity_title: 'How graphic or erotic is it?',
+    types_title: 'Does it contain any of the following?',
     severity: [
       {
         value: 'Non erotic',
@@ -60,8 +60,8 @@ var content = [
     title: 'Violence/Gore',
     description: '',
     color: 'red',
-    severity_title: 'vv',
-    types_title: 'vv',
+    severity_title: 'How graphic/gore is it?',
+    types_title: 'Does it contain any of the following?',
     severity: [
       {
         value: 'Non gore',
@@ -96,6 +96,11 @@ var content = [
         description: 'One of the parties is significantly weaker or have no chance of winning'
       },
       {
+        value: 'Power imbalance',
+        title: 'Power imbalance',
+        description: 'One of the parties is significantly weaker or have no chance of winning'
+      },
+      {
         value: 'Self harm',
         title: 'Self harm',
         description: 'Self inflicted pain or damage, eg: suicide...'
@@ -108,7 +113,7 @@ var content = [
     description: '',
     color: 'blue',
     severity_title: '',
-    types_title: '',
+    types_title: 'Which of the following does it contain?',
     severity: [],
     types: [
       {
@@ -141,7 +146,7 @@ var content = [
 ]
 
 var actions = {
-  types_title: 'What to do?',
+  types_title: 'Anything else?',
   types: [
     { value: 'Sound only', title: 'Sound only', description: 'Tags apply only to sound' },
     { value: 'Video only', title: 'Video only', description: 'Tags apply only to video.' },
