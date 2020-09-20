@@ -57,20 +57,13 @@ function getData(callback) {
 }
 
 function fixTime(new_time_ms, old_time_ms) {
-  //@todo: fix bug - When you put ms = 000, the seconds 59->00 increase minutes only from 0->1, but not from 1->2 | weird
-  //it might be due to refreshes of the values...
-
-  console.log('new_time_ms', new_time_ms)
+  //console.log('new_time_ms', new_time_ms)
 
   var new_time = new_time_ms || 0
   var old_time = parseInt(old_time_ms) || 0
   var diff = Math.round(new_time - old_time)
 
-  console.log('time-diff', diff, new_time, old_time)
-
-  if (new_time == old_time) {
-    console.log('AAAAA')
-  }
+  //console.log('time-diff', diff, new_time, old_time)
 
   if (Math.abs(diff) == 59 * 60 * 1000) {
     // Minute overflow

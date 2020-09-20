@@ -1,8 +1,5 @@
 <template>
   <div>
-    <v-btn color="success" @click="wizardVisible = !wizardVisible">showWizard</v-btn>
-    <v-btn color="success" @click="tags_aux = { tags: ['Other'] }">reset tags-aux</v-btn>
-
     <div id="scenesEditor" style="margin-top: 15px">
       <table id="table" width="100%">
         <thead>

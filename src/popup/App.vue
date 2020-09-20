@@ -40,10 +40,14 @@
       <!-- -->
       <v-main>
         <v-container>
+          <!--
           <router-link to="/">Home</router-link>|
           <router-link to="/about">About</router-link>|
           <router-link to="/jarri">Jarri</router-link>|
+          <router-link to="/no-movie">No Movie</router-link>|
           <router-link to="/settings">Settings</router-link>
+          -->
+
           <router-view></router-view>
         </v-container>
       </v-main>
@@ -63,6 +67,11 @@ export default {
     extensionName() {
       return browser.i18n.getMessage('extName')
     }
+  },
+  methods: {
+    go2Settings() {
+      this.$router.push('/settings')
+    }
   }
 }
 </script>
@@ -70,6 +79,6 @@ export default {
 <style>
 html {
   width: 600px;
-  max-height: 300px;
+  max-height: 500px;
 }
 </style>

@@ -3,13 +3,14 @@
     <v-dialog
       v-model="dialog"
       scrollable
+      persistent
       :overlay="false"
       max-width="500px"
       transition="dialog-transition"
     >
       <v-card>
-        <v-toolbar color="primary" dark dense>
-          <h2>{{ pageTitle }}</h2>
+        <v-toolbar color="primary" dark dense height="34px">
+          <h3>{{ pageTitle }}</h3>
         </v-toolbar>
         <br />
         <v-card-text>

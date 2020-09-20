@@ -3,22 +3,27 @@
     <!--<h3>Auto filtered</h3>-->
 
     <!-- this is used for new scenes (wip) -->
-    new_scene_wizard: {{ new_scene_wizard }} new_scene_tags: {{ new_scene_tags }}
+
     <tags-wizard :tags="new_scene_tags" v-model="new_scene_wizard" @change="newSceneTagsChange"></tags-wizard>
 
     <scenes-editor v-model="data.scenes"></scenes-editor>
 
+    <!--
     <br />
     <br />
+
+    
     <h1>Other scenes</h1>
     <scenes-editor v-model="data.scenes"></scenes-editor>
+    -->
 
     <br />
     <br />
     <br />
     <br />
-
-    <v-footer fixed class="primary lighten-3" dense>
+    <hr />
+    <v-footer fixed color="white" dense>
+      <!-- New scene button-->
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -33,16 +38,26 @@
               <v-icon>mdi-plus</v-icon>New filter
             </div>
             <div v-else>
-              <v-icon>mdi-plus</v-icon>End Filter
+              <v-icon>mdi-check</v-icon>End Filter
             </div>
           </v-btn>
         </template>
         <span>(Ctrl+Shift+L)</span>
       </v-tooltip>|
+      <!-- Play/Pause button -->
       <v-btn color="black" @click="sendMessage({ msg: 'play-pause' })" text class="no-uppercase">
         <v-icon fab>mdi-play</v-icon>Play/Pause
       </v-btn>
       <v-spacer></v-spacer>
+
+      <!-- Blur slider -->
+      <!--
+      <v-slider v-model="sliderValue" :min="0" :max="100" thumb-label step="5" @change="changeBlur">
+        <template v-slot:thumb-label="{ value }">{{ value + '%' }}</template>
+      </v-slider>
+      -->
+
+      <!-- Shield -->
       <span class="inline large-action tooltip" style="float: right; padding-right: 15px">
         <div>
           <img src="v0/img/verified.svg" />
@@ -51,11 +66,13 @@
         <span class="tooltiptext" style="margin-left: -55px">Some content might be untagged</span>
       </span>
       <br />
-      <v-snackbar bottom right v-model="snackbar" :timeout="snackbarTimeout" color="info">
-        {{
-        snackbarText
-        }}
-      </v-snackbar>
+      <v-snackbar
+        top
+        right
+        v-model="snackbar"
+        :timeout="snackbarTimeout"
+        color="info"
+      >{{ snackbarText }}</v-snackbar>
     </v-footer>
   </div>
 </template>
@@ -84,11 +101,31 @@ export default {
 
       new_scene_wizard: false,
       new_scene_tags: ['pending'],
-      new_scene_index: 0
+      new_scene_index: 0,
+
+      //slider
+      sliderValue: 0
     }
   },
 
   methods: {
+    //slider_
+    changeBlur(newValue) {
+      var oldValue = this.data.settings.blur_level
+      console.log('change blur', newValue, oldValue)
+
+      this.data.settings.blur_level = newValue
+
+      this.sendMessage({ msg: 'update-settings', settings: this.data.settings }, response => {
+        console.log('save settings response', response)
+        if (response == false) {
+          this.sliderValue = oldValue
+          this.data.settings.blur_level = oldValue
+        }
+      })
+    },
+
+    //New Scene
     newSceneTagsChange(tagsSoFar) {
       this.data.scenes[this.new_scene_index].tags = tagsSoFar
     },
@@ -122,6 +159,8 @@ export default {
         }
       })
     },
+
+    //Generic methods:
     sendMessage(msg, callback) {
       console.log('[sendMessage]: ', msg)
       chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
@@ -131,18 +170,25 @@ export default {
       })
     },
     listenToMessages() {
-      /*chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log('[listen-HOME] Received request: ', request)
         if (request.msg == 'new-data') {
           this.getData()
         }
         sendResponse(true)
-      })*/
+      })
     },
     getData() {
       this.sendMessage({ msg: 'get-data' }, response => {
         console.log('data-received', response)
         this.data = response
+
+        if (!response) {
+          this.$router.push('/about')
+        } else if (!response.settings || !response.scenes) {
+          this.$router.push('/no-movie')
+        }
+        this.sliderValue = response.settings.blur_level
       })
     }
   },

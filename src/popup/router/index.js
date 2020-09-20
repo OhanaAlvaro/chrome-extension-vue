@@ -5,6 +5,7 @@ import About from '../views/About.vue'
 
 import Jarri01 from '../views/Jarri01.vue'
 import Settings from '../views/Settings.vue'
+import NoMovie from '../views/NoMovie.vue'
 
 Vue.use(VueRouter)
 
@@ -14,6 +15,12 @@ const routes = [
     name: 'Home',
     component: Home
   },
+  {
+    path: '/no-movie',
+    name: 'NoMovie',
+    component: NoMovie
+  },
+
   {
     path: '/about',
     name: 'About',

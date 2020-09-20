@@ -1,12 +1,7 @@
 <template>
   <div>
-    <h3>Welcome to Family Cinema!</h3>
-    <p>
-      Open a movie or a TV show on
-      <a href="https://www.netflix.com">Netflix</a>,
-      <a href="https://www.primevideo.com/">Amazon Prime Video</a>, or
-      <a href="youtube.com/">Youtube</a> to start using use Family Cinema.
-    </p>
+    <h3>No movie / show found!</h3>
+    <p>Try (re)loading some content.</p>
     <p>
       Also, you can checkout our
       <a
