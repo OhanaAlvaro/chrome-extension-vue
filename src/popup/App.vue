@@ -34,6 +34,17 @@
               <v-list-item-title>Home</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
+
+          <!-- Website -->
+          <v-list-item link href="https://www.familycinema.netlify.app" target="_blank">
+            <v-list-item-icon>
+              <v-icon>mdi-web</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>Family Cinema Website</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <!-- -->
         </v-list>
       </v-navigation-drawer>
 

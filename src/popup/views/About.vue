@@ -5,15 +5,15 @@
       Open a movie or a TV show on
       <a href="https://www.netflix.com">Netflix</a>,
       <a href="https://www.primevideo.com/">Amazon Prime Video</a>, or
-      <a href="youtube.com/">Youtube</a> to start using use Family Cinema.
+      <a href="https://www.youtube.com/">Youtube</a> to start using Family Cinema.
     </p>
     <p>
-      Also, you can checkout our
+      You can always visit our
       <a
-        href="https://www.familycinema.netlify.app"
+        href="https://familycinema.netlify.app/"
         target="_blank"
-      >Family Cinema Website</a> to
-      learn more, find available content, or support our community.
+      >Family Cinema Website</a> to learn
+      more, find available content, or support our community.
     </p>
   </div>
 </template>
