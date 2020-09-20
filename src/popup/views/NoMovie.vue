@@ -2,8 +2,8 @@
   <div>
     <h3>Almost there! Try (re)loading some content.</h3>
     <p>
-      Family Cinema works with this provider, but you need to open a movie to start using it. If you
-      already opened a movie, try refreshing the page.
+      Family Cinema works with this provider, but you need to open a specific movie/show to start
+      using it. If you already opened a movie, try refreshing the page.
     </p>
     <p>
       You can always visit our

@@ -101,9 +101,12 @@ export default {
     removeScene(scene) {
       this.sendMessage({ msg: 'remove', id: scene.id }, response => {
         //should check response to confirm it was removed...?
-        for (var i = 0; i < this.scenes.length; i++) {
-          if (this.scenes[i].id == scene.id) {
-            this.scenes.splice(i, 1)
+
+        if (resonse == true) {
+          for (var i = 0; i < this.scenes.length; i++) {
+            if (this.scenes[i].id == scene.id) {
+              this.scenes.splice(i, 1)
+            }
           }
         }
       })

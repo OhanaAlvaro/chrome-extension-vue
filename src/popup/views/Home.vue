@@ -2,12 +2,15 @@
   <div>
     <!--<h3>Auto filtered</h3>-->
 
-    <!-- this is used for new scenes (wip) -->
-
+    <!-- this is a dialog used for new scenes only. Rest of the time is hidden -->
     <tags-wizard :tags="new_scene_tags" v-model="new_scene_wizard" @change="newSceneTagsChange"></tags-wizard>
 
-    <scenes-editor v-model="data.scenes"></scenes-editor>
-
+    <div v-if="zero_scenes">
+      <p style="font-size:140%">No filters for this film. Be the first one to add one!</p>
+    </div>
+    <div v-else>
+      <scenes-editor v-model="data.scenes"></scenes-editor>
+    </div>
     <!--
     <br />
     <br />
@@ -21,8 +24,9 @@
     <br />
     <br />
     <br />
-    <hr />
+
     <v-footer fixed color="white" dense>
+      <hr />
       <!-- New scene button-->
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
@@ -88,9 +92,23 @@ export default {
     ScenesEditor,
     TagsWizard
   },
+
+  watch: {
+    data: {
+      deep: true,
+      handler(newValue, oldValue) {
+        if (newValue.scenes.length == 0) {
+          this.zero_scenes = true
+        } else {
+          this.zero_scenes = false
+        }
+      }
+    }
+  },
   data() {
     return {
       data: { msg: '', scenes: [], settings: [] }, //default values, to avoid missing keys
+      zero_scenes: false,
       auxx: '',
       snackbarText: '',
       snackbar: false,
@@ -181,14 +199,17 @@ export default {
     getData() {
       this.sendMessage({ msg: 'get-data' }, response => {
         console.log('data-received', response)
-        this.data = response
 
         if (!response) {
           this.$router.push('/about')
         } else if (!response.settings || !response.scenes) {
           this.$router.push('/no-movie')
         }
+
+        this.data = response
+
         this.sliderValue = response.settings.blur_level
+        this.scenes = response.scenes
       })
     }
   },

@@ -10,9 +10,14 @@
         :key="index"
         x-small
         dark
+        :color="getTagColor(skip_tag)"
       >{{ skip_tag }}</v-chip>
+
+      <!-- If no tag selected -->
+      <v-chip v-if="settings.skip_tags.length == 0" x-small dark>None</v-chip>
       <v-btn color="primary" @click="dialog = true" text class="no-uppercase">Change...</v-btn>
     </div>
+    <br />
     <br />
 
     <!-- ADVANCED SETTINGS-->
@@ -87,6 +92,7 @@
       </v-row>
     </div>
     <br />
+
     <!-- settings: {{ settings }} settings_backup: {{ settings_backup }} -->
     <v-row>
       <v-col>
@@ -109,7 +115,7 @@
       <v-card>
         <!--<v-card-title primary-title>{{ page.title }}</v-card-title>-->
         <v-toolbar color="primary" dark dense height="34px">
-          <h2>{{ page.title }}</h2>
+          <h3>{{ page.title }}</h3>
         </v-toolbar>
         <br />
         <v-card-text>
@@ -195,11 +201,17 @@ export default {
     }
   },
   watch: {
+    settings: {
+      deep: true,
+      handler(value) {
+        this.removeTagAllIfOthersAreSelected()
+      }
+    },
     dialog(newValue) {
       if (newValue) {
-        this.getData()
-        this.content_tags = raw.content
-        this.action_tags = raw.actions
+        //everytime dialog is opened.
+
+        this.startedWizard()
       }
     }
   },
@@ -210,7 +222,7 @@ export default {
         return this.pages[this.step]
       } else {
         this.finishWizard()
-        return {}
+        return this.pages[0] //just in case (not sure why otherwise it does something weird...)
       }
     },
     pages() {
@@ -234,6 +246,18 @@ export default {
   },
   methods: {
     //handle tags/wizard
+    removeTagAllIfOthersAreSelected() {
+      //remove "All" if included and more than 1 scene. We execute this everytime tags are changed to be safe...
+      var auxx = this.settings.skip_tags
+      if (auxx.includes('All') && auxx.length > 1) {
+        for (var i = 0; i < auxx.length; i++) {
+          if (auxx[i] == 'All') {
+            auxx.splice(i, 1)
+          }
+        }
+        this.settings.skip_tags = auxx
+      }
+    },
     finishWizard() {
       this.step = 0
       this.skip_tags_backup = this.settings.skip_tags //save backup for next time
@@ -245,11 +269,29 @@ export default {
       this.settings.skip_tags = this.skip_tags_backup
       this.dialog = false
     },
+    startedWizard() {
+      // this.getData() //tbc--> this might be restarting the other fields...
+      this.step = 0
+      this.content_tags = raw.content
+      this.action_tags = raw.actions
+    },
 
-    //Intereact with content-script (get/push data and messages)
+    //other stuff:
+    getTagColor(value) {
+      var color_value = 'gray' //default
+      this.content_tags.forEach(item => {
+        if (item.value == value) {
+          color_value = item.color
+        }
+      })
+      return color_value
+    },
+
     cancelSettings() {
       this.$router.push('/')
     },
+
+    //Intereact with content-script (get/push data and messages)
     saveSettings() {
       this.sendMessage({ msg: 'update-settings', settings: this.settings }, response => {
         console.log('save settings response', response)
@@ -301,6 +343,7 @@ export default {
 
 <style lang="scss" scoped>
 .compact-form {
+  //switches and text-fields are too big... this is not an elegant solution, but it's better than doing nothing
   transform: scale(0.85);
   transform-origin: left;
 }

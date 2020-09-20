@@ -3,11 +3,13 @@
     <div @click="showWizard = true">
       <!-- Chips themselves -->
       <div v-if="!tags.length">click to classify scene</div>
-      <v-chip x-small v-for="(tag, index) in tags" :key="index" :color="getTagColor(tag)" dark>
-        {{
-        tag
-        }}
-      </v-chip>
+      <v-chip
+        x-small
+        v-for="(tag, index) in tags"
+        :key="index"
+        :color="getTagColor(tag)"
+        dark
+      >{{ tag }}</v-chip>
     </div>
 
     <tags-wizard v-model="showWizard" :tags="tags" @change="tags = $event"></tags-wizard>

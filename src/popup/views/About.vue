@@ -3,9 +3,9 @@
     <h3>Welcome to Family Cinema!</h3>
     <p>
       Open a movie or a TV show on
-      <a href="https://www.netflix.com">Netflix</a>,
-      <a href="https://www.primevideo.com/">Amazon Prime Video</a>, or
-      <a href="https://www.youtube.com/">Youtube</a> to start using Family Cinema.
+      <a href="https://www.netflix.com" target="_blank">Netflix</a>,
+      <a href="https://www.primevideo.com/" target="_blank">Amazon Prime Video</a>, or
+      <a href="https://www.youtube.com/" target="_blank">Youtube</a> to start using Family Cinema.
     </p>
     <p>
       You can always visit our
