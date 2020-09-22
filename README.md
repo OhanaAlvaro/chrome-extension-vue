@@ -12,6 +12,9 @@ A single php file which receives and `action` together with the necessary data t
 
 - getData
 - setData
+- login
+- newuser
+- newpass
 
 **Future actions**
 
@@ -22,9 +25,6 @@ A single php file which receives and `action` together with the necessary data t
 - remove
 - edit
 - feedback
-- login
-- newuser
-- newpass
 - resolvesug
 - listbackups
 - getbackup
@@ -32,6 +32,23 @@ A single php file which receives and `action` together with the necessary data t
 # ADDON
 
 The addon is the chrome-extension itself. Addons are like websites, but with peculiriates made mainly for security (addons have access to the browser, not just themselves).
+
+## **About Vue**
+
+This Addon is now built with Vue, for simplicity and speed coding.
+
+Vue code lives within the `src` folder, although we also use a couple of stuff fromt the `publc` folder. Once project is deployed, the `dist` folder is created in the root, and it's the one that contains the static website that can be uploaded to the Chrome Store. Note: Items in the `public` folder, get copy-pasted to the `dist` folder directly.
+
+This project uses the `src\vue.config.js` file to define how content is deployed as a web extension. Not that you have to changte it, but FYI just in case.
+
+Withing the `src` folder, we have these main folders:
+
+- `content-scripts`: folder with the content scripts (so far, we use just one). If another one were added, we'd need to update the vue.config.js file.
+- `options`: Vue silo (independent) with the Vue code for the _options_ page, accessible from the extension details (within Chrome settings).
+- `popup`: Vue silo (independent) with all the popup specific code. App.vue is its container, but then we mainly use the views and the components. Those are the ones you probably need to focus on. More specifically:
+  - `popup\views`: The different MAIN pages. Might have yet a lot of noise here. Navigation between views is handled via router (`src\popup\router`). Views are the main pieces of the popup, but the "common" parts (i.e.: the toolbar) are in the `poup\App.vue` file (views get added to the `<router-view>` component).
+  - `popup\components`: The different custom components. We import the `popup\components\index.js` file, from the `src\popup\main.js` to import some of the components globaly (like `fc-tooltip`). Components and views could be interchangeable technically speaking but, conceptually, components are... components. And views are... well, views.
+  - `popup\js`: Some JS code we use in multiple files, so we import it instead of copy-pasting same functions over and over.
 
 ## **popup.html**
 
