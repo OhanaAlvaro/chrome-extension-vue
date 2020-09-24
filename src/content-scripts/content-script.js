@@ -31,6 +31,8 @@ var fc = {
   preview_skip: false,
   skipping: false,
   frame_seeked: false,
+  skip_ids: {},
+  tagged: {},
 
   previewScene: function(id) {
     for (var i = 0; i < fc.scenes.length; i++) {
@@ -56,6 +58,8 @@ var fc = {
           player.seek(scene.start, 'frame')
         } else if (field == 'end') {
           player.seek(scene.end, 'frame')
+        } else if (field == 'skip') {
+          fc.skip_ids[scene.id] = scene.skip
         }
 
         fc.scenes[i] = scene
@@ -93,6 +97,8 @@ var fc = {
     server.setData()
     fc.scenes = null
     fc.metadata = null
+    fc.tagged = {}
+    fc.skip_ids = {}
     player.video = null
     fc.preview_skip = null
   },
@@ -100,7 +106,14 @@ var fc = {
   decideSkip: function(scenes) {
     if (!scenes) return []
     for (var i = 0; i < scenes.length; i++) {
-      scenes[i].skip = fc.includesAny(scenes[i].tags, fc.settings.skip_tags)
+      scenes[i].default_skip = fc.includesAny(scenes[i].tags, fc.settings.skip_tags)
+      var id = scenes[i].id
+      if (fc.skip_ids[id] !== undefined) {
+        scenes[i].skip = fc.skip_ids[id]
+      } else {
+        scenes[i].skip = scenes[i].default_skip
+      }
+      scenes[i].hidden = false
     }
     return scenes
   },
@@ -283,7 +296,7 @@ var fc = {
 
   parseJSON: function(json) {
     try {
-      data = JSON.parse(json)
+      var data = JSON.parse(json)
       return data
     } catch (e) {
       console.error('Invalid JSON ', json, e)
@@ -430,7 +443,8 @@ var server = {
         provider: fc.metadata.provider,
         duration: fc.metadata.duration
       },
-      scenes: fc.scenes
+      scenes: fc.scenes,
+      tagged: fc.tagged
     }
 
     server.send({
@@ -456,9 +470,11 @@ var server = {
     server.send({ action: 'getData', id: fc.metadata.src }, function(result) {
       if (result.status == 200 && result.data && result.data.scenes) {
         fc.scenes = fc.decideSkip(result.data.scenes)
+        fc.tagged = result.data.tagged
       } else {
         console.error('[getData] Something is wrong with the server...')
         fc.scenes = []
+        fc.tagged = {}
       }
       fc.onContentEdit('server')
     })
