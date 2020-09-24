@@ -7,7 +7,7 @@ This file implements 4 objects:
 */
 
 /*
- Main family cineam object, implements
+ Main family cinema object, implements
   + previewScene
   + updae
 
@@ -50,14 +50,17 @@ var fc = {
       if (fc.scenes[i].id == scene.id) {
         console.log('[updateScene]: Updating ', scene, field)
 
-        fc.scenes[i] = scene
-        fc.onContentEdit(field)
-
-        if (field == 'start') {
+        if (field == 'tags') {
+          scene = fc.decideSkip([scene])[0]
+        } else if (field == 'start') {
           player.seek(scene.start, 'frame')
         } else if (field == 'end') {
           player.seek(scene.end, 'frame')
         }
+
+        fc.scenes[i] = scene
+        fc.onContentEdit(field)
+
         return true
       }
     }
@@ -86,7 +89,7 @@ var fc = {
   },
 
   unload: function() {
-    console.log('[unload] Unloading')
+    console.log('[unload] Clearing any previous content')
     server.setData()
     fc.scenes = null
     fc.metadata = null
@@ -119,17 +122,21 @@ var fc = {
   },
 
   onContentEdit: function(edit) {
-    // Propagate updated data to server and browser
-    if (edit != 'server') fc.next_share = Date.now() + fc.settings.autosave_after // Update server
-    browser.sendMessage({ msg: 'new-data' }) // Update interface
+    // Propagate edit to server
+    if (edit != 'server' && edit != 'skip' && edit != 'settings') {
+      fc.next_share = Date.now() + fc.settings.autosave_after
+    }
+    // Propagate edit to user interface/browser
+    browser.sendMessage({ msg: 'new-data' })
 
     // Update badge
-    if (edit == 'start' || edit == 'end') return
-    var count = 0
-    for (var i = 0; i < fc.scenes.length; i++) {
-      if (fc.scenes[i].skip) count++
+    if (edit != 'start' && edit != 'end') {
+      var count = 0
+      for (var i = 0; i < fc.scenes.length; i++) {
+        if (fc.scenes[i].skip) count++
+      }
+      browser.sendMessage({ msg: 'update-badge', numDisplayedScenes: count })
     }
-    browser.sendMessage({ msg: 'update-badge', numDisplayedScenes: count })
   },
 
   periodicCheck: function() {
@@ -197,7 +204,7 @@ var fc = {
     } else {
       var end = player.video.paused ? time : time - 2000
       if (!tags) tags = []
-      tags.push('pending')
+      //tags.push('pending');
       var scene = {
         tags: tags,
         start: Math.round(start / 50) * 50,
@@ -305,7 +312,7 @@ var browser = {
   // Send message to the interface and background script
   sendMessage: function(msg) {
     chrome.runtime.sendMessage(msg, function(response) {
-      console.log('[sendMessage] response: ', response)
+      console.log('[sendMessage] msg: ', msg, '; response: ', response)
     })
   },
 
@@ -313,34 +320,75 @@ var browser = {
   addListeners: function() {
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       console.log('[listen] Received request: ', request)
-      if (request.msg == 'mark-current-time') {
-        return sendResponse(fc.mark_current_time(request.tags))
-      } else if (request.msg == 'preview') {
-        fc.previewScene(request.id)
-      } else if (request.msg == 'remove') {
-        fc.removeScene(request.id)
-      } else if (request.msg == 'update-scene') {
-        fc.updateScene(request.scene, request.field)
-      } else if (request.msg == 'get-data') {
-        return sendResponse({
-          msg: 'new-data',
-          scenes: fc.scenes,
-          settings: fc.settings,
-          metadata: fc.metadata
-        })
-      } else if (request.msg == 'update-settings') {
-        fc.loadSettings(request.settings)
-        browser.setData('settings', fc.settings)
-      } else if (request.msg == 'play-pause') {
-        player.togglePlay()
-      } else if (request.msg == 'pause') {
-        player.pause()
-      } else if (request.msg == 'play') {
-        player.play()
-      } else {
-        console.log('Unkown request: ', request)
+      try {
+        if (request.msg == 'mark-current-time') {
+          return sendResponse(fc.mark_current_time(request.tags))
+        } else if (request.msg == 'preview') {
+          fc.previewScene(request.id)
+        } else if (request.msg == 'remove') {
+          fc.removeScene(request.id)
+        } else if (request.msg == 'update-scene') {
+          fc.updateScene(request.scene, request.field)
+        } else if (request.msg == 'get-data') {
+          return sendResponse({
+            success: true,
+            msg: 'new-data',
+            scenes: fc.scenes,
+            settings: fc.settings,
+            metadata: fc.metadata
+          })
+        } else if (request.msg == 'update-settings') {
+          fc.loadSettings(request.settings)
+          browser.setData('settings', fc.settings)
+        } else if (request.msg == 'play-pause') {
+          player.togglePlay()
+        } else if (request.msg == 'pause') {
+          player.pause()
+        } else if (request.msg == 'play') {
+          player.play()
+        } else if (request.msg == 'login') {
+          server.send(
+            {
+              action: 'login',
+              username: request.username,
+              password: request.password
+            },
+            function(response) {
+              sendResponse(response)
+            }
+          )
+        } else if (request.msg == 'newuser') {
+          server.send(
+            {
+              action: 'newuser',
+              username: request.username,
+              password: request.password,
+              email: request.email
+            },
+            function(response) {
+              sendResponse(response)
+            }
+          )
+        } else if (request.msg == 'newpass') {
+          server.send(
+            {
+              action: 'newpass',
+              username: request.username,
+              password: request.password,
+              newpassword: request.newpassword
+            },
+            function(response) {
+              sendResponse(response)
+            }
+          )
+        } else {
+          console.log('Unkown request: ', request)
+        }
+        sendResponse({ success: true })
+      } catch (e) {
+        console.log('[listen] Error: ', e)
+        sendResponse({ success: false, error: e })
       }
-      sendResponse(true)
     })
   },
 
@@ -372,8 +420,8 @@ var browser = {
 */
 var server = {
   setData: function() {
-    if (!fc.scenes || !fc.metadata || !fc.metadata.src) {
-      return console.warn('[setData] Unable to upload scenes')
+    if (!fc.scenes || !fc.metadata || !fc.metadata.src || fc.next_share == Infinity) {
+      return console.log('[setData] Unable to upload scenes')
     }
     var data = {
       metadata: {
@@ -388,14 +436,16 @@ var server = {
     server.send({
       action: 'setData',
       id: fc.metadata.src,
+      username: fc.settings.username,
+      password: fc.settings.password,
       data: JSON.stringify(data)
     })
     fc.next_share = Infinity
   },
 
   getData: function() {
-    console.log('[getData] Loading new scenes!')
     fc.unload()
+    console.log('[getData] Loading new scenes!')
     fc.getVideoID()
     if (!fc.metadata || !fc.metadata.src) {
       console.warn('[getData] Invalid metadata ', fc.metadata)
@@ -406,9 +456,6 @@ var server = {
     server.send({ action: 'getData', id: fc.metadata.src }, function(result) {
       if (result.status == 200 && result.data && result.data.scenes) {
         fc.scenes = fc.decideSkip(result.data.scenes)
-      } else if (result.data == 'Unkown id') {
-        console.warn('[getData] Creating empty scene array')
-        fc.scenes = []
       } else {
         console.error('[getData] Something is wrong with the server...')
         fc.scenes = []
@@ -423,16 +470,18 @@ var server = {
     fetch(url)
       .then(r => r.text())
       .then(data => {
-        console.log('[send] response: ', data)
         if (callback) callback(fc.parseJSON(data))
       })
   },
 
   // Helper function to build the url/end point for the given query
   buildURL: function(query) {
-    // Add username and password to every request
-    query['username'] = fc.settings.username
-    query['password'] = fc.settings.password
+    try {
+      query['version'] = chrome.runtime.getManifest().version
+    } catch (e) {
+      console.log(e)
+    }
+
     // Build url
     var out = []
     for (var key in query) {
@@ -440,7 +489,8 @@ var server = {
         out.push(key + '=' + encodeURIComponent(query[key]))
       }
     }
-    var url = 'https://www.arrietaeguren.es/movies/api?' + out.join('&')
+    var url = 'https://www.arrietaeguren.es/movies/api2?' + out.join('&')
+    console.log('[buildURL]', url)
     return url
   }
 }
@@ -548,5 +598,3 @@ document.addEventListener('unload', function() {
 browser.getData('settings', function(settings) {
   fc.loadSettings(settings)
 })
-
-console.log('CONTENT SCRIPT LOADED')
