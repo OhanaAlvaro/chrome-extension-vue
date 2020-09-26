@@ -5,18 +5,19 @@
       scrollable
       persistent
       :overlay="false"
-      max-width="500px"
+      max-width="70%"
       transition="dialog-transition"
     >
-      <v-card>
-        <v-toolbar color="primary" dark dense height="34px">
+      <v-card flat>
+        <v-toolbar color="primary" dark dense height="34px" flat>
           <h3>{{ pageTitle }}</h3>
         </v-toolbar>
-        <br />
-        <v-card-text>
+
+        <v-card-text class="pa-2">
           <!-- Scene types-->
           <div v-if="page == 'scene-type'">
             <label v-for="(s, index) in content_tags" :key="index">
+              <br v-if="index > 0" />
               <input
                 type="checkbox"
                 name="scene-type"
@@ -25,7 +26,6 @@
               />
               <b>&nbsp;{{ s.title }}</b>
               <span v-if="s.description != ''">&nbsp;- {{ s.description }}</span>
-              <br />
             </label>
           </div>
 
@@ -34,6 +34,7 @@
             <!-- Severity -->
             <div v-if="page == cat + '_severity'">
               <label v-for="(s, index) in getContentTagData(cat).severity" :key="index">
+                <br />
                 <input
                   type="radio"
                   :name="cat + '_severity'"
@@ -42,13 +43,13 @@
                 />
                 <b>&nbsp;{{ s.title }}</b>
                 <span v-if="s.description != ''">&nbsp;- {{ s.description }}</span>
-                <br />
               </label>
             </div>
 
             <!-- Types -->
             <div v-if="page == cat + '_types'">
               <label v-for="(s, index) in getContentTagData(cat).types" :key="index">
+                <br />
                 <input
                   type="checkbox"
                   :name="cat + '_types'"
@@ -57,8 +58,6 @@
                 />
                 <b>&nbsp;{{ s.title }}</b>
                 <span v-if="s.description != ''">&nbsp;- {{ s.description }}</span>
-
-                <br />
               </label>
             </div>
           </div>
@@ -66,18 +65,23 @@
           <!-- WHAT TO DO (actions) -->
           <div v-if="page == 'what-to-do'">
             <label v-for="(a, index) in action_tags.types" :key="index">
-              <input type="checkbox" name="what-to-do" :value="a.value" v-model="selection.actions" />
+              <br />
+              <input
+                type="checkbox"
+                name="what-to-do"
+                :value="a.value"
+                v-model="selection.actions"
+              />
               <b>&nbsp;{{ a.title }}</b>
               <span v-if="a.description != ''">&nbsp;- {{ a.description }}</span>
-              <br />
             </label>
           </div>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="pa-1 ma-0">
           <v-btn color="error" @click="cancelMe()" text>Cancel</v-btn>
           <v-spacer></v-spacer>
-          <v-btn color="primary" @click="step--" text>prev</v-btn>
-          <v-btn color="primary" @click="step++" text>next</v-btn>
+          <v-btn color="primary" @click="prevStep()" text>prev</v-btn>
+          <v-btn color="primary" @click="nextStep()" text>next</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -185,6 +189,36 @@ export default {
   },
   methods: {
     //pages
+    prevStep() {
+      this.step--
+    },
+    nextStep() {
+      //evaluate if we should go to the next step or not
+
+      //On first page, an option is mandatory
+      if (this.page == 'scene-type') {
+        if (this.selection.categories.length) {
+          this.step++
+        }
+        return
+      }
+
+      //For severities (radio buttons), not continue if no selection was made
+      if (this.page.includes('_severity')) {
+        var current_cat = this.page.split('_')[0]
+
+        if (this.selection.content[current_cat].severity != '') {
+          this.step++
+          return
+        } else {
+          //don't go to next page until this radio button is clicked.
+          return
+        }
+      } else {
+        this.step++
+        return
+      }
+    },
     cancelMe() {
       this.dialog = false
       this.step = 0

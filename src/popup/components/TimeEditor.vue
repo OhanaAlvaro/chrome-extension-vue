@@ -43,4 +43,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+input[type='time']::-webkit-datetime-edit-ampm-field {
+  display: none !important;
+}
+</style>

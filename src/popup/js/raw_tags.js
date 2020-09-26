@@ -2,7 +2,7 @@ var content = [
   {
     value: 'Sex/Nudity',
     title: 'Sex/Nudity',
-    description: 'Verde limon',
+    description: '',
     color: 'green',
     severity_title: 'How graphic or erotic is it?',
     types_title: 'Does it contain any of the following?',

@@ -3,10 +3,14 @@
     <!--<h3>Auto filtered</h3>-->
 
     <!-- this is a dialog used for new scenes only. Rest of the time is hidden -->
-    <tags-wizard :tags="new_scene_tags" v-model="new_scene_wizard" @change="newSceneTagsChange"></tags-wizard>
+    <tags-wizard
+      :tags="new_scene_tags"
+      v-model="new_scene_wizard"
+      @change="newSceneTagsChange"
+    ></tags-wizard>
 
     <div v-if="zero_scenes">
-      <p style="font-size:140%">No filters for this film. Be the first one to add one!</p>
+      <p style="font-size:110%">No filters for this film. Be the first one to add one!</p>
     </div>
     <div v-else>
       <scenes-editor v-model="data.scenes"></scenes-editor>
@@ -34,22 +38,25 @@
             color="black"
             @click="markCurrentTime()"
             text
+            small
             class="no-uppercase"
             v-bind="attrs"
             v-on="on"
           >
-            <div v-if="isCreatingScene == false">
-              <v-icon>mdi-plus</v-icon>New filter
-            </div>
-            <div v-else>
-              <v-icon>mdi-check</v-icon>End Filter
-            </div>
+            <div v-if="isCreatingScene == false"><v-icon>mdi-plus</v-icon>New filter</div>
+            <div v-else><v-icon>mdi-check</v-icon>End Filter</div>
           </v-btn>
         </template>
-        <span>(Ctrl+Shift+L)</span>
-      </v-tooltip>|
+        <span>(Ctrl+Shift+L)</span> </v-tooltip
+      >|
       <!-- Play/Pause button -->
-      <v-btn color="black" @click="sendMessage({ msg: 'play-pause' })" text class="no-uppercase">
+      <v-btn
+        color="black"
+        @click="sendMessage({ msg: 'play-pause' })"
+        text
+        small
+        class="no-uppercase"
+      >
         <v-icon fab>mdi-play</v-icon>Play/Pause
       </v-btn>
       <v-spacer></v-spacer>
@@ -70,13 +77,9 @@
         <span class="tooltiptext" style="margin-left: -55px">Some content might be untagged</span>
       </span>
       <br />
-      <v-snackbar
-        top
-        right
-        v-model="snackbar"
-        :timeout="snackbarTimeout"
-        color="info"
-      >{{ snackbarText }}</v-snackbar>
+      <v-snackbar top right v-model="snackbar" :timeout="snackbarTimeout" color="info">{{
+        snackbarText
+      }}</v-snackbar>
     </v-footer>
   </div>
 </template>
@@ -205,6 +208,15 @@ export default {
         } else if (!response.settings || !response.scenes) {
           this.$router.push('/no-movie')
         }
+
+        /* careful: when adding a new scene, this makes it hard to identify it (now instead of going at the end, it appears in position xx)
+        response.scenes.sort(function(a, b) {
+          //make sure default scenes are shown first, and the rest sorted by start time
+          if (a.default_skip && !b.default_skip) return -1
+          if (!a.default_skip && b.default_skip) return 1
+          return a.start - b.start
+        })
+        */
 
         this.data = response
 

@@ -79,7 +79,7 @@ var fc = {
         fc.scenes.splice(i, 1)
       }
     }
-    fc.onContentEdit()
+    fc.onContentEdit('remove')
   },
 
   // Add new scene to the list of scenes
@@ -89,7 +89,7 @@ var fc = {
     // Add scene
     fc.scenes.push(scenes[0])
     // Trigger content edit
-    fc.onContentEdit()
+    fc.onContentEdit('add')
   },
 
   unload: function() {
@@ -139,11 +139,12 @@ var fc = {
     if (edit != 'server' && edit != 'skip' && edit != 'settings') {
       fc.next_share = Date.now() + fc.settings.autosave_after
     }
-    // Propagate edit to user interface/browser
-    browser.sendMessage({ msg: 'new-data' })
 
-    // Update badge
     if (edit != 'start' && edit != 'end') {
+      // Propagate edit to user interface/browser
+      browser.sendMessage({ msg: 'new-data' })
+
+      // Update badge
       var count = 0
       for (var i = 0; i < fc.scenes.length; i++) {
         if (fc.scenes[i].skip) count++
@@ -192,6 +193,10 @@ var fc = {
       m.provider = 'disneyplus'
       match = url.match(/video\/([0-9abcdef\-]+)/)
       m.pid = match ? match[1] : ''
+    } else if (url.indexOf('hbo') != -1) {
+      m.provider = 'hbo'
+      match = url.match(/\/([0123456789abcdef-]+)\//)
+      m.pid = match ? match[1] : ''
     } else {
       m.provider = url.match(/www.([^\/]+)/) ? url.match(/www.([^\/]+)/)[1] : null
     }
@@ -210,8 +215,8 @@ var fc = {
     var time = Math.round(player.getTime())
     if (!start) {
       fc.marking_started = player.video.paused ? time : time - 2000
-      player.video.playbackRate = 2
-      player.video.style.webkitFilter = 'blur(' + parseInt(fc.settings.blur_level) + 'px)'
+      player.video.playbackRate = 1.5
+      player.blur(fc.settings.blur_level)
       player.mute(true)
       console.log('Scene start marked at ', fc.marking_started)
     } else {
@@ -227,7 +232,7 @@ var fc = {
       fc.addScene(scene)
       fc.marking_started = false
       player.video.playbackRate = 1
-      player.video.style.webkitFilter = 'blur(0px)'
+      player.blur(0)
       if (fc.settings.pause_after_adding_scene) player.pause()
       player.mute(false)
       console.log('Scene added ', start, ' -> ', end)
@@ -239,8 +244,11 @@ var fc = {
     var now = player.getTime()
     var next_good = 0
 
-    if (player.video.paused && fc.frame_seeked) return
-    fc.frame_seeked = false
+    if (fc.frame_seeked) {
+      if (player.video.paused) return
+      player.blur(0)
+      fc.frame_seeked = false
+    }
 
     // Our skip_list is the main skip_list, unless we are on preview mode
     if (fc.preview_skip) {
@@ -505,7 +513,7 @@ var server = {
         out.push(key + '=' + encodeURIComponent(query[key]))
       }
     }
-    var url = 'https://www.arrietaeguren.es/movies/api2?' + out.join('&')
+    var url = 'https://www.arrietaeguren.es/movies/api?' + out.join('&')
     console.log('[buildURL]', url)
     return url
   }
@@ -545,6 +553,11 @@ var player = {
 
   mute: function(state) {
     player.video.muted = state
+  },
+
+  blur: function(blur_level) {
+    if (!blur_level) blur_level = 0
+    player.video.style.webkitFilter = 'blur(' + parseInt(blur_level) + 'px)'
   },
 
   pause: function() {
@@ -593,6 +606,7 @@ var player = {
 
     if (mode == 'frame') {
       fc.frame_seeked = true
+      player.blur(fc.settings.blur_level)
       player.pause()
     }
   },

@@ -39,8 +39,8 @@ Vue code lives within the `src` folder, although we also use a couple of stuff f
 
 To deploy:
 
-- One time deploy: `npm run build`. Create the dist folder.
-- Developing: `npm run serve`. Same dist folder is created, but this time it's self-refreshed with your changes on the code, so you can see the changes in Chrome.
+- One-time deploy: `npm run build`. This creates the `dist` folder.
+- While developing: `npm run serve`. Same `dist` folder is created, but this time it is self-refreshed with your changes on the code, so you can see the changes in Chrome.
 
 This project uses the `src\vue.config.js` file to define how content is deployed as a web extension. Not that you have to changte it, but FYI just in case.
 
@@ -49,7 +49,7 @@ Withing the `src` folder, we have these main folders:
 - `content-scripts`: folder with the content scripts (so far, we use just one). If another one were added, we'd need to update the vue.config.js file.
 - `options`: Vue silo (independent) with the Vue code for the _options_ page, accessible from the extension details (within Chrome settings).
 - `popup`: Vue silo (independent) with all the popup specific code. App.vue is its container, but then we mainly use the views and the components. Those are the ones you probably need to focus on. More specifically:
-  - `popup\views`: The different MAIN pages. Might have yet a lot of noise here. Navigation between views is handled via router (`src\popup\router`). Views are the main pieces of the popup, but the "common" parts (i.e.: the toolbar) are in the `popup\App.vue` file (views get added there within the `<router-view>` component).
+  - `popup\views`: The different MAIN pages. Might have yet a lot of noise here. Navigation between views is handled via router (`src\popup\router`). Views are the main pieces of the popup, but the "common" parts (i.e.: the toolbar) are in the `popup\App.vue` file (views get added there within the `<router-view>` component there).
   - `popup\components`: The different custom components. We import the `popup\components\index.js` file, from the `src\popup\main.js` to import some of the components globaly (like `fc-tooltip`). Components and views could be interchangeable technically speaking but, conceptually, components are... components. And views are... well, views.
   - `popup\js`: Some JS code we use in multiple files, so we import it instead of copy-pasting same functions over and over.
 
@@ -170,4 +170,4 @@ Though already described above, let's recap the type of messages and who uses th
 
 `chrome.tabs.query` Returns the list of tabs that match the query
 
-`chrome.tabs.sendMessage(tab_id, data, callback(response) {})
+`chrome.tabs.sendMessage(tab_id, data, callback(response) {})`

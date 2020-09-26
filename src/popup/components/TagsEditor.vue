@@ -1,15 +1,12 @@
 <template>
   <div>
+    <!-- This componenent gets the list of tags, and displays the chips. On click it triggers the tags-wizard -->
     <div @click="showWizard = true">
       <!-- Chips themselves -->
       <div v-if="!tags.length">click to classify scene</div>
-      <v-chip
-        x-small
-        v-for="(tag, index) in tags"
-        :key="index"
-        :color="getTagColor(tag)"
-        dark
-      >{{ tag }}</v-chip>
+      <v-chip x-small v-for="(tag, index) in tags" :key="index" :color="getTagColor(tag)" dark>{{
+        tag
+      }}</v-chip>
     </div>
 
     <tags-wizard v-model="showWizard" :tags="tags" @change="tags = $event"></tags-wizard>
@@ -25,6 +22,7 @@ export default {
   },
   props: {
     value: {
+      //list of tags
       type: Array,
       default: function() {
         return []
@@ -78,4 +76,13 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+.v-chip {
+  margin: 2px;
+  padding: 10px 10px !important;
+}
+
+.v-chip .v-chip__content {
+  cursor: pointer;
+}
+</style>

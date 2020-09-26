@@ -1,5 +1,6 @@
 <template>
   <div>
+    <br />
     <h3>Almost there! Try (re)loading some content.</h3>
     <p>
       Family Cinema works with this provider, but you need to open a specific movie/show to start
@@ -7,10 +8,7 @@
     </p>
     <p>
       You can always visit our
-      <a
-        href="https://familycinema.netlify.app/"
-        target="_blank"
-      >Family Cinema Website</a> to learn
+      <a href="https://familycinema.netlify.app/" target="_blank">Family Cinema Website</a> to learn
       more, find available content, or support our community.
     </p>
   </div>

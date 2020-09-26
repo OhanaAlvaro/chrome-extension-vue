@@ -20,7 +20,10 @@
 
             <!-- Start Time -->
             <td>
-              <time-editor v-model="scene.start" @change="updateScene(scene, 'start')"></time-editor>
+              <time-editor
+                v-model="scene.start"
+                @change="updateScene(scene, 'start')"
+              ></time-editor>
             </td>
 
             <!-- End Time -->
@@ -35,11 +38,16 @@
 
             <!-- ACTIONS -->
             <td>
-              <v-btn color="gray" small icon @click="sendMessage({ msg: 'preview', id: scene.id })">
+              <v-btn
+                color="gray"
+                x-small
+                icon
+                @click="sendMessage({ msg: 'preview', id: scene.id })"
+              >
                 <v-icon>mdi-eye</v-icon>
               </v-btn>
 
-              <v-btn color="gray" icon small @click="removeScene(scene)">
+              <v-btn color="gray" icon x-small @click="removeScene(scene)">
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </td>
@@ -115,6 +123,7 @@ export default {
       //console.log('shall update scene', scene, field)
       this.sendMessage({ msg: 'update-scene', scene: scene, field: field })
     },
+
     sendMessage(msg, callback) {
       console.log('[sendMessage]: ', msg)
       chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
@@ -127,7 +136,4 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-@import '/v0/popup.css';
-@import '/v0/multichip.css';
-</style>
+<style lang="scss" scoped></style>

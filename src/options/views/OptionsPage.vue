@@ -1,6 +1,10 @@
 <template>
   <div>
-    <h2>This is the options page</h2>
+    <h2>Options</h2>
+    <p>
+      To change your settings, just click on the Family Cinema icon and change the settings in the
+      popup.
+    </p>
   </div>
 </template>
 
