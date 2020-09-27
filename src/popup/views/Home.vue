@@ -10,6 +10,8 @@
     ></tags-wizard>
 
     <div v-if="zero_scenes">
+      <br />
+      <!-- br as temp fix -->
       <p style="font-size:110%">No filters for this film. Be the first one to add one!</p>
     </div>
     <div v-else>
@@ -30,7 +32,6 @@
     <br />
 
     <v-footer fixed color="white" dense>
-      <hr />
       <!-- New scene button-->
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
@@ -121,7 +122,7 @@ export default {
       //when adding a new scene:
 
       new_scene_wizard: false,
-      new_scene_tags: ['pending'],
+      new_scene_tags: [],
       new_scene_index: 0,
 
       //slider
@@ -148,7 +149,20 @@ export default {
 
     //New Scene
     newSceneTagsChange(tagsSoFar) {
-      this.data.scenes[this.new_scene_index].tags = tagsSoFar
+      console.log('updating tags in new scene -> careful, we use INDEX!!!')
+
+      //make a copy of the scene with the changes:
+      var new_scene = this.data.scenes[this.new_scene_index]
+      new_scene.tags = tagsSoFar
+
+      //send this new scene
+      this.sendMessage({ msg: 'update-scene', scene: new_scene, field: 'tags' }, response => {
+        console.log('update-scene', response)
+        //if response is success, then NOW  we apply the change to the UI
+        if (response.success) {
+          this.data.scenes[this.new_scene_index].tags = tagsSoFar //apply the change to the main OBJECT
+        }
+      })
     },
     markCurrentTime() {
       this.sendMessage({ msg: 'mark-current-time' }, response => {
@@ -168,7 +182,7 @@ export default {
           this.isCreatingScene = false
 
           //handle tags for new scene
-          this.new_scene_tags = ['pending']
+          this.new_scene_tags = []
           this.new_scene_wizard = true
           this.new_scene_index = this.data.scenes.length - 1
         } else {
@@ -194,12 +208,12 @@ export default {
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log('[listen-HOME] Received request: ', request)
         if (request.msg == 'new-data') {
-          this.getData()
+          this.getData(false)
         }
         sendResponse(true)
       })
     },
-    getData() {
+    getData(firstTime) {
       this.sendMessage({ msg: 'get-data' }, response => {
         console.log('data-received', response)
 
@@ -210,13 +224,16 @@ export default {
         }
 
         /* careful: when adding a new scene, this makes it hard to identify it (now instead of going at the end, it appears in position xx)
-        response.scenes.sort(function(a, b) {
-          //make sure default scenes are shown first, and the rest sorted by start time
-          if (a.default_skip && !b.default_skip) return -1
-          if (!a.default_skip && b.default_skip) return 1
-          return a.start - b.start
-        })
-        */
+         
+*/
+        if (firstTime) {
+          response.scenes.sort(function(a, b) {
+            //make sure default scenes are shown first, and the rest sorted by start time
+            if (a.default_skip && !b.default_skip) return -1
+            if (!a.default_skip && b.default_skip) return 1
+            return a.start - b.start
+          })
+        }
 
         this.data = response
 
@@ -228,7 +245,7 @@ export default {
 
   mounted() {
     //Let's get the data as soon as mounted
-    this.getData()
+    this.getData(true)
     this.listenToMessages()
   }
 }

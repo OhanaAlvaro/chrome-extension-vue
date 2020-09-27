@@ -5,11 +5,15 @@
 -->
 
   <div class="bordered">
+    <h1 style="font-size:120%">Login to Family Cinema</h1>
     <v-text-field
       append-icon="mdi-account"
       name="username"
       label="username"
       v-model="username_copy"
+      ref="usernameField"
+      @focus="$event.target.select()"
+      @keydown.enter="$refs.passwordField.focus()"
     ></v-text-field>
 
     <v-text-field
@@ -19,11 +23,15 @@
       :append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'"
       :type="show_password ? 'text' : 'password'"
       @click:append="show_password = !show_password"
+      ref="passwordField"
+      @focus="$event.target.select()"
+      @keydown.enter="checkLogin()"
     ></v-text-field>
 
     <span>
       New user?
       <a href="https://familycinema.netlify.app/#/join-us" target="_blank">Register now!</a>
+      <br />
     </span>
     <v-btn color="info" @click="checkLogin()" block depressed tile>Login</v-btn>
   </div>
@@ -45,10 +53,19 @@ export default {
   watch: {
     username(newValue) {
       console.log('username watched in login', newValue)
-      this.username_copy = newValue
+      if (newValue == 'guest') {
+        this.username_copy = ''
+        this.password_copy = ''
+      } else {
+        this.username_copy = newValue
+      }
     },
     password(newValue) {
-      this.password_copy = newValue
+      if (this.username == 'guest') {
+        this.password_copy = ''
+      } else {
+        this.password_copy = newValue
+      }
     }
   },
 
@@ -61,7 +78,12 @@ export default {
   },
 
   methods: {
+    achus(event) {
+      console.log(event)
+      this.$refs.passwordField.focus()
+    },
     checkLogin() {
+      console.log('check login started...', this.username_copy, this.password_copy)
       var data = { username: this.username_copy, password: this.password_copy }
 
       var payload = { msg: 'login', username: this.username_copy, password: this.password_copy }
@@ -73,6 +95,7 @@ export default {
         } else {
           this.username_copy = '' //not reflecting to parent...
           this.password_copy = ''
+          this.$refs.usernameField.focus()
           this.$emit('error', data, response) //let parent know
         }
       })

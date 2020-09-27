@@ -105,7 +105,7 @@ export default {
     },
     listenToMessages() {
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        console.log('[listen-HOME] Received request: ', request)
+        console.log('[listen-App.vue] Received request: ', request)
         if (request.msg == 'new-data') {
           this.getData()
         }
@@ -158,7 +158,7 @@ html {
 
 main.v-main {
   flex: none !important;
-  padding: 14px !important;
+  padding: 10px 0px 0px 0px !important;
 }
 
 .v-application--wrap {
@@ -166,7 +166,7 @@ main.v-main {
   min-height: 0px !important;
 }
 
-element.style {
-  padding: 14px !important;
+.v-card__text {
+  line-height: 1rem !important;
 }
 </style>

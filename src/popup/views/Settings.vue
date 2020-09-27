@@ -39,7 +39,6 @@
 
         <v-row>
           <v-col cols="12">
-            <h3>Login</h3>
             <login
               :username="settings.username"
               :password="settings.password"
@@ -271,18 +270,18 @@ export default {
       this.snackbarTimeout = 6000
       this.snackbar = true
     },
-    loginSuccess(data, msg) {
+    loginSuccess(data, serverResponse) {
       console.log('loginSuccess')
       this.settings.username = data.username
       this.settings.password = data.password
-      this.showSnackbar(msg, 'info')
+      this.showSnackbar(serverResponse.data, 'info')
       this.saveSettings()
     },
-    logginError(data, msg) {
+    logginError(data, serverResponse) {
       console.log('logginError')
       this.settings.username = ''
       this.settings.password = ''
-      this.showSnackbar(msg, 'error')
+      this.showSnackbar(serverResponse.data, 'error')
       this.saveSettings()
     },
 
@@ -340,7 +339,8 @@ export default {
     saveSettings() {
       console.log('saving settings...')
 
-      if (this.settings.username == '') {
+      if (this.settings.username == '' || this.settings.username == 'guest') {
+        //guest works with any pasword, but to avoid that confusion.
         this.settings.username = 'guest'
         this.settings.password = 'guest'
       }

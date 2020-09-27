@@ -17,7 +17,7 @@ var fc = {
     username: 'guest',
     password: 'guest',
     blur_level: 40,
-    skip_tags: ['All'],
+    skip_tags: [],
     autosave_after: 2500,
     ignore_default_settings: true,
     pause_after_adding_scene: false
@@ -159,14 +159,14 @@ var fc = {
       server.getData()
     }
 
-    // Check video player controller is working
-    if (!player.video || !player.video.duration) {
-      player.load()
-    }
-
     // Save data when needed
     if (Date.now() > fc.next_share) {
       server.setData()
+    }
+
+    // Check video player controller is working
+    if (!player.video || !player.video.duration) {
+      if (!player.load()) return
     }
 
     // Check if the current time needs to be skipped
@@ -378,6 +378,7 @@ var browser = {
               sendResponse(response)
             }
           )
+          return true
         } else if (request.msg == 'newuser') {
           server.send(
             {
@@ -390,6 +391,7 @@ var browser = {
               sendResponse(response)
             }
           )
+          return true
         } else if (request.msg == 'newpass') {
           server.send(
             {
@@ -402,6 +404,7 @@ var browser = {
               sendResponse(response)
             }
           )
+          return true
         } else {
           console.log('Unkown request: ', request)
         }
@@ -524,7 +527,10 @@ var player = {
 
   load: function() {
     var video = document.getElementsByTagName('video')
-    if (video.length != 1) return console.warn('[check] We have ', video.length, ' videos tags...')
+    if (video.length != 1) {
+      console.warn('[check] We have ', video.length, ' videos tags...')
+      return false
+    }
     player.video = video[0]
     fc.metadata.duration = player.video.duration * 1000
 
@@ -549,6 +555,7 @@ var player = {
             })`
       document.head.appendChild(script)
     }
+    return true
   },
 
   mute: function(state) {

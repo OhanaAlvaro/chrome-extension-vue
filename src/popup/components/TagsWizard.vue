@@ -34,7 +34,7 @@
             <!-- Severity -->
             <div v-if="page == cat + '_severity'">
               <label v-for="(s, index) in getContentTagData(cat).severity" :key="index">
-                <br />
+                <br v-if="index > 0" />
                 <input
                   type="radio"
                   :name="cat + '_severity'"
@@ -49,7 +49,7 @@
             <!-- Types -->
             <div v-if="page == cat + '_types'">
               <label v-for="(s, index) in getContentTagData(cat).types" :key="index">
-                <br />
+                <br v-if="index > 0" />
                 <input
                   type="checkbox"
                   :name="cat + '_types'"
@@ -65,7 +65,7 @@
           <!-- WHAT TO DO (actions) -->
           <div v-if="page == 'what-to-do'">
             <label v-for="(a, index) in action_tags.types" :key="index">
-              <br />
+              <br v-if="index > 0" />
               <input
                 type="checkbox"
                 name="what-to-do"
@@ -230,6 +230,7 @@ export default {
       this.$emit('cancel', this.tags_backup)
     },
     finishHere() {
+      console.log('tags-wizard-finishHere()')
       this.step = 0
       this.dialog = false
 
