@@ -103,7 +103,7 @@ export default {
 
     //Generic methods:
     sendMessage(msg, callback) {
-      console.log('[sendMessage]: ', msg)
+      console.log('[sendMessage-Login]: ', msg)
       chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, msg, function(response) {
           if (callback) callback(response)

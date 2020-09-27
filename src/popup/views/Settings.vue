@@ -351,7 +351,7 @@ export default {
     },
     listenToMessages() {
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        console.log('[listen-SETTINGS] Received request: ', request)
+        console.log('[listen-Settings] Received request: ', request)
         if (request.msg == 'new-data') {
           this.getData()
         }
@@ -359,7 +359,7 @@ export default {
       })
     },
     sendMessage(msg, callback) {
-      console.log('[sendMessage]: ', msg)
+      console.log('[sendMessage-Settings]: ', msg)
       chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, msg, function(response) {
           if (callback) callback(response)
@@ -368,7 +368,7 @@ export default {
     },
     getData() {
       this.sendMessage({ msg: 'get-data' }, response => {
-        console.log('data-received', response)
+        console.log('data-received in Settings', response)
         this.settings = response.settings
         this.settings_backup = response.settings
         this.skip_tags_backup = response.settings.skip_tags

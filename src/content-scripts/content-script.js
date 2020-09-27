@@ -333,7 +333,7 @@ var browser = {
   // Send message to the interface and background script
   sendMessage: function(msg) {
     chrome.runtime.sendMessage(msg, function(response) {
-      console.log('[sendMessage] msg: ', msg, '; response: ', response)
+      console.log('[sendMessage-content-script] msg: ', msg, '; response: ', response)
     })
   },
 

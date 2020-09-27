@@ -96,7 +96,7 @@ export default {
       }
     },
     sendMessage(msg, callback) {
-      console.log('[sendMessage]: ', msg)
+      console.log('[sendMessage-App.vue]: ', msg)
       chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, msg, function(response) {
           if (callback) callback(response)

@@ -197,7 +197,7 @@ export default {
 
     //Generic methods:
     sendMessage(msg, callback) {
-      console.log('[sendMessage]: ', msg)
+      console.log('[sendMessage-Home]: ', msg)
       chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, msg, function(response) {
           if (callback) callback(response)
@@ -206,7 +206,7 @@ export default {
     },
     listenToMessages() {
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        console.log('[listen-HOME] Received request: ', request)
+        console.log('[listen-Home] Received request: ', request)
         if (request.msg == 'new-data') {
           this.getData(false)
         }
@@ -215,7 +215,7 @@ export default {
     },
     getData(firstTime) {
       this.sendMessage({ msg: 'get-data' }, response => {
-        console.log('data-received', response)
+        console.log('data-received in Home', response)
 
         if (!response) {
           this.$router.push('/about')
