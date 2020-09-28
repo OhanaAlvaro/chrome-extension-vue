@@ -48,7 +48,7 @@
             <div v-else><v-icon>mdi-check</v-icon>End Filter</div>
           </v-btn>
         </template>
-        <span>(Ctrl+Shift+L)</span> </v-tooltip
+        <span>(Alt+N)</span> </v-tooltip
       >|
       <!-- Play/Pause button -->
       <v-btn

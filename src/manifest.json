@@ -14,27 +14,27 @@
   "commands": {
     "mark-current-time-sex": {
       "suggested_key": {
-        "default": "Ctrl+Shift+S"
+        "default": "Alt+S"
       },
-      "description": "Mark current time as containing sex"
+      "description": "Mark current time as containing Sex"
     },
     "mark-current-time-violence": {
       "suggested_key": {
-        "default": "Ctrl+Shift+V"
+        "default": "Alt+G"
       },
-      "description": "Mark current time as containing violence"
+      "description": "Mark current time as containing Gore / Violence"
     },
     "mark-current-time-other": {
       "suggested_key": {
-        "default": "Ctrl+Shift+M"
+        "default": "Alt+O"
       },
-      "description": "Mark current time as containing miscellaneous"
+      "description": "Mark current time as containing Other"
     },
     "mark-current-time": {
       "suggested_key": {
-        "default": "Ctrl+Shift+L"
+        "default": "Alt+N"
       },
-      "description": "Mark current time as a scene start/end"
+      "description": "Mark current time as a New scene start/end"
     }
   },
   "background": {
@@ -46,7 +46,8 @@
       "matches": [
         "https://www.netflix.com/*",
         "https://www.disneyplus.com/*",
-        "https://www.youtube.com/*"
+        "https://www.youtube.com/*",
+        "https://es.hboespana.com/*"
       ],
       "js": ["js/content-script.js"]
     }
