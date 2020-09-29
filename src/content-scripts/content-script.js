@@ -613,7 +613,7 @@ var player = {
 
     if (mode == 'frame') {
       fc.frame_seeked = true
-      player.blur(fc.settings.blur_level)
+      player.blur(fc.settings.blur_level/2)
       player.pause()
     }
   },
