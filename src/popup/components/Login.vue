@@ -14,6 +14,7 @@
       ref="usernameField"
       @focus="$event.target.select()"
       @keydown.enter="$refs.passwordField.focus()"
+      class="mb-0"
     ></v-text-field>
 
     <v-text-field
@@ -26,14 +27,14 @@
       ref="passwordField"
       @focus="$event.target.select()"
       @keydown.enter="checkLogin()"
+      class="mt-0"
     ></v-text-field>
 
     <span>
       New user?
       <a href="https://familycinema.netlify.app/#/join-us" target="_blank">Register now!</a>
-      <br />
     </span>
-    <v-btn color="info" @click="checkLogin()" block depressed tile>Login</v-btn>
+    <v-btn color="info" @click="checkLogin()" block depressed tile class="mt-2">Login</v-btn>
   </div>
 </template>
 

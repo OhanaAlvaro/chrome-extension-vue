@@ -4,7 +4,11 @@
       <table id="table" width="100%">
         <thead>
           <tr>
-            <th>Skip</th>
+            <th @click="go2Settings" style="cursor: pointer;">
+              Skip<fc-tooltip icon="mdi-help-circle"
+                >Change the default skip tags in settings!</fc-tooltip
+              >
+            </th>
             <th>Start time</th>
             <th>End time</th>
             <th>Tags</th>
@@ -14,7 +18,7 @@
         <tbody>
           <tr v-for="scene in scenes" :key="scene.id">
             <!-- Skip -->
-            <td>
+            <td style="padding-right:18px;padding-left:18px">
               <input type="checkbox" v-model="scene.skip" @change="updateScene(scene, 'skip')" />
             </td>
 
@@ -106,6 +110,9 @@ export default {
   },
 
   methods: {
+    go2Settings() {
+      this.$router.push('/settings')
+    },
     removeScene(scene) {
       this.sendMessage({ msg: 'remove', id: scene.id }, response => {
         //should check response to confirm it was removed...?

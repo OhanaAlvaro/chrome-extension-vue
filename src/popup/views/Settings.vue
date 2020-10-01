@@ -11,7 +11,7 @@
         <v-row>
           <v-col cols="12">
             <div @click="dialog = true">
-              What content do you want to get filtered by default?
+              What content do you want filtered by default?
               <fc-tooltip>You can always override this for each movie</fc-tooltip>
               <br />
               <v-chip
@@ -38,55 +38,55 @@
         </v-row>
 
         <v-row>
-          <v-col cols="12">
-            <login
-              :username="settings.username"
-              :password="settings.password"
-              @success="loginSuccess"
-              @error="logginError"
-            ></login>
+          <v-col cols="12" class="py-0">
+            <v-row>
+              <v-col cols="6" class="py-0">
+                <v-text-field
+                  name="blur_level"
+                  label="Blur Level"
+                  hint="How much to blur the video while you mark a new scene (0-100) "
+                  type="number"
+                  id="id"
+                  v-model.number="settings.blur_level"
+                  @change="saveSettings()"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="6" class="py-0">
+                <v-text-field
+                  name="autosave_after"
+                  label="Autosave after..."
+                  hint="How often we perform the autosave action (milliseconds) "
+                  type="number"
+                  id="id"
+                  v-model.number="settings.autosave_after"
+                  @change="saveSettings()"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="6">
+                <v-btn color="error" @click="resetSettings()" depressed tile block>Reset</v-btn>
+              </v-col>
+              <v-col cols="6" class="pt-0 pr-0 ">
+                <v-switch
+                  class="pt-0"
+                  label="Pause after adding a scene"
+                  v-model="settings.pause_after_adding_scene"
+                  @change="saveSettings()"
+                ></v-switch>
+              </v-col>
+            </v-row>
           </v-col>
         </v-row>
       </v-col>
 
       <!-- COL1: BLUR / AUTOSAVE -->
 
-      <v-col cols="6">
-        <br />
-        <h3>Advanced settings</h3>
-        <v-row>
-          <v-col>
-            <v-text-field
-              name="blur_level"
-              label="Blur Level"
-              hint="How much to blur the video while you mark a new scene (0-100) "
-              type="number"
-              id="id"
-              v-model.number="settings.blur_level"
-              @change="saveSettings()"
-            ></v-text-field>
-            <v-text-field
-              name="autosave_after"
-              label="Autosave after..."
-              hint="How often we perform the autosave action (milliseconds) "
-              type="number"
-              id="id"
-              v-model.number="settings.autosave_after"
-              @change="saveSettings()"
-            ></v-text-field>
-
-            <v-switch
-              label="Pause after adding a scene"
-              v-model="settings.pause_after_adding_scene"
-              @change="saveSettings()"
-            ></v-switch>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-btn color="error" @click="resetSettings()" depressed tile>Reset settings</v-btn>
-          </v-col>
-        </v-row>
+      <v-col cols="6" class="mt-2">
+        <login
+          :username="settings.username"
+          :password="settings.password"
+          @success="loginSuccess"
+          @error="logginError"
+        ></login>
       </v-col>
 
       <!-- COL2: SWITCHES -->
@@ -390,6 +390,12 @@ export default {
 
 <style lang="scss" scoped>
 //make sure this style is not scoped (then use important)
+
+.bordered {
+  border-style: solid;
+  padding: 10px;
+  border-width: 1px;
+}
 
 .no-uppercase {
   text-transform: none !important;
