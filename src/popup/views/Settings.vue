@@ -10,8 +10,8 @@
       <v-col cols="6">
         <v-row>
           <v-col cols="12">
-            <div @click="dialog = true">
-              What content do you want filtered by default?
+            <div @click="dialog = true" style="cursor: pointer;">
+              <b style="font-size:120%">1. What kind of content do you want filtered by default?</b>
               <fc-tooltip>You can always override this for each movie</fc-tooltip>
               <br />
               <v-chip
@@ -24,7 +24,14 @@
               >
 
               <!-- If no tag selected -->
-              <v-chip v-if="settings.skip_tags.length == 0" x-small dark>Skip nothing</v-chip>
+              <v-chip v-if="settings.skip_tags.length == 0" x-small dark
+                >Skip nothing
+                <v-icon right x-small>
+                  mdi-pencil
+                </v-icon></v-chip
+              >
+              <hr />
+              <!--
               <v-btn
                 v-if="settings.skip_tags.length == 0"
                 color="primary"
@@ -33,12 +40,14 @@
                 class="no-uppercase"
                 >Change...</v-btn
               >
+              -->
             </div>
           </v-col>
         </v-row>
 
         <v-row>
           <v-col cols="12" class="py-0">
+            <b style="font-size:120%">2. Do you want to customize other settings?</b>
             <v-row>
               <v-col cols="6" class="py-0">
                 <v-text-field
