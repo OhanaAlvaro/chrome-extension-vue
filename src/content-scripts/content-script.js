@@ -12,6 +12,7 @@ This file implements 4 objects:
   + updae
 
 */
+
 var fc = {
   default_settings: {
     username: 'guest',
@@ -20,7 +21,9 @@ var fc = {
     skip_tags: [],
     autosave_after: 2500,
     ignore_default_settings: true,
-    pause_after_adding_scene: false
+    pause_after_adding_scene: false,
+    playbackRate_on_mark: 1.5,
+    blur_level_on_frame_seek: false // if false, it uses settings.blur_level/2
   },
 
   settings: false,
@@ -35,66 +38,52 @@ var fc = {
   tagged: {},
 
   previewScene: function(id) {
-    for (var i = 0; i < fc.scenes.length; i++) {
-      if (fc.scenes[i].id == id) {
-        fc.preview_skip = fc.scenes[i]
-        console.log('Previewing scene: ', fc.preview_skip)
-        player.play()
-        player.seek(fc.preview_skip.start - 2500)
-        return
-      }
-    }
-    console.error('Unable to preview scene: ', id)
+    var i = utils.idToIndex(id)
+    console.log('Previewing scene: ', fc.scenes[i])
+    fc.preview_skip = fc.scenes[i]
+    player.play()
+    player.seek(fc.preview_skip.start - 2500)
+    return true
   },
 
   updateScene: function(scene, field) {
-    for (var i = 0; i < fc.scenes.length; i++) {
-      if (fc.scenes[i].id == scene.id) {
-        console.log('[updateScene]: Updating ', scene, field)
-
-        if (field == 'tags') {
-          scene = fc.decideSkip([scene])[0]
-        } else if (field == 'start') {
-          player.seek(scene.start, 'frame')
-        } else if (field == 'end') {
-          player.seek(scene.end, 'frame')
-        } else if (field == 'skip') {
-          fc.skip_ids[scene.id] = scene.skip
-        }
-
-        fc.scenes[i] = scene
-        fc.onContentEdit(field)
-
-        return true
-      }
+    var i = utils.idToIndex(scene.id)
+    console.log('[updateScene]: Updating ', scene, field)
+    if (field == 'start') {
+      player.seek(scene.start, 'frame')
+    } else if (field == 'end') {
+      player.seek(scene.end, 'frame')
+    } else if (field == 'skip') {
+      fc.skip_ids[scene.id] = scene.skip
     }
-    console.error('[updateScene]: Unkown scene ', scene.id)
-    return false
+
+    fc.scenes[i] = scene
+    fc.onContentEdit(field)
+    return true
   },
 
   removeScene: function(id) {
     console.log('Removing scene: ', id)
-    for (var i = 0; i < fc.scenes.length; i++) {
-      if (fc.scenes[i].id == id) {
-        fc.scenes.splice(i, 1)
-      }
-    }
+    var i = utils.idToIndex(id)
+    fc.scenes.splice(i, 1)
     fc.onContentEdit('remove')
+    return true
   },
 
   // Add new scene to the list of scenes
   addScene: function(scene) {
     // Decide if new scenes requires skipping
-    var scenes = fc.decideSkip([scene])
+    scene = fc.decideSkip([scene])[0]
     // Add scene
-    fc.scenes.push(scenes[0])
+    fc.scenes.push(scene)
     // Trigger content edit
     fc.onContentEdit('add')
+    return true
   },
 
   unload: function() {
     console.log('[unload] Clearing any previous content')
-    server.setData()
+    if (fc.next_share != Infinity) server.setMovie()
     fc.scenes = null
     fc.metadata = null
     fc.tagged = {}
@@ -106,7 +95,7 @@ var fc = {
   decideSkip: function(scenes) {
     if (!scenes) return []
     for (var i = 0; i < scenes.length; i++) {
-      scenes[i].default_skip = fc.includesAny(scenes[i].tags, fc.settings.skip_tags)
+      scenes[i].default_skip = utils.includesAny(scenes[i].tags, fc.settings.skip_tags)
       var id = scenes[i].id
       if (fc.skip_ids[id] !== undefined) {
         scenes[i].skip = fc.skip_ids[id]
@@ -120,7 +109,7 @@ var fc = {
 
   loadSettings: function(settings) {
     if (settings && settings.ignore_default_settings) {
-      for (key in fc.default_settings) {
+      for (var key in fc.default_settings) {
         if (typeof fc.default_settings[key] !== typeof settings[key]) {
           settings[key] = fc.default_settings[key]
         }
@@ -130,7 +119,6 @@ var fc = {
       console.warn('Setting default settings instead of: ', settings)
       fc.settings = fc.default_settings
     }
-    fc.scenes = fc.decideSkip(fc.scenes)
     fc.onContentEdit('settings')
   },
 
@@ -141,27 +129,29 @@ var fc = {
     }
 
     if (edit != 'start' && edit != 'end') {
-      // Propagate edit to user interface/browser
-      browser.sendMessage({ msg: 'new-data' })
+      // Update skip
+      fc.scenes = fc.decideSkip(fc.scenes)
 
       // Update badge
-      var count = 0
-      for (var i = 0; i < fc.scenes.length; i++) {
-        if (fc.scenes[i].skip) count++
-      }
-      browser.sendMessage({ msg: 'update-badge', numDisplayedScenes: count })
+      browser.updateBadge()
     }
+
+    // Propagate edit to user interface/browser
+    browser.sendMessage({ msg: 'new-data', edit: edit })
+
+    // Store 'Local' scenes, 'skip_ids'...
+    browser.setMovie()
   },
 
   periodicCheck: function() {
     // Check we have the right metadata
     if (!fc.metadata || fc.metadata.url != window.location.href) {
-      server.getData()
+      server.getMovie()
     }
 
     // Save data when needed
     if (Date.now() > fc.next_share) {
-      server.setData()
+      server.setMovie()
     }
 
     // Check video player controller is working
@@ -178,10 +168,14 @@ var fc = {
     var url = window.location.href
     var m = { provider: '', pid: 0, duration: null, url: url, src: '' }
 
+    function match(regex) {
+      var str = url.match(regex)
+      return str ? str[1] : ''
+    }
+
     if (url.indexOf('netflix') != -1) {
       m.provider = 'netflix'
-      match = url.match(/watch\/([0-9]+)/)
-      m.pid = match ? match[1] : ''
+      m.pid = match(/watch\/([0-9]+)/)
     } else if (url.indexOf('amazon') != -1) {
       m.provider = 'amazon'
     } else if (url.indexOf('youtube') != -1) {
@@ -191,12 +185,10 @@ var fc = {
       m.pid = urlParams.get('v')
     } else if (url.indexOf('disneyplus') != -1) {
       m.provider = 'disneyplus'
-      match = url.match(/video\/([0-9abcdef\-]+)/)
-      m.pid = match ? match[1] : ''
+      m.pid = match(/video\/([0-9abcdef\-]+)/)
     } else if (url.indexOf('hbo') != -1) {
       m.provider = 'hbo'
-      match = url.match(/\/([0123456789abcdef-]+)\//)
-      m.pid = match ? match[1] : ''
+      m.pid = match(/\/([0123456789abcdef-]+)\//)
     } else {
       m.provider = url.match(/www.([^\/]+)/) ? url.match(/www.([^\/]+)/)[1] : null
     }
@@ -211,24 +203,18 @@ var fc = {
   },
 
   mark_current_time: function(tags) {
+    if (!tags) tags = []
     var start = fc.marking_started
-    var time = Math.round(player.getTime())
+    var time = Math.round(player.getTime() / 50) * 50
     if (!start) {
       fc.marking_started = player.video.paused ? time : time - 2000
-      player.video.playbackRate = 1.5
+      player.video.playbackRate = fc.settings.playbackRate_on_mark
       player.blur(fc.settings.blur_level)
       player.mute(true)
       console.log('Scene start marked at ', fc.marking_started)
     } else {
       var end = player.video.paused ? time : time - 2000
-      if (!tags) tags = []
-      //tags.push('pending');
-      var scene = {
-        tags: tags,
-        start: Math.round(start / 50) * 50,
-        end: Math.round(end / 50) * 50,
-        id: fc.random_id()
-      }
+      var scene = { tags: tags, start: start, end: end, id: utils.random_id() }
       fc.addScene(scene)
       fc.marking_started = false
       player.video.playbackRate = 1
@@ -251,10 +237,9 @@ var fc = {
     }
 
     // Our skip_list is the main skip_list, unless we are on preview mode
+    var skip_list = fc.scenes
     if (fc.preview_skip) {
-      var skip_list = [fc.preview_skip] // should we replace or add it as a new one?
-    } else {
-      var skip_list = fc.scenes
+      skip_list = [fc.preview_skip] // should we replace or add it as a new one?
     }
 
     if (!skip_list) return
@@ -266,49 +251,23 @@ var fc = {
       var end = skip_list[i].end - 40
       // Math.max(next_good+500,now) if the scene starts 0.5s after the end of the skip, consider they overlap
       if (Math.max(next_good + 500, now) > start && now < end) {
-        //if ( now < end && (now >= start || next_good + 500 > start) ) {
         next_good = Math.max(next_good, end)
       }
     }
 
-    if (next_good == 0 && fc.skipping) {
+    // Go back to normal or skip content when needed
+    if (next_good === 0 && fc.skipping) {
       console.log('[check_needs_skip] Back to normal')
       fc.preview_skip = null
       player.video.style.visibility = 'visible'
       player.mute(false)
       fc.skipping = false
-    } else if (next_good != 0 && !fc.skipping) {
-      if (player.video.paused && fc.frame_seeked) return
+    } else if (next_good !== 0 && !fc.skipping) {
       console.log('[check_needs_skip] It does!')
       player.video.style.visibility = 'hidden'
       player.mute(true)
       player.seek(next_good)
       fc.skipping = true
-    }
-  },
-
-  random_id: function() {
-    var text = ''
-    var possible = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-    for (var i = 0; i < 10; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length))
-    }
-    return text
-  },
-
-  includesAny: function(arr1, arr2) {
-    if (arr1.indexOf('All') !== -1) return true
-    if (arr2.indexOf('All') !== -1) return true
-    return arr1.some(v => arr2.indexOf(v) !== -1)
-  },
-
-  parseJSON: function(json) {
-    try {
-      var data = JSON.parse(json)
-      return data
-    } catch (e) {
-      console.error('Invalid JSON ', json, e)
-      return false
     }
   }
 }
@@ -367,6 +326,10 @@ var browser = {
           player.pause()
         } else if (request.msg == 'play') {
           player.play()
+        } else if (request.msg == 'blur') {
+          player.blur(request.blur_level)
+        } else if (request.msg == 'seek-frame') {
+          player.seek(request.time, 'frame')
         } else if (request.msg == 'login') {
           server.send(
             {
@@ -416,6 +379,27 @@ var browser = {
     })
   },
 
+  updateBadge: function() {
+    // Update badge
+    var count = 0
+    for (var i = 0; i < fc.scenes.length; i++) {
+      if (fc.scenes[i].skip) count++
+    }
+    browser.sendMessage({ msg: 'update-badge', numDisplayedScenes: count })
+  },
+
+  setMovie: function() {
+    if (!fc.scenes || !fc.metadata || !fc.metadata.src) {
+      return console.log('[browser.setMovie] Unable locally store scenes')
+    }
+    var localData = {
+      scenes: fc.scenes.filter(scene => scene.tags.includes('Local')),
+      skip_ids: fc.skip_ids
+    }
+    console.log(localData)
+    browser.setData(fc.metadata.src, localData)
+  },
+
   // sets data on chrome sync storage
   setData: function(id, data) {
     var query = {}
@@ -429,24 +413,26 @@ var browser = {
   getData: function(id, callback) {
     chrome.storage.sync.get(id, function(data) {
       console.log('[getLocalData] ', id, data)
-      callback(fc.parseJSON(data[id]))
+      callback(utils.parseJSON(data[id]))
     })
   }
 }
 
 /*
   Server object, handles communications with the server, all communications are authenticated, implements
-  + setData: shares current data with the server
-  + getData: downloads servers data for current movie
+  + setMovie: shares current data with the server
+  + getMovie: downloads servers data for current movie
   + send: send any query to the server
   + buildUrl: helper function
 
 */
 var server = {
-  setData: function() {
-    if (!fc.scenes || !fc.metadata || !fc.metadata.src || fc.next_share == Infinity) {
+  setMovie: function() {
+    if (!fc.scenes || !fc.metadata || !fc.metadata.src) {
       return console.log('[setData] Unable to upload scenes')
     }
+
+    // Server
     var data = {
       metadata: {
         pid: fc.metadata.pid,
@@ -454,7 +440,7 @@ var server = {
         provider: fc.metadata.provider,
         duration: fc.metadata.duration
       },
-      scenes: fc.scenes,
+      scenes: fc.scenes.filter(scene => !scene.tags.includes('Local')),
       tagged: fc.tagged
     }
 
@@ -468,25 +454,31 @@ var server = {
     fc.next_share = Infinity
   },
 
-  getData: function() {
+  getMovie: function() {
     fc.unload()
-    console.log('[getData] Loading new scenes!')
     fc.getVideoID()
     if (!fc.metadata || !fc.metadata.src) {
-      console.warn('[getData] Invalid metadata ', fc.metadata)
+      console.warn('[getMovie] Invalid metadata ', fc.metadata)
       browser.sendMessage({ msg: 'update-badge', numDisplayedScenes: '' })
       return
     }
+    console.log('[getMovie] Getting details for ', fc.metadata.src)
 
+    // Get local data
+    browser.getData(fc.metadata.src, function(localData) {
+      if (!localData) return console.log('No local data for this movie')
+      fc.skip_ids = localData.skip_ids
+      fc.scenes = utils.merge(fc.scenes, localData.scenes)
+      fc.onContentEdit('server')
+    })
+
+    // Get servers data
     server.send({ action: 'getData', id: fc.metadata.src }, function(result) {
-      if (result.status == 200 && result.data && result.data.scenes) {
-        fc.scenes = fc.decideSkip(result.data.scenes)
-        fc.tagged = result.data.tagged
-      } else {
-        console.error('[getData] Something is wrong with the server...')
-        fc.scenes = []
-        fc.tagged = {}
+      if (result.status != 200 || !result.data || !result.data.scenes) {
+        return console.error('[getData] Something is wrong with the server...')
       }
+      fc.scenes = utils.merge(result.data.scenes, fc.scenes)
+      fc.tagged = result.data.tagged
       fc.onContentEdit('server')
     })
   },
@@ -497,14 +489,14 @@ var server = {
     fetch(url)
       .then(r => r.text())
       .then(data => {
-        if (callback) callback(fc.parseJSON(data))
+        if (callback) callback(utils.parseJSON(data))
       })
   },
 
   // Helper function to build the url/end point for the given query
   buildURL: function(query) {
     try {
-      query['version'] = chrome.runtime.getManifest().version
+      query.version = chrome.runtime.getManifest().version
     } catch (e) {
       console.log(e)
     }
@@ -613,7 +605,11 @@ var player = {
 
     if (mode == 'frame') {
       fc.frame_seeked = true
-      player.blur(fc.settings.blur_level/2)
+      if (fc.settings.blur_level_on_frame_seek !== false) {
+        player.blur(fc.settings.blur_level_on_frame_seek)
+      } else {
+        player.blur(fc.settings.blur_level / 2)
+      }
       player.pause()
     }
   },
@@ -621,6 +617,55 @@ var player = {
   // Get current time in milliseconds (all times are always in milliseconds!)
   getTime: function() {
     return player.video.currentTime * 1000
+  }
+}
+
+var utils = {
+  merge: function(official, local) {
+    console.log('[merge] merging: ', official, local)
+    if (!local) return official
+    if (!official) return local
+    for (var i = 0; i < local.length; i++) {
+      if (!official.some(e => e.id === local[i].id)) {
+        official.push(local[i])
+      }
+    }
+    // Quick sort
+    official.sort(function(a, b) {
+      return a.start - b.start
+    })
+    return official
+  },
+
+  random_id: function() {
+    var text = ''
+    var possible = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+    for (var i = 0; i < 10; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length))
+    }
+    return text
+  },
+
+  includesAny: function(arr1, arr2) {
+    if (arr1.indexOf('All') !== -1) return true
+    if (arr2.indexOf('All') !== -1) return true
+    return arr1.some(v => arr2.indexOf(v) !== -1)
+  },
+
+  parseJSON: function(json) {
+    try {
+      var data = JSON.parse(json)
+      return data
+    } catch (e) {
+      console.log('Invalid JSON ', json, e)
+      return false
+    }
+  },
+
+  idToIndex: function(id) {
+    var i = fc.scenes.findIndex(x => x.id === id)
+    if (i == -1) throw 'Unable to find index'
+    return i
   }
 }
 
