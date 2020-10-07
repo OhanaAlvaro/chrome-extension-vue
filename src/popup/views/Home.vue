@@ -2,7 +2,8 @@
   <div>
     <!--<h3>Auto filtered</h3>-->
 
-    <!-- this is a dialog used for new scenes only. Rest of the time is hidden -->
+    <!-- this is a dialog used for new scenes only. Rest of the time it's hidden -->
+    <!-- existing scenes use the wizard from the scenes editor-->
     <tags-wizard
       :tags="new_scene_tags"
       v-model="new_scene_wizard"
@@ -62,7 +63,7 @@
       </v-btn>
       <v-spacer></v-spacer>
 
-      <!-- Blur slider -->
+      <!-- Blur slider: allow user to control the blur right from here -->
       <!--
       <v-slider v-model="sliderValue" :min="0" :max="100" thumb-label step="5" @change="changeBlur">
         <template v-slot:thumb-label="{ value }">{{ value + '%' }}</template>

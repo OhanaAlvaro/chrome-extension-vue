@@ -9,11 +9,11 @@
       transition="dialog-transition"
     >
       <v-card flat>
-        <v-toolbar color="primary" dark dense height="34px" flat>
-          <h3>{{ pageTitle }}</h3>
+        <v-toolbar color="primary" dark dense height="24px" flat>
+          <span style="font-size:110%">{{ pageTitle }}</span>
         </v-toolbar>
 
-        <v-card-text class="pa-2">
+        <v-card-text class="pa-2 pl-4">
           <!-- Scene types-->
           <div v-if="page == 'scene-type'">
             <label v-for="(s, index) in content_tags" :key="index">

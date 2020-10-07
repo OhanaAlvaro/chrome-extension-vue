@@ -5,7 +5,7 @@
 -->
 
   <div class="bordered">
-    <h1 style="font-size:120%">3. Login to Family Cinema</h1>
+    <h1 style="font-size:120%">Login to Family Cinema</h1>
     <v-text-field
       append-icon="mdi-account"
       name="username"

@@ -11,7 +11,7 @@
         <v-row>
           <v-col cols="12">
             <div @click="dialog = true" style="cursor: pointer;">
-              <b style="font-size:120%">1. What kind of content do you want filtered by default?</b>
+              <b style="font-size:120%">What kind of scenes do you want filtered by default?</b>
               <fc-tooltip>You can always override this for each movie</fc-tooltip>
               <br />
               <v-chip
@@ -30,7 +30,8 @@
                   mdi-pencil
                 </v-icon></v-chip
               >
-              <hr />
+
+              <hr style="margin-bottom:15px; margin-top:5px;" />
               <!--
               <v-btn
                 v-if="settings.skip_tags.length == 0"
@@ -47,7 +48,7 @@
 
         <v-row>
           <v-col cols="12" class="py-0">
-            <b style="font-size:120%">2. Do you want to customize other settings?</b>
+            <b style="font-size:120%">Do you want to customize other settings?</b>
             <v-row>
               <v-col cols="6" class="py-0">
                 <v-text-field
