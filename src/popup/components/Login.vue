@@ -5,11 +5,11 @@
 -->
 
   <div class="bordered">
-    <h1 style="font-size:120%">Login to Family Cinema</h1>
+    <h1 style="font-size:120%">1. Login to Family Cinema</h1>
     <v-text-field
       append-icon="mdi-account"
       name="username"
-      label="username"
+      label="Username"
       v-model="username_copy"
       ref="usernameField"
       @focus="$event.target.select()"
@@ -94,7 +94,7 @@ export default {
         if (response.success) {
           this.$emit('success', data, response) //let parent know
         } else {
-          this.username_copy = '' //not reflecting to parent...
+          //this.username_copy = '' //not reflecting to parent...
           this.password_copy = ''
           this.$refs.usernameField.focus()
           this.$emit('error', data, response) //let parent know
