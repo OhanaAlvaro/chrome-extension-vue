@@ -47,7 +47,12 @@
         If you spot any unwanted content, press "Alt+N" or "New filter" to flag it and help other
         users like you.<br /><br />
 
-        You can see all flagged scenes on the <a @click="$router.push('/')">film view.</a>
+        <span v-if="settings.username">
+          You can see all flagged scenes on the <a @click="$router.push('/')">film view.</a>
+        </span>
+        <span v-else>
+          You can see all flagged scenes on the film view (log in required).
+        </span>
       </v-col>
 
       <!-- COL1: BLUR / AUTOSAVE -->
@@ -301,12 +306,6 @@ export default {
     //Intereact with content-script (get/push data and messages)
     saveSettings() {
       console.log('saving settings...')
-
-      if (this.settings.username == '' || this.settings.username == 'guest') {
-        //guest works with any pasword, but to avoid that confusion.
-        this.settings.username = 'guest'
-        this.settings.password = 'guest'
-      }
 
       this.sendMessage({ msg: 'update-settings', settings: this.settings }, response => {
         console.log('save settings response', response)
