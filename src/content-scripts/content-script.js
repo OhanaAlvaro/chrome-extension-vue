@@ -191,6 +191,7 @@ var fc = {
       m.pid = match(/\/([0123456789abcdef-]+)\//)
     } else {
       m.provider = url.match(/www.([^\/]+)/) ? url.match(/www.([^\/]+)/)[1] : null
+      //m.pid = 'pruebas'
     }
 
     if (!m.src && m.pid) m.src = m.provider + '_' + m.pid
