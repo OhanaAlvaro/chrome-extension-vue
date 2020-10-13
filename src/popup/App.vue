@@ -89,9 +89,9 @@ export default {
     },
     appbarIcon() {
       if (this.$route.name == 'Settings') {
-        return 'mdi-home'
+        return 'mdi-movie'
       } else {
-        return 'mdi-cog'
+        return 'mdi-account'
       }
     }
   },
