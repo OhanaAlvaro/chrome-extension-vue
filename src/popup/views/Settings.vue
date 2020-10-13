@@ -6,91 +6,9 @@
       snackbarText
     }}</v-snackbar>
 
+    <br />
     <v-row>
-      <v-col cols="6">
-        <v-row>
-          <v-col cols="12">
-            <div @click="dialog = true" style="cursor: pointer;">
-              <b style="font-size:120%">What kind of scenes do you want filtered by default?</b>
-              <fc-tooltip>You can always override this for each movie</fc-tooltip>
-              <br />
-              <v-chip
-                v-for="(skip_tag, index) in settings.skip_tags"
-                :key="index"
-                x-small
-                dark
-                :color="getTagColor(skip_tag)"
-                >{{ skip_tag }}</v-chip
-              >
-
-              <!-- If no tag selected -->
-              <v-chip v-if="settings.skip_tags.length == 0" x-small dark
-                >Skip nothing
-                <v-icon right x-small>
-                  mdi-pencil
-                </v-icon></v-chip
-              >
-
-              <hr style="margin-bottom:15px; margin-top:5px;" />
-              <!--
-              <v-btn
-                v-if="settings.skip_tags.length == 0"
-                color="primary"
-                @click="dialog = true"
-                text
-                class="no-uppercase"
-                >Change...</v-btn
-              >
-              -->
-            </div>
-          </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col cols="12" class="py-0">
-            <b style="font-size:120%">Do you want to customize other settings?</b>
-            <v-row>
-              <v-col cols="6" class="py-0">
-                <v-text-field
-                  name="blur_level"
-                  label="Blur Level"
-                  hint="How much to blur the video while you mark a new scene (0-100) "
-                  type="number"
-                  id="id"
-                  v-model.number="settings.blur_level"
-                  @change="saveSettings()"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6" class="py-0">
-                <v-text-field
-                  name="autosave_after"
-                  label="Autosave after..."
-                  hint="How often we perform the autosave action (milliseconds) "
-                  type="number"
-                  id="id"
-                  v-model.number="settings.autosave_after"
-                  @change="saveSettings()"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6">
-                <v-btn color="error" @click="resetSettings()" depressed tile block>Reset</v-btn>
-              </v-col>
-              <v-col cols="6" class="pt-0 pr-0 ">
-                <v-switch
-                  class="pt-0"
-                  label="Pause after adding a scene"
-                  v-model="settings.pause_after_adding_scene"
-                  @change="saveSettings()"
-                ></v-switch>
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
-      </v-col>
-
-      <!-- COL1: BLUR / AUTOSAVE -->
-
-      <v-col cols="6" class="mt-2">
+      <v-col cols="4" class="mt-2">
         <login
           :username="settings.username"
           :password="settings.password"
@@ -98,6 +16,46 @@
           @error="logginError"
         ></login>
       </v-col>
+
+      <v-col cols="8">
+        <div @click="dialog = true" style="cursor: pointer;">
+          <b style="font-size:120%">2. Choose what to filter out </b>
+          <fc-tooltip>You can customize this for specific scenes in film view</fc-tooltip>
+
+          <br />
+          <v-chip
+            v-for="(skip_tag, index) in settings.skip_tags"
+            :key="index"
+            x-small
+            dark
+            :color="getTagColor(skip_tag)"
+            >{{ skip_tag }}</v-chip
+          >
+
+          <!-- If no tag selected -->
+          <v-chip v-if="settings.skip_tags.length == 0" x-small dark
+            >Skip nothing
+            <v-icon right x-small>mdi-pencil</v-icon>
+          </v-chip>
+        </div>
+        <br />
+        <b style="font-size:120%">3. Enjoy!</b><br />
+
+        Enjoy movies as usual. Family Cinema will be working for you in the background, seamlessly
+        skipping any unwanted content.<br /><br />
+
+        If you spot any unwanted content, press "Alt+N" or "New filter" to flag it and help other
+        users like you.<br /><br />
+
+        <span v-if="settings.username">
+          You can see all flagged scenes on the <a @click="$router.push('/')">film view.</a>
+        </span>
+        <span v-else>
+          You can see all flagged scenes on the film view (log in required).
+        </span>
+      </v-col>
+
+      <!-- COL1: BLUR / AUTOSAVE -->
 
       <!-- COL2: SWITCHES -->
     </v-row>
@@ -348,12 +306,6 @@ export default {
     //Intereact with content-script (get/push data and messages)
     saveSettings() {
       console.log('saving settings...')
-
-      if (this.settings.username == '' || this.settings.username == 'guest') {
-        //guest works with any pasword, but to avoid that confusion.
-        this.settings.username = 'guest'
-        this.settings.password = 'guest'
-      }
 
       this.sendMessage({ msg: 'update-settings', settings: this.settings }, response => {
         console.log('save settings response', response)

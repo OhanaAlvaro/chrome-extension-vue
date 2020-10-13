@@ -14,7 +14,7 @@
 
         <v-spacer></v-spacer>
 
-        <v-icon medium @click="go2Settings()">{{ appbarIcon }}</v-icon>
+        <v-icon v-if="username" small @click="go2Settings()">{{ appbarIcon }}</v-icon>
       </v-app-bar>
 
       <!-- NAV DRAWER -->

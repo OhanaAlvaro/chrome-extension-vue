@@ -15,8 +15,8 @@ This file implements 4 objects:
 
 var fc = {
   default_settings: {
-    username: 'guest',
-    password: 'guest',
+    username: '',
+    password: '',
     blur_level: 40,
     skip_tags: [],
     autosave_after: 2500,

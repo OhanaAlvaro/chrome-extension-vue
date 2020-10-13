@@ -176,8 +176,8 @@ export default {
             'Thank you!',
             'The world would be a better place if everyone was like you!'
           ]
-          this.snackbarText = msg[Math.floor(Math.random() * msg.length)]
-          this.snackbar = true
+          //this.snackbarText = msg[Math.floor(Math.random() * msg.length)]
+          this.snackbar = false // Hide any previous snackbar
           this.data.scenes.push(response.scene)
           this.sendMessage({ msg: 'pause' })
           this.isCreatingScene = false
@@ -219,9 +219,11 @@ export default {
         console.log('data-received in Home', response)
 
         if (!response) {
-          this.$router.push('/about')
+          return this.$router.push('/about')
         } else if (!response.settings || !response.scenes) {
-          this.$router.push('/no-movie')
+          return this.$router.push('/no-movie')
+        } else if (!response.settings.username) {
+          return this.$router.push('/settings')
         }
 
         /* careful: when adding a new scene, this makes it hard to identify it (now instead of going at the end, it appears in position xx)
