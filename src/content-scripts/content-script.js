@@ -12,6 +12,7 @@ This file implements 4 objects:
   + updae
 
 */
+//'use strict'
 
 var fc = {
   default_settings: {
@@ -166,32 +167,44 @@ var fc = {
   getVideoID: function() {
     // Extract metadata
     var url = window.location.href
+    var host = window.location.hostname
     var m = { provider: '', pid: 0, duration: null, url: url, src: '' }
+    var queryString = window.location.search
+    var urlParams = new URLSearchParams(queryString)
 
-    function match(regex) {
-      var str = url.match(regex)
+    function match(regex, haystack) {
+      if (!haystack) haystack = url
+      var str = haystack.match(regex)
       return str ? str[1] : ''
     }
 
-    if (url.indexOf('netflix') != -1) {
+    if (host.includes('netflix')) {
       m.provider = 'netflix'
       m.pid = match(/watch\/([0-9]+)/)
-    } else if (url.indexOf('amazon') != -1) {
+    } else if (host.indexOf('amazon')) {
       m.provider = 'amazon'
-    } else if (url.indexOf('youtube') != -1) {
+      m.pid = 'test'
+    } else if (host.includes('youtube')) {
       m.provider = 'youtube'
-      const queryString = window.location.search
-      const urlParams = new URLSearchParams(queryString)
       m.pid = urlParams.get('v')
-    } else if (url.indexOf('disneyplus') != -1) {
+    } else if (host.includes('disneyplus')) {
       m.provider = 'disneyplus'
       m.pid = match(/video\/([0-9abcdef\-]+)/)
-    } else if (url.indexOf('hbo') != -1) {
+    } else if (host.includes('hbo')) {
       m.provider = 'hbo'
-      m.pid = match(/\/([0123456789abcdef-]+)\//)
+      m.pid = match(/\/([0123456789abcdef-]+)\/play/)
+    } else if (host.includes('movistarplus')) {
+      m.provider = 'movistarplus'
+      m.pid = urlParams.get('id')
+    } else if (host.includes('rakuten')) {
+      m.provider = 'rakuten'
+      var themoviedb = document.querySelectorAll('a[href^="https://www.themoviedb.org/movie"]')
+      if (themoviedb.length == 1) {
+        m.pid = match(/\/([0123456789]+)/, themoviedb)
+      }
     } else {
-      m.provider = url.match(/www.([^\/]+)/) ? url.match(/www.([^\/]+)/)[1] : null
-      //m.pid = 'pruebas'
+      m.provider = host
+      m.pid = 'test'
     }
 
     if (!m.src && m.pid) m.src = m.provider + '_' + m.pid
