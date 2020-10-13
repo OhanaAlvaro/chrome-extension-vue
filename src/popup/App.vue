@@ -9,7 +9,7 @@
         -->
         <div class="d-flex align-center" @click="$router.push('/')">
           <h3 v-if="username">{{ username }} @ {{ extensionName }}</h3>
-          <h3>{{ extensionName }}</h3>
+          <h3 v-else>{{ extensionName }}</h3>
         </div>
 
         <v-spacer></v-spacer>
