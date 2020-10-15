@@ -49,8 +49,9 @@
             <div v-else><v-icon>mdi-check</v-icon>End Filter</div>
           </v-btn>
         </template>
-        <span>(Alt+N)</span> </v-tooltip
-      >|
+        <span>(Alt+N)</span>
+      </v-tooltip>
+      |
       <!-- Play/Pause button -->
       <v-btn
         color="black"
@@ -71,13 +72,17 @@
       -->
 
       <!-- Shield -->
-      <span class="inline large-action tooltip" style="float: right; padding-right: 15px">
-        <div>
-          <img src="v0/img/verified.svg" />
-        </div>
-        <div>Unkown</div>
-        <span class="tooltiptext" style="margin-left: -55px">Some content might be untagged</span>
-      </span>
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn color="black" text small class="no-uppercase" v-bind="attrs" v-on="on">
+            <div v-if="shield == true"><v-icon>mdi-shield-check</v-icon>Protected!</div>
+            <div v-else><v-icon>mdi-shield-alert</v-icon>Unkown</div>
+          </v-btn>
+        </template>
+        <div v-if="shield == true"><span>All unwanted content will be removed!</span></div>
+        <div v-else><span>There might be some unwanted content</span></div>
+      </v-tooltip>
+
       <br />
       <v-snackbar top right v-model="snackbar" :timeout="snackbarTimeout" color="info">{{
         snackbarText

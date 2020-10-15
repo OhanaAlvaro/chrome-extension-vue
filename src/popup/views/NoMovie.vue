@@ -4,10 +4,10 @@
     <h3>Almost there! Try (re)loading some content.</h3>
     <p>
       Family Cinema works with this provider, but you need to open a specific movie/show to start
-      using it. If you already opened a movie, try refreshing the page.
+      using it. If you've already opened a movie, try refreshing the page.
     </p>
     <p>
-      You can always visit our
+      Visit our
       <a href="https://familycinema.netlify.app/" target="_blank">Family Cinema Website</a> to learn
       more, find available content, or support our community.
     </p>
