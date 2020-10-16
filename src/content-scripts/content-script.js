@@ -24,7 +24,8 @@ var fc = {
     ignore_default_settings: true,
     pause_after_adding_scene: false,
     playbackRate_on_mark: 1.5,
-    blur_level_on_frame_seek: false // if false, it uses settings.blur_level/2
+    mute_on_mark: true,
+    blur_level_on_frame_seek: false // if false, it uses settings.blur_level
   },
 
   settings: false,
@@ -181,9 +182,9 @@ var fc = {
     if (host.includes('netflix')) {
       m.provider = 'netflix'
       m.pid = match(/watch\/([0-9]+)/)
-    } else if (host.indexOf('amazon')) {
+    } else if (host.includes('amazon')) {
       m.provider = 'amazon'
-      m.pid = 'test'
+      //m.pid = 'test'
     } else if (host.includes('youtube')) {
       m.provider = 'youtube'
       m.pid = urlParams.get('v')
@@ -199,12 +200,13 @@ var fc = {
     } else if (host.includes('rakuten')) {
       m.provider = 'rakuten'
       var themoviedb = document.querySelectorAll('a[href^="https://www.themoviedb.org/movie"]')
+      //m.pid = 'test'
       if (themoviedb.length == 1) {
         m.pid = match(/\/([0123456789]+)/, themoviedb)
       }
     } else {
       m.provider = host
-      m.pid = 'test'
+      //m.pid = 'test'
     }
 
     if (!m.src && m.pid) m.src = m.provider + '_' + m.pid
@@ -224,7 +226,7 @@ var fc = {
       fc.marking_started = player.video.paused ? time : time - 2000
       player.video.playbackRate = fc.settings.playbackRate_on_mark
       player.blur(fc.settings.blur_level)
-      player.mute(true)
+      if (fc.settings.mute_on_mark) player.mute(true)
       console.log('Scene start marked at ', fc.marking_started)
     } else {
       var end = player.video.paused ? time : time - 2000
@@ -340,8 +342,12 @@ var browser = {
           player.pause()
         } else if (request.msg == 'play') {
           player.play()
+        } else if (request.msg == 'mute') {
+          player.mute(request.state)
         } else if (request.msg == 'blur') {
           player.blur(request.blur_level)
+          // This is not really true, but it keeps the blur level while movie is paused
+          if (!fc.marking_started) fc.frame_seeked = true
         } else if (request.msg == 'seek-frame') {
           player.seek(request.time, 'frame')
         } else if (request.msg == 'login') {
@@ -584,6 +590,7 @@ var player = {
   },
 
   play: function() {
+    console.log('play')
     if (fc.metadata.provider == 'netflix') {
       document.dispatchEvent(
         new CustomEvent('netflix-video-controller', { detail: { play: true } })
@@ -619,11 +626,9 @@ var player = {
 
     if (mode == 'frame') {
       fc.frame_seeked = true
-      if (fc.settings.blur_level_on_frame_seek !== false) {
-        player.blur(fc.settings.blur_level_on_frame_seek)
-      } else {
-        player.blur(fc.settings.blur_level / 2)
-      }
+      var blur_level = fc.settings.blur_level_on_frame_seek
+      if (!blur_level) blur_level = fc.settings.blur_level / 3
+      player.blur(blur_level)
       player.pause()
     }
   },

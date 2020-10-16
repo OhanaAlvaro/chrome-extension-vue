@@ -35,8 +35,8 @@ export default {
 
         //  ms = this.fixTime(newValue)
         //this.value = fclib.time2ms(newValue)
-        this.$emit('input', fixed_ms)
-        this.$emit('change', fixed_ms)
+        this.$emit('input', fixed_ms) // emits event, for parent to update v-model -> props.value
+        this.$emit('change', fixed_ms) // emits event captured with @change='' or v-on:change=''
       }
     }
   }

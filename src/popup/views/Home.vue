@@ -30,7 +30,6 @@
     <br />
     <br />
     <br />
-    <br />
 
     <v-footer fixed color="white" dense>
       <!-- New scene button-->
@@ -55,21 +54,41 @@
       <!-- Play/Pause button -->
       <v-btn
         color="black"
-        @click="sendMessage({ msg: 'play-pause' })"
+        @click="
+          sendMessage({ msg: 'play-pause' })
+          isEditing = false
+        "
         text
         small
         class="no-uppercase"
       >
         <v-icon fab>mdi-play</v-icon>Play/Pause
       </v-btn>
-      <v-spacer></v-spacer>
 
       <!-- Blur slider: allow user to control the blur right from here -->
-      <!--
-      <v-slider v-model="sliderValue" :min="0" :max="100" thumb-label step="5" @change="changeBlur">
-        <template v-slot:thumb-label="{ value }">{{ value + '%' }}</template>
+
+      <v-checkbox
+        v-if="isCreatingScene"
+        v-model="mute_on_mark"
+        :label="`Mute`"
+        @change="changeMute"
+      ></v-checkbox>
+
+      <v-slider
+        v-if="isCreatingScene || isEditing"
+        v-model="sliderValue"
+        inverse-label
+        :min="0"
+        :max="40"
+        thumb-label
+        :label="`Blur`"
+        step="2"
+        @change="changeBlur"
+      >
+        <template v-slot:thumb-label="{ value }">{{ 2.5 * value + '%' }}</template>
       </v-slider>
-      -->
+
+      <v-spacer></v-spacer>
 
       <!-- Shield -->
       <v-tooltip top>
@@ -137,6 +156,7 @@ export default {
       snackbar: false,
       snackbarTimeout: 6000,
       isCreatingScene: false,
+      isEditing: false,
 
       //when adding a new scene:
 
@@ -144,11 +164,12 @@ export default {
       new_scene_tags: [],
       new_scene_index: 0,
 
-      //slider
+      //slider & mute
       sliderValue: 0,
+      mute_on_mark: true,
 
-      //Shield stuff
-      shield: false,
+      //shield
+      shield: false
       shield_visible: false
     }
   },
@@ -167,6 +188,28 @@ export default {
           this.sliderValue = oldValue
           this.data.settings.blur_level = oldValue
         }
+      })
+
+      this.sendMessage({ msg: 'blur', blur_level: newValue }, response => {
+        console.log('blur response', response)
+      })
+    },
+
+    changeMute(newValue) {
+      console.log('change mute', this.mute_on_mark)
+
+      this.data.settings.mute_on_mark = this.mute_on_mark
+
+      this.sendMessage({ msg: 'update-settings', settings: this.data.settings }, response => {
+        console.log('save settings response', response)
+        if (response == false) {
+          this.mute_on_mark = oldValue
+          this.data.settings.mute_on_mark = oldValue
+        }
+      })
+
+      this.sendMessage({ msg: 'mute', state: this.mute_on_mark }, response => {
+        console.log('mute: ', response)
       })
     },
 
@@ -211,6 +254,7 @@ export default {
         } else {
           //Begin of scene:
           this.isCreatingScene = true
+          this.isEditing = true
           console.log('[mark-current-time] No scene, assuming start')
           this.snackbarText = 'Press again to mark the end of the scene'
           this.snackbar = true
@@ -263,6 +307,7 @@ export default {
         this.data = response
 
         this.sliderValue = response.settings.blur_level
+        this.mute_on_mark = response.settings.mute_on_mark
         this.scenes = response.scenes
       })
     }
@@ -276,8 +321,21 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style>
 .no-uppercase {
   text-transform: none;
+}
+
+.v-messages.theme--light {
+  display: none;
+}
+
+.v-input__slot {
+  margin-bottom: 0px;
+}
+
+.v-input.theme--light.v-input--selection-controls.v-input--checkbox {
+  margin-top: 0px;
+  padding-top: 0px;
 }
 </style>

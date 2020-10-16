@@ -6,10 +6,11 @@
       Open a movie or a TV show on
       <a href="https://www.netflix.com" target="_blank">Netflix</a>,
       <a href="https://es.hboespana.com/" target="_blank">HBO</a>,
-      <a href="https://www.disneyplus.com/" target="_blank">Disney Plus</a>, or
-
-      <a href="https://www.youtube.com/" target="_blank">Youtube</a> to start using Family Cinema.
+      <a href="https://www.disneyplus.com/" target="_blank">Disney Plus</a>,
+      <a href="https://ver.movistarplus.es//" target="_blank">Movistar Plus</a>, or
+      <a href="https://www.youtube.com/" target="_blank">Youtube</a>
       <!-- Pending Amazon Prime Video -->
+      to start using Family Cinema.
     </p>
     <p>
       You can always visit our
