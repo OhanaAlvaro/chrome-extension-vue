@@ -35,6 +35,11 @@ function ms2time(s) {
   return pad(hrs, 2) + ':' + pad(mins, 2) + ':' + pad(secs, 2) + '.' + pad(ms, 3)
 }
 
+/**
+ * Sends a meessage to the backend
+ * @param {*} msg the message you want to send
+ * @param {*} callback Function to be executed with the response
+ */
 function sendMessage(msg, callback) {
   console.log('[sendMessage-fclib]: ', msg)
   chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
@@ -50,12 +55,33 @@ function includesAny(arr1, arr2) {
   return arr1.some(v => arr2.indexOf(v) !== -1)
 }
 
+/**
+ * Send the 'get-data' message to the backend, and passes the response to the callback function
+ * @param {*} callback Function to execute with the response from the backend
+ */
 function getData(callback) {
   sendMessage({ msg: 'get-data' }, function(response) {
     callback(response)
   })
 }
 
+/**
+ * TBC it works
+ * @param {*} callback funciton to execute on msg received
+ */
+function listenToMessages(callback) {
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    console.log('[listen-Home] Received request: ', request)
+    this.callback(request)
+    sendResponse(true)
+  })
+}
+
+/**
+ * Default UI goes from sec 59 to 0 without increasing the minutes (and same for each). This fixes that.
+ * @param {*} new_time_ms
+ * @param {*} old_time_ms
+ */
 function fixTime(new_time_ms, old_time_ms) {
   //console.log('new_time_ms', new_time_ms)
 
@@ -83,8 +109,10 @@ module.exports = {
   ms2time,
   pad,
   time2ms,
-  sendMessage,
+  fixTime,
   includesAny,
+  sendMessage,
+
   getData,
-  fixTime
+  listenToMessages
 }

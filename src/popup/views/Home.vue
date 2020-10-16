@@ -74,7 +74,15 @@
       <!-- Shield -->
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn color="black" text small class="no-uppercase" v-bind="attrs" v-on="on">
+          <v-btn
+            color="black"
+            text
+            small
+            class="no-uppercase"
+            v-bind="attrs"
+            v-on="on"
+            @click="shield_visible = !shield_visible"
+          >
             <div v-if="shield == true"><v-icon>mdi-shield-check</v-icon>Protected!</div>
             <div v-else><v-icon>mdi-shield-alert</v-icon>Unkown</div>
           </v-btn>
@@ -82,6 +90,9 @@
         <div v-if="shield == true"><span>All unwanted content will be removed!</span></div>
         <div v-else><span>There might be some unwanted content</span></div>
       </v-tooltip>
+
+      <!-- Shield dialog -->
+      <shield-vue :visible="shield_visible" @hide="shield_visible = false"></shield-vue>
 
       <br />
       <v-snackbar top right v-model="snackbar" :timeout="snackbarTimeout" color="info">{{
@@ -93,6 +104,7 @@
 
 <script>
 import ScenesEditor from '../components/ScenesEditor'
+import ShieldVue from '../components/Shield.vue'
 import TagsWizard from '../components/TagsWizard'
 
 import fclib from '../js/fclib'
@@ -100,7 +112,8 @@ export default {
   name: 'Home',
   components: {
     ScenesEditor,
-    TagsWizard
+    TagsWizard,
+    ShieldVue
   },
 
   watch: {
@@ -132,7 +145,11 @@ export default {
       new_scene_index: 0,
 
       //slider
-      sliderValue: 0
+      sliderValue: 0,
+
+      //Shield stuff
+      shield: false,
+      shield_visible: false
     }
   },
 
