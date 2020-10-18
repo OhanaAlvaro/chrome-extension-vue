@@ -84,10 +84,8 @@
     >
       <v-card>
         <!--<v-card-title primary-title>{{ page.title }}</v-card-title>-->
-        <v-toolbar color="primary" dark dense height="34px">
-          <h3>{{ page.title }}</h3>
-        </v-toolbar>
-        <br />
+        <v-card-title>{{ page.title }} </v-card-title>
+
         <v-card-text>
           <!-- content tags -->
           <div v-for="(cat, index) in content_tags" :key="index">

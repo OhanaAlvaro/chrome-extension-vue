@@ -71,17 +71,17 @@ var content = [
       {
         value: 'Slightly gore',
         title: 'Slightly gore',
-        description: 'Slightly gore or graphical scene, eg: mild verbal violence, punching'
+        description: 'Slightly gore or graphic scene, eg: mild verbal violence, punching'
       },
       {
         value: 'Moderately gore',
         title: 'Moderately gore',
-        description: 'Moderately gore or graphical scene, eg: extensive bleeding, broken bones...'
+        description: 'Moderately gore or graphic scene, eg: extensive bleeding, broken bones...'
       },
       {
         value: 'Very gore',
         title: 'Very gore',
-        description: 'Very gore or graphical scene, eg: blood splattered, open wounds, guts...'
+        description: 'Very gore or graphic scene, eg: blood splattered, open wounds, guts...'
       }
     ],
     types: [

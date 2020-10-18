@@ -102,12 +102,20 @@
             v-on="on"
             @click="shield_visible = !shield_visible"
           >
-            <div v-if="shield == true"><v-icon>mdi-shield-check</v-icon>Protected!</div>
-            <div v-else><v-icon>mdi-shield-alert</v-icon>Unkown</div>
+            <div v-if="data.shield == `done`">
+              <v-icon color="#00b359">mdi-shield-check</v-icon>Protected!
+            </div>
+            <div v-if="data.shield == `unkown`"><v-icon>mdi-shield-half-full</v-icon>Unkown!</div>
+            <div v-if="data.shield == `missing`">
+              <v-icon color="red">mdi-shield-alert</v-icon>Missing!
+            </div>
           </v-btn>
         </template>
-        <div v-if="shield == true"><span>All unwanted content will be removed!</span></div>
-        <div v-else><span>There might be some unwanted content</span></div>
+        <div v-if="data.shield == `done`"><span>All unwanted content will be removed!</span></div>
+        <div v-if="data.shield == `unkown`"><span>There might be some unwanted content!</span></div>
+        <div v-if="data.shield == `missing`">
+          <span>This movie contains unwanted content cannot be filtered at the moment!</span>
+        </div>
       </v-tooltip>
 
       <!-- Shield dialog -->
@@ -149,7 +157,7 @@ export default {
   },
   data() {
     return {
-      data: { msg: '', scenes: [], settings: [] }, //default values, to avoid missing keys
+      data: { msg: '', scenes: [], settings: [], shield: 'unkown' }, //default values, to avoid missing keys
       zero_scenes: false,
       auxx: '',
       snackbarText: '',
@@ -169,7 +177,6 @@ export default {
       mute_on_mark: true,
 
       //shield
-      shield: false
       shield_visible: false
     }
   },
@@ -280,6 +287,7 @@ export default {
         sendResponse(true)
       })
     },
+
     getData(firstTime) {
       this.sendMessage({ msg: 'get-data' }, response => {
         console.log('data-received in Home', response)
@@ -293,7 +301,7 @@ export default {
         }
 
         /* careful: when adding a new scene, this makes it hard to identify it (now instead of going at the end, it appears in position xx)
-         
+
 */
         if (firstTime) {
           response.scenes.sort(function(a, b) {

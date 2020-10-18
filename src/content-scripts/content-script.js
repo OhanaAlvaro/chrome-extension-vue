@@ -12,7 +12,7 @@ This file implements 4 objects:
   + updae
 
 */
-//'use strict'
+'use strict'
 
 var fc = {
   default_settings: {
@@ -83,6 +83,25 @@ var fc = {
     return true
   },
 
+  updateShield: function() {
+    console.log('[updateShield] updating')
+    var shield = 'done'
+    var skip_tags = fc.settings.skip_tags
+    for (var i = 0; i < skip_tags.length; i++) {
+      if (!fc.tagged[skip_tags[i]]) {
+        shield = 'unkown'
+      } else if (fc.tagged[skip_tags[i]].status == 'missing') {
+        shield = 'missing'
+        break
+      } else if (fc.tagged[skip_tags[i]].status == 'unkown') {
+        shield = 'unkown'
+      }
+    }
+    fc.shield = shield
+    console.log('[updateShield] new status ', fc.shield)
+    browser.sendMessage({ msg: 'shield-status', status: fc.shield })
+  },
+
   unload: function() {
     console.log('[unload] Clearing any previous content')
     if (fc.next_share != Infinity) server.setMovie()
@@ -133,6 +152,9 @@ var fc = {
     if (edit != 'start' && edit != 'end') {
       // Update skip
       fc.scenes = fc.decideSkip(fc.scenes)
+
+      // Update shield
+      fc.updateShield()
 
       // Update badge
       browser.updateBadge()
@@ -331,11 +353,16 @@ var browser = {
             msg: 'new-data',
             scenes: fc.scenes,
             settings: fc.settings,
+            tagged: fc.tagged,
+            shield: fc.shield,
             metadata: fc.metadata
           })
         } else if (request.msg == 'update-settings') {
           fc.loadSettings(request.settings)
           browser.setData('settings', fc.settings)
+        } else if (request.msg == 'set-tagged') {
+          fc.tagged = request.tagged
+          fc.onContentEdit('tagged')
         } else if (request.msg == 'play-pause') {
           player.togglePlay()
         } else if (request.msg == 'pause') {

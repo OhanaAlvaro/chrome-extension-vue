@@ -5,7 +5,8 @@
         <thead>
           <tr>
             <th @click="go2Settings" style="cursor: pointer;">
-              Skip<fc-tooltip icon="mdi-help-circle"
+              Skip
+              <fc-tooltip icon="mdi-help-circle"
                 >Change the default skip tags in settings!</fc-tooltip
               >
             </th>
