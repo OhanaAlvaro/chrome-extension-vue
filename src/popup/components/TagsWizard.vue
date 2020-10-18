@@ -5,13 +5,15 @@
       scrollable
       persistent
       :overlay="false"
-      max-width="70%"
+      max-width="80%"
       transition="dialog-transition"
     >
-      <v-card flat>
-        <v-toolbar color="primary" dark dense height="24px" flat>
-          <span style="font-size:110%">{{ pageTitle }}</span>
-        </v-toolbar>
+      <v-card>
+        <v-card-title style="padding: 8px 16px;">
+          {{ pageTitle }}
+          <v-spacer></v-spacer>
+          <!--<v-icon @click="cancelMe()">mdi-close-circle</v-icon>-->
+        </v-card-title>
 
         <v-card-text class="pa-2 pl-4">
           <!-- Scene types-->
