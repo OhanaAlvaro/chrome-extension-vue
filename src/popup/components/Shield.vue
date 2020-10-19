@@ -4,6 +4,10 @@
       <v-card>
         <v-card-title primary-title>
           Tag progress
+          <fc-tooltip text="Click on the shield icons below to change status">
+            <v-icon color="blue" small class="pb-1">mdi-information</v-icon>
+          </fc-tooltip>
+
           <v-spacer></v-spacer>
           <div>
             <fc-tooltip text="The movie contains scenes that are not yet tagged">
