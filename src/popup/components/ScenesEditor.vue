@@ -6,9 +6,9 @@
           <tr>
             <th @click="go2Settings" style="cursor: pointer;">
               Skip
-              <fc-tooltip icon="mdi-help-circle"
-                >Change the default skip tags in settings!</fc-tooltip
-              >
+              <fc-tooltip text="You can change the default skip tags in settings">
+                <v-icon color="info" dark small class="pb-1">mdi-help-circle</v-icon> 
+              </fc-tooltip>
             </th>
             <th>Start time</th>
             <th>End time</th>

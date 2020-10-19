@@ -2,12 +2,15 @@
   <!-- note: not returning a div, so this stays inline-->
   <v-tooltip top color="black">
     <template v-slot:activator="{ on, attrs }">
-      <v-icon :color="color" dark v-bind="attrs" v-on="on" small class="pb-1">{{ icon }}</v-icon>
+      <span v-bind="attrs" v-on="on">
+        <slot>
+          <!-- by using <fc-tooltip>xxxx</fc-tooltip>, xxxx will be set here -->
+        </slot>
+      </span>
     </template>
-
-    <slot>
-      <!-- by using <fc-tooltip>xxxx</fc-tooltip>, xxxx will be set here -->
-    </slot>
+    <span style="font-size: 11px;">
+      {{ text }}
+    </span>
   </v-tooltip>
 </template>
 
@@ -21,13 +24,14 @@ export default {
     color: {
       type: String,
       default: 'info'
+    },
+    text: {
+      type: String,
+      default: ''
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-* {
-  font-size: 11px;
-}
 </style>

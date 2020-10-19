@@ -82,7 +82,7 @@
         <v-card-actions class="pa-1 ma-0">
           <v-btn color="error" @click="cancelMe()" text>Cancel</v-btn>
           <v-spacer></v-spacer>
-          <v-btn v-if="step > 0" color="primary" @click="prevStep()" text>prev</v-btn>
+          <v-btn v-if="step>0" color="primary" @click="prevStep()" text>prev</v-btn>
           <v-btn color="primary" @click="nextStep()" text>next</v-btn>
         </v-card-actions>
       </v-card>
@@ -192,9 +192,7 @@ export default {
   methods: {
     //pages
     prevStep() {
-      if (this.step > 0) {
-        this.step--
-      }
+      this.step--
     },
     nextStep() {
       //evaluate if we should go to the next step or not

@@ -33,23 +33,12 @@
 
     <v-footer fixed color="white" dense>
       <!-- New scene button-->
-      <v-tooltip top>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            color="black"
-            @click="markCurrentTime()"
-            text
-            small
-            class="no-uppercase"
-            v-bind="attrs"
-            v-on="on"
-          >
-            <div v-if="isCreatingScene == false"><v-icon>mdi-plus</v-icon>New filter</div>
-            <div v-else><v-icon>mdi-check</v-icon>End Filter</div>
-          </v-btn>
-        </template>
-        <span>(Alt+N)</span>
-      </v-tooltip>
+      <fc-tooltip text="(Alt+N)">
+        <v-btn color="black" @click="markCurrentTime()" text small class="no-uppercase">
+          <div v-if="isCreatingScene == false"><v-icon>mdi-plus</v-icon>New filter</div>
+          <div v-else><v-icon>mdi-check</v-icon>End Filter</div>
+        </v-btn>
+      </fc-tooltip>
       |
       <!-- Play/Pause button -->
       <v-btn
@@ -91,32 +80,22 @@
       <v-spacer></v-spacer>
 
       <!-- Shield -->
-      <v-tooltip top>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            color="black"
-            text
-            small
-            class="no-uppercase"
-            v-bind="attrs"
-            v-on="on"
-            @click="shield_visible = !shield_visible"
-          >
-            <div v-if="data.shield == `done`">
-              <v-icon color="#00b359">mdi-shield-check</v-icon>Protected!
-            </div>
-            <div v-if="data.shield == `unkown`"><v-icon>mdi-shield-half-full</v-icon>Unkown!</div>
-            <div v-if="data.shield == `missing`">
-              <v-icon color="red">mdi-shield-alert</v-icon>Missing!
-            </div>
-          </v-btn>
-        </template>
-        <div v-if="data.shield == `done`"><span>All unwanted content will be removed!</span></div>
-        <div v-if="data.shield == `unkown`"><span>There might be some unwanted content!</span></div>
-        <div v-if="data.shield == `missing`">
-          <span>This movie contains unwanted content cannot be filtered at the moment!</span>
-        </div>
-      </v-tooltip>
+
+      <v-btn text small class="no-uppercase" @click="shield_visible = !shield_visible">
+        <fc-tooltip v-if="data.shield == `done`" text="All unwanted content will be removed!">
+          <v-icon color="#00b359">mdi-shield-check</v-icon>Protected!
+        </fc-tooltip>
+
+        <fc-tooltip v-if="data.shield == `unkown`" text="There might be some unwanted content!">
+          <v-icon>mdi-shield-half-full</v-icon>Unkown!
+        </fc-tooltip>
+        <fc-tooltip
+          v-if="data.shield == `missing`"
+          text="This movie contains unwanted content cannot be filtered at the moment!"
+        >
+          <v-icon color="red">mdi-shield-alert</v-icon>Missing!
+        </fc-tooltip>
+      </v-btn>
 
       <!-- Shield dialog -->
       <shield-vue :visible="shield_visible" @hide="shield_visible = false"></shield-vue>

@@ -3,19 +3,30 @@
     <v-dialog v-model="visible2" width="500" max-width="80%">
       <v-card>
         <v-card-title primary-title>
-          Finished categories
-          <fc-tooltip icon="mdi-help-circle"
-            >All scenes from this category have been marked.</fc-tooltip
-          >
+          Tag progress
+          <v-spacer></v-spacer>
+          <div>
+            <fc-tooltip text="The movie contains scenes that are not yet tagged">
+              <v-icon color="red">mdi-shield-alert</v-icon>Missing
+            </fc-tooltip>
+            <fc-tooltip text="The movie might contain some untagged scenes of this type">
+              <v-icon>mdi-shield-half-full</v-icon> Unkown
+            </fc-tooltip>
+            <fc-tooltip text="All scenes of this type have been tagged">
+              <v-icon color="#00b359">mdi-shield-check</v-icon> Done
+            </fc-tooltip>
+          </div>
         </v-card-title>
         <v-card-text>
-          <span v-for="tag in tags" :key="tag.value">
-            <v-checkbox v-model="tag.status" value indeterminate>
-              <template v-slot:label>
-                <b style="min-width: 100px">{{ tag.title }} </b> {{ tag.description }}
-              </template>
-            </v-checkbox>
-          </span>
+          <div v-for="(tag, index) in tags" :key="index">
+            <div @click="tag.status = nextStatus(tag.status)" style="cursor: pointer;">
+              <v-icon v-if="tag.status == `missing`" color="red">mdi-shield-alert</v-icon>
+              <v-icon v-if="tag.status == `done`" color="#00b359">mdi-shield-check</v-icon>
+              <v-icon v-if="tag.status == `unkown`">mdi-shield-half-full</v-icon>
+              <b style="min-width: 100px">{{ tag.title }} </b> {{ tag.description }}
+            </div>
+            <br />
+          </div>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -45,17 +56,9 @@ export default {
   },
   data() {
     return {
-      key: 'value',
       tags: [],
-      gore_tags: [],
       tagged: {}
     }
-  },
-  beforeCreate() {
-    this.tags = raw.content[0].severity
-    this.gore_tags = raw.content[1].severity
-    console.log(this.tags)
-    console.log(this.gore_tags)
   },
   computed: {
     visible2: {
@@ -76,21 +79,23 @@ export default {
       console.log('shield-cancel')
       this.$emit('hide') //send the visible=false (iput changes the parent v-model)
     },
+
+    nextStatus(current) {
+      if (current == 'done') {
+        return 'missing'
+      } else if (current == 'missing') {
+        return 'unkown'
+      } else {
+        return 'done'
+      }
+    },
     save(msg) {
       console.log('shield-save')
       //TODO: send message to save
-
       var tagged = {}
-
       for (var i = 0; i < this.tags.length; i++) {
-        var status = 'unkown'
-        if (this.tags[i].status === true) {
-          status = 'done'
-        } else if (this.tags[i].status === false) {
-          status = 'missing'
-        }
         tagged[this.tags[i].value] = {
-          status: status
+          status: this.tags[i].status
         }
       }
       console.log(tagged)
@@ -102,17 +107,21 @@ export default {
       fclib.getData(xx => {
         console.log('rrrr', xx)
         var tagged = xx.tagged
-        for (var i = 0; i < this.tags.length; i++) {
-          var value = this.tags[i].value
-          if (!tagged[value]) continue
-          if (tagged[value].status == 'done') {
-            this.tags[i].status = true
+        var tags = raw.content[0].severity.concat(raw.content[1].severity)
+        console.log(tags, tagged)
+        for (var i = 0; i < tags.length; i++) {
+          var value = tags[i].value
+          if (!tagged[value]) {
+            tags[i].status = 'unkown'
+          } else if (tagged[value].status == 'done') {
+            tags[i].status = 'done'
           } else if (tagged[value].status == 'missing') {
-            this.tags[i].status = false
+            tags[i].status = 'missing'
           } else {
-            this.tags[i].status = undefined
+            tags[i].status = 'unkown'
           }
         }
+        this.tags = JSON.parse(JSON.stringify(tags))
         console.log(this.tags)
       })
     },
@@ -125,8 +134,6 @@ export default {
         this.getData()
       }
     })
-    this.tags = raw.content[0].severity.concat(raw.content[1].severity)
-    console.log(this.tags)
   }
 }
 </script>

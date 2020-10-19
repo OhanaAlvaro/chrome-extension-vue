@@ -20,7 +20,9 @@
       <v-col cols="8">
         <div @click="dialog = true" style="cursor: pointer;">
           <b style="font-size:120%">2. Choose what to filter out </b>
-          <fc-tooltip>You can customize this for specific scenes in film view</fc-tooltip>
+          <fc-tooltip text="You can customize this for specific scenes in film view">
+            <v-icon color="info" dark small class="pb-1">mdi-help-circle</v-icon>
+          </fc-tooltip>
 
           <br />
           <v-chip

@@ -17,18 +17,16 @@ chrome.runtime.onMessage.addListener(function(data, sender, sendResponse) {
   console.log(data.msg)
   if (data.msg === 'update-badge') {
     chrome.browserAction.setBadgeText({ text: '' + data.numDisplayedScenes, tabId: sender.tab.id })
-  } else if (data.msg === 'shield-status') {
+    chrome.browserAction.setBadgeBackgroundColor({ color: '#2b2b2b' })
+  }/* else if (data.msg === 'shield-status') {
     if (data.status == 'missing') {
-      chrome.browserAction.setBadgeBackgroundColor({ color: 'red' })
-      //chrome.browserAction.setIcon({ path: 'icons/128_missing.png' })
-    } else if (data.status == 'unkown') {
-      chrome.browserAction.setBadgeBackgroundColor({ color: 'blue' })
-      //chrome.browserAction.setIcon({ path: 'icons/128_unkown.png' })
+      chrome.browserAction.setIcon({ path: 'icons/missing.png', tabId: sender.tab.id })
+    } else if (data.status == 'done') {
+      chrome.browserAction.setIcon({ path: 'icons/done.png', tabId: sender.tab.id })
     } else {
-      chrome.browserAction.setBadgeBackgroundColor({ color: 'green' })
-      //chrome.browserAction.setIcon({ path: 'icons/128.png' })
+      chrome.browserAction.setIcon({ path: 'icons/unkown.png', tabId: sender.tab.id })
     }
-  }
+  }*/
 })
 
 function sendMessage(data) {
