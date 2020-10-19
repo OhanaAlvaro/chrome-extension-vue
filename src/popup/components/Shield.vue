@@ -1,6 +1,7 @@
 <template>
   <div>
     <v-dialog v-model="visible2" width="500" max-width="80%">
+      <!-- feel free to test adding fullscreen prop on the dialog :) -->
       <v-card>
         <v-card-title primary-title>
           Tag progress
