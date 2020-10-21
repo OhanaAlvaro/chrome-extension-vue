@@ -58,7 +58,7 @@
     "default_popup": "popup.html",
     "default_title": "__MSG_extName__",
     "default_icon": {
-      "128": "icons/128.png"
+      "128": "icons/inactive.png"
     }
   },
   "options_ui": {

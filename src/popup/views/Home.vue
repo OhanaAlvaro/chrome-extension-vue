@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="min-height: 250px;">
     <!--<h3>Auto filtered</h3>-->
 
     <!-- this is a dialog used for new scenes only. Rest of the time it's hidden -->
@@ -10,10 +10,9 @@
       @change="newSceneTagsChange"
     ></tags-wizard>
 
-    <div v-if="zero_scenes">
-      <br />
-      <!-- br as temp fix -->
-      <p style="font-size:110%">No filters for this film. Be the first one to add one!</p>
+    <div v-if="zero_scenes" align="center" justify="center" style="width:600px">
+      <br /><br /><br /><br /><br />
+      No filters for this film. Be the first one to add one!
     </div>
     <div v-else>
       <scenes-editor v-model="data.scenes"></scenes-editor>
@@ -33,38 +32,19 @@
 
     <v-footer fixed color="white" dense>
       <!-- New scene button-->
+
       <fc-tooltip text="(Alt+N)">
         <v-btn color="black" @click="markCurrentTime()" text small class="no-uppercase">
           <div v-if="isCreatingScene == false"><v-icon>mdi-plus</v-icon>New filter</div>
           <div v-else><v-icon>mdi-check</v-icon>End Filter</div>
         </v-btn>
       </fc-tooltip>
-      |
-      <!-- Play/Pause button -->
-      <v-btn
-        color="black"
-        @click="
-          sendMessage({ msg: 'play-pause' })
-          isEditing = false
-        "
-        text
-        small
-        class="no-uppercase"
-      >
-        <v-icon fab>mdi-play</v-icon>Play/Pause
-      </v-btn>
 
       <!-- Blur slider: allow user to control the blur right from here -->
 
-      <v-checkbox
-        v-if="isCreatingScene"
-        v-model="mute_on_mark"
-        :label="`Mute`"
-        @change="changeMute"
-      ></v-checkbox>
+      <v-checkbox v-model="mute_on_mark" :label="`Mute`" @change="changeMute"></v-checkbox>
 
       <v-slider
-        v-if="isCreatingScene || isEditing"
         v-model="sliderValue"
         inverse-label
         :min="0"
@@ -76,6 +56,17 @@
       >
         <template v-slot:thumb-label="{ value }">{{ 2.5 * value + '%' }}</template>
       </v-slider>
+
+      <!-- Play/Pause button -->
+      <v-btn
+        color="black"
+        @click="sendMessage({ msg: 'play-pause' })"
+        text
+        small
+        class="no-uppercase"
+      >
+        <v-icon fab>mdi-play</v-icon>Play/Pause
+      </v-btn>
 
       <v-spacer></v-spacer>
 
