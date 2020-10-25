@@ -567,32 +567,36 @@ var player = {
   load: function() {
     var video = document.getElementsByTagName('video')
     if (video.length != 1) {
-      console.warn('[check] We have ', video.length, ' videos tags...')
+      //console.warn('[load] We have ', video.length, ' videos tags...')
       return false
     }
     player.video = video[0]
     fc.metadata.duration = player.video.duration * 1000
 
     if (fc.metadata.provider == 'netflix') {
-      var script = document.createElement('script')
-      script.innerHTML = `var videoPlayer = netflix.appContext.state.playerApp.getAPI().videoPlayer
-            var playerSessionId = videoPlayer.getAllPlayerSessionIds()[0]
-            var netflix_player = videoPlayer.getVideoPlayerBySessionId(playerSessionId)
-            console.log(netflix_player)
-            document.addEventListener('netflix-video-controller', function(e) {
-                var data = e.detail
-                console.log('[netflix-video-controller] Received ', data)
-                if (data.pause) {
-                    netflix_player.pause()
-                } else if (data.play) {
-                    netflix_player.play()
-                }
-                if (data.time) {
-                    netflix_player.seek(data.time)
-                }
-
-            })`
-      document.head.appendChild(script)
+      if (!document.getElementById('fc-netflix-video-controller')) {
+        var script = document.createElement('script')
+        script.id = 'fc-netflix-video-controller'
+        script.innerHTML = `
+          document.addEventListener('netflix-video-controller', function (e) {
+            var data = e.detail;
+            var videoPlayer = netflix.appContext.state.playerApp.getAPI().videoPlayer;
+            var allSessions = videoPlayer.getAllPlayerSessionIds();
+            for (var i = allSessions.length - 1; i >= 0; i--) {
+              var netflix_player = videoPlayer.getVideoPlayerBySessionId(allSessions[i]);
+              console.log('[netflix-video-controller] Received: ', data, netflix_player);
+              if (data.pause) {
+                netflix_player.pause();
+              } else if (data.play) {
+                netflix_player.play();
+              }
+              if (data.time) {
+                netflix_player.seek(data.time);
+              }
+            }
+          });`
+        document.head.appendChild(script)
+      }
     }
     return true
   },
