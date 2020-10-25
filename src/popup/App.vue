@@ -148,7 +148,7 @@ export default {
 <style lang="scss">
 html {
   width: 600px;
-  min-height: 250px !important;
+  min-height: 330px !important;
 }
 
 * {
