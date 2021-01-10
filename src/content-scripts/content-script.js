@@ -191,9 +191,15 @@ var fc = {
     // Extract metadata
     var url = window.location.href
     var host = window.location.hostname
-    var m = { provider: '', pid: 0, duration: null, url: url, src: '' }
     var queryString = window.location.search
     var urlParams = new URLSearchParams(queryString)
+    var m = {
+      provider: '',
+      pid: 0,
+      duration: player.duration(),
+      url: url,
+      src: ''
+    }
 
     function match(regex, haystack) {
       if (!haystack) haystack = url
@@ -215,7 +221,7 @@ var fc = {
       m.pid = match(/video\/([0-9abcdef\-]+)/)
     } else if (host.includes('hbo')) {
       m.provider = 'hbo'
-      m.pid = match(/\/([0123456789abcdef-]+)\/play/)
+      m.pid = match(/\/([0123456789abcdef-]+)/)
     } else if (host.includes('movistarplus')) {
       m.provider = 'movistarplus'
       m.pid = urlParams.get('id')
@@ -233,9 +239,6 @@ var fc = {
 
     if (!m.src && m.pid) m.src = m.provider + '_' + m.pid
 
-    if (player.video && player.video.duration) {
-      m.duration = player.video.duration * 1000
-    }
     fc.metadata = m
     console.log('[getVideoID]', fc.metadata)
   },
@@ -245,17 +248,17 @@ var fc = {
     var start = fc.marking_started
     var time = Math.round(player.getTime() / 50) * 50
     if (!start) {
-      fc.marking_started = player.video.paused ? time : time - 2000
-      player.video.playbackRate = fc.settings.playbackRate_on_mark
+      fc.marking_started = player.isPaused() ? time : time - 2000
+      player.playbackRate(fc.settings.playbackRate_on_mark)
       player.blur(fc.settings.blur_level)
       if (fc.settings.mute_on_mark) player.mute(true)
       console.log('Scene start marked at ', fc.marking_started)
     } else {
-      var end = player.video.paused ? time : time - 2000
+      var end = player.isPaused() ? time : time - 2000
       var scene = { tags: tags, start: start, end: end, id: utils.random_id() }
       fc.addScene(scene)
       fc.marking_started = false
-      player.video.playbackRate = 1
+      player.playbackRate(1)
       player.blur(0)
       if (fc.settings.pause_after_adding_scene) player.pause()
       player.mute(false)
@@ -269,7 +272,7 @@ var fc = {
     var next_good = 0
 
     if (fc.frame_seeked) {
-      if (player.video.paused) return
+      if (player.isPaused()) return
       player.blur(0)
       fc.frame_seeked = false
     }
@@ -297,12 +300,12 @@ var fc = {
     if (next_good === 0 && fc.skipping) {
       console.log('[check_needs_skip] Back to normal')
       fc.preview_skip = null
-      player.video.style.visibility = 'visible'
+      player.visibility('visible')
       player.mute(false)
       fc.skipping = false
     } else if (next_good !== 0 && !fc.skipping) {
       console.log('[check_needs_skip] It does!')
-      player.video.style.visibility = 'hidden'
+      player.visibility('hidden')
       player.mute(true)
       player.seek(next_good)
       fc.skipping = true
@@ -563,6 +566,7 @@ var server = {
 
 var player = {
   video: false,
+  controller: 'html5', // html5|netflix|cast
 
   load: function() {
     var video = document.getElementsByTagName('video')
@@ -573,48 +577,132 @@ var player = {
     player.video = video[0]
     fc.metadata.duration = player.video.duration * 1000
 
-    if (fc.metadata.provider == 'netflix') {
-      if (!document.getElementById('fc-netflix-video-controller')) {
-        var script = document.createElement('script')
-        script.id = 'fc-netflix-video-controller'
-        script.innerHTML = `
-          document.addEventListener('netflix-video-controller', function (e) {
-            var data = e.detail;
-            var videoPlayer = netflix.appContext.state.playerApp.getAPI().videoPlayer;
-            var allSessions = videoPlayer.getAllPlayerSessionIds();
-            for (var i = allSessions.length - 1; i >= 0; i--) {
-              var netflix_player = videoPlayer.getVideoPlayerBySessionId(allSessions[i]);
-              console.log('[netflix-video-controller] Received: ', data, netflix_player);
-              if (data.pause) {
-                netflix_player.pause();
-              } else if (data.play) {
-                netflix_player.play();
-              }
-              if (data.time) {
-                netflix_player.seek(data.time);
-              }
-            }
-          });`
-        document.head.appendChild(script)
-      }
+    if (true) {
+      player.controller = 'cast'
+    } else if(){
+      player.controller = 'netflix'
+    } else {
+      player.controller = 'html5'
     }
+
+    if (!document.getElementById('fc-video-controller')) {
+      var script = document.createElement('script')
+      script.id = 'fc-video-controller'
+      script.innerHTML = `
+        var us = document.getElementById('fc-video-controller')
+
+        document.addEventListener('netflix-video-controller', function(e) {
+          var data = e.detail
+          var videoPlayer = netflix.appContext.state.playerApp.getAPI().videoPlayer
+          var allSessions = videoPlayer.getAllPlayerSessionIds()
+          for (var i = allSessions.length - 1; i >= 0; i--) {
+            var netflix_player = videoPlayer.getVideoPlayerBySessionId(allSessions[i])
+            console.log('[netflix-video-controller] Received: ', data, netflix_player)
+            if (data.pause) {
+              netflix_player.pause()
+            } else if (data.play) {
+              netflix_player.play()
+            }
+            if (data.seek) {
+              netflix_player.seek(data.seek)
+            }
+          }
+        })
+
+        document.addEventListener('cast-video-controller', function(e) {
+        var data = e.detail
+        var currentMediaSession = cast.framework.CastContext.getInstance()
+          .getCurrentSession()
+          .getMediaSession()
+        console.log('[cast-video-controller] Received: ', data, currentMediaSession)
+        if (data.play) {
+          currentMediaSession.play()
+        } else if (data.pause) {
+          currentMediaSession.pause()
+        } else if (data.togglePlay) {
+          if (currentMediaSession.playerState == 'PAUSED') {
+            currentMediaSession.play()
+          } else {
+            currentMediaSession.pause()
+          }
+        } else if (data.toggleMute) {
+          /*var player = new cast.framework.RemotePlayer();
+          var playerController = new cast.framework.RemotePlayerController(player);
+          playerController.muteOrUnmute()*/
+        } else if (data.seek) {
+          var request = new chrome.cast.media.SeekRequest()
+          request.currentTime = data.seek / 1000
+          currentMediaSession.seek(request)
+        } else if (data.getTime) {
+          //us.dataset.time = ...
+        }
+      })`
+      document.head.appendChild(script)
+    }
+
     return true
   },
 
+  dispatch: function(name, detail) {
+    document.dispatchEvent(new CustomEvent(name, { detail: detail }))
+  },
+
+  playbackRate: function(rate) {
+    if (player.controller == 'cast') {
+      player.dispatch('cast-video-controller', { playbackRate: rate })
+    } else {
+      player.video.playbackRate(rate)
+    }
+  },
+
+  duration: function() {
+    if (player.controller == 'cast') {
+      console.error('Unable to get duration while casting')
+      return Infinity
+    } else {
+      return video.player.duration
+    }    
+  },
+
+  isPaused: function() {
+    if (player.controller == 'cast') {
+      console.log('Unable to get paused status while casting')
+      return false
+    } else {
+      return player.video.paused
+    }
+  },
+
+  visibility: function(state) {
+    if (player.controller == 'cast') {
+      return console.log('Unable to set visibility while casting')
+    } else {
+      player.video.style.visibility = state
+    }
+  },
+
   mute: function(state) {
-    player.video.muted = state
+    if (player.controller == 'cast') {
+      player.dispatch('cast-video-controller', { toggleMute: true, state: state })
+    } else {
+      player.video.muted = state
+    }
   },
 
   blur: function(blur_level) {
-    if (!blur_level) blur_level = 0
-    player.video.style.webkitFilter = 'blur(' + parseInt(blur_level) + 'px)'
+    if (player.controller == 'cast') {
+      return console.log('Unable to blur while casting')
+    } else {
+      if (!blur_level) blur_level = 0
+      player.video.style.webkitFilter = 'blur(' + parseInt(blur_level) + 'px)'
+    }
   },
 
   pause: function() {
-    if (fc.metadata.provider == 'netflix') {
-      document.dispatchEvent(
-        new CustomEvent('netflix-video-controller', { detail: { pause: true } })
-      )
+    if (player.controller == 'cast') {
+      player.dispatch('cast-video-controller', { pause: true })
+    } else if (player.controller == 'netflix') {
+      player.dispatch('netflix-video-controller', { pause: true })
     } else {
       player.video.pause()
     }
@@ -622,20 +710,24 @@ var player = {
 
   play: function() {
     console.log('play')
-    if (fc.metadata.provider == 'netflix') {
-      document.dispatchEvent(
-        new CustomEvent('netflix-video-controller', { detail: { play: true } })
-      )
+    if (player.controller == 'cast') {
+      player.dispatch('cast-video-controller', { play: true })
+    } else if (player.controller == 'netflix') {
+      player.dispatch('netflix-video-controller', { play: true })
     } else {
       player.video.play()
     }
   },
 
   togglePlay: function() {
-    if (player.video.paused) {
-      player.play()
+    if (player.controller == 'cast') {
+      player.dispatch('cast-video-controller', { togglePlay: true })
     } else {
-      player.pause()
+      if (player.video.paused) {
+        player.play()
+      } else {
+        player.pause()
+      }
     }
   },
 
@@ -647,10 +739,10 @@ var player = {
       return
     }
 
-    if (fc.metadata.provider == 'netflix') {
-      document.dispatchEvent(
-        new CustomEvent('netflix-video-controller', { detail: { time: time } })
-      )
+    if (player.controller == 'cast') {
+      player.dispatch('cast-video-controller', { seek: time })
+    } else if (player.controller == 'netflix') {
+      player.dispatch('netflix-video-controller', { seek: time })
     } else {
       player.video.currentTime = time / 1000
     }
@@ -666,7 +758,13 @@ var player = {
 
   // Get current time in milliseconds (all times are always in milliseconds!)
   getTime: function() {
-    return player.video.currentTime * 1000
+    if (player.controller == 'cast') {
+      player.dispatch('cast-video-controller', { getTime: true })
+      player.script = document.getElementById('fc-video-controller')
+      return player.script.dataset.time
+    } else {
+      return player.video.currentTime * 1000
+    }
   }
 }
 
