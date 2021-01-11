@@ -1,7 +1,5 @@
 # Family Cinema Vue Extension
 
-Note: This project is trying to add the power of Vue to our original Family Cinema plugin. Still working progress and not clear if we will get anywhere...
-
 # API
 
 A separated component, but key here, is our Family Cinema API. So far it's a single php file which receives and `action` together with the necessary data to perform the action.
