@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-dialog v-model="visible2" width="500" max-width="80%" persistent>
+    <v-dialog v-model="visible2" width="500" max-width="100%" persistent>
       <!-- feel free to test adding fullscreen prop on the dialog :) -->
       <v-card>
         <v-card-title primary-title style="font-size:130%; padding-bottom:2px; padding-top:2px">

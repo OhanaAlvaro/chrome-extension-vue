@@ -341,6 +341,8 @@ var browser = {
       try {
         if (request.msg == 'mark-current-time') {
           return sendResponse(fc.mark_current_time(request.tags))
+        } else if (request.msg == 'show-sidebar'){
+          show_sidebar()
         } else if (request.msg == 'preview') {
           fc.previewScene(request.id)
         } else if (request.msg == 'remove') {
@@ -377,6 +379,8 @@ var browser = {
           if (!fc.marking_started) fc.frame_seeked = true
         } else if (request.msg == 'seek-frame') {
           player.seek(request.time, 'frame')
+        } else if (request.msg == 'seek-diff') {
+          player.seek(request.diff + player.getTime(), 'frame')
         } else if (request.msg == 'login') {
           server.send(
             {
@@ -730,3 +734,63 @@ document.addEventListener('unload', function() {
 browser.getData('settings', function(settings) {
   fc.loadSettings(settings)
 })
+
+function show_sidebar() {
+  console.log('injecting iframe')
+  // Avoid recursive frame insertion...
+
+  if (!document.getElementById('fc-iframe')) {
+    var iframe = document.createElement('iframe')
+    iframe.src = chrome.runtime.getURL('popup.html')
+    console.log('injecting iframe: ', iframe.src)
+    iframe.id = 'fc-iframe'
+    document.body.appendChild(iframe)
+
+    
+    var style = document.createElement('style')
+    style.innerHTML = `
+    #hudson-wrapper, .sizing-wrapper, .app-container > div {
+      right: 400px !important;
+      width: calc(100% - 400px) !important;
+    }
+    #fc-iframe{
+      position:fixed;
+      top:0;
+      right:0;
+      display:block;
+      width:400px;
+      height:100%;
+      z-index:1000;
+    }
+    `
+    document.head.appendChild(style)
+  }
+}
+
+/*
+#chat-wrapper {
+  width: 288px !important;
+  height: 100% !important;
+  background: #1a1a1a;
+  position: fixed !important;
+  top: 0 !important;
+  left: auto !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  cursor: auto;
+  user-select: text;
+  -webkit-user-select: text;
+  z-index: 9999999999 !important;
+}
+
+#chat-wrapper #chat-container {
+  // width: 228px;
+  height: 100%;
+  position: relative;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+}
+
+*/
+

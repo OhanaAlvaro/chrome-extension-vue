@@ -1,75 +1,43 @@
 <template>
   <div style="min-height: 250px;">
-    <!--<h3>Auto filtered</h3>-->
+    <div>
+      <h2>Choose what to filter out</h2>
+      <span @click="go2Settings()" style="position: absolute; top:15px;right:15px; cursor: pointer;">
+        {{ username }} <v-icon small>mdi-account</v-icon>
+      </span>
+    </div>
+    <br>
 
-    <!-- this is a dialog used for new scenes only. Rest of the time it's hidden -->
-    <!-- existing scenes use the wizard from the scenes editor-->
-    <tags-wizard
-      :tags="new_scene_tags"
-      v-model="new_scene_wizard"
-      @change="newSceneTagsChange"
-    ></tags-wizard>
+    <div @click="dialog = true" style="cursor: pointer;">
+      <v-chip
+        v-for="(skip_tag, index) in data.settings.skip_tags"
+        :key="index"
+        x-small
+        dark
+        :color="getTagColor(skip_tag)"
+        >{{ skip_tag }}</v-chip
+      >
 
-    <div v-if="zero_scenes" align="center" justify="center" style="width:600px">
+      <!-- If no tag selected - ->
+      <v-chip v-if="data.settings.skip_tags.length == 0" x-small dark
+        >Skip nothing
+        <v-icon right x-small>mdi-pencil</v-icon>
+      </v-chip>-->
+    </div>
+
+    <div v-if="zero_scenes" align="center" justify="center" style="width:300px">
       <br /><br /><br /><br /><br />
       No filters for this film. Be the first one to add one!
     </div>
     <div v-else>
-      <scenes-editor v-model="data.scenes"></scenes-editor>
+      <scenes-viewer v-model="data.scenes"></scenes-viewer>
     </div>
-    <!--
-    <br />
-    <br />
-
-    
-    <h1>Other scenes</h1>
-    <scenes-editor v-model="data.scenes"></scenes-editor>
-    -->
 
     <br />
     <br />
     <br />
 
     <v-footer fixed color="white" dense>
-      <!-- New scene button-->
-
-      <fc-tooltip text="(Alt+N)">
-        <v-btn color="black" @click="markCurrentTime()" text small class="no-uppercase">
-          <div v-if="isCreatingScene == false"><v-icon>mdi-plus</v-icon>New filter</div>
-          <div v-else><v-icon>mdi-check</v-icon>End Filter</div>
-        </v-btn>
-      </fc-tooltip>
-
-      <!-- Blur slider: allow user to control the blur right from here -->
-
-      <v-checkbox v-model="mute_on_mark" :label="`Mute`" @change="changeMute"></v-checkbox>
-
-      <v-slider
-        v-model="sliderValue"
-        inverse-label
-        :min="0"
-        :max="40"
-        thumb-label
-        :label="`Blur`"
-        step="2"
-        @change="changeBlur"
-      >
-        <template v-slot:thumb-label="{ value }">{{ 2.5 * value + '%' }}</template>
-      </v-slider>
-
-      <!-- Play/Pause button -->
-      <v-btn
-        color="black"
-        @click="sendMessage({ msg: 'play-pause' })"
-        text
-        small
-        class="no-uppercase"
-      >
-        <v-icon fab>mdi-play</v-icon>Play/Pause
-      </v-btn>
-
-      <v-spacer></v-spacer>
-
       <!-- Shield -->
 
       <v-btn text small class="no-uppercase" @click="shield_visible = !shield_visible">
@@ -88,6 +56,20 @@
         </fc-tooltip>
       </v-btn>
 
+      <v-btn
+        color="black"
+        @click="sendMessage({ msg: 'show-sidebar' })"
+        text
+        small
+        class="no-uppercase"
+      >
+        Editor's panel
+      </v-btn>
+
+      <v-btn @click="sendMessage({ msg: 'play-pause' })" text small>
+        <v-icon fab>mdi-play</v-icon>Play/Pause
+      </v-btn>
+
       <!-- Shield dialog -->
       <shield-vue :visible="shield_visible" @hide="shield_visible = false"></shield-vue>
 
@@ -100,16 +82,14 @@
 </template>
 
 <script>
-import ScenesEditor from '../components/ScenesEditor'
+import ScenesViewer from '../components/ScenesViewer'
 import ShieldVue from '../components/Shield.vue'
-import TagsWizard from '../components/TagsWizard'
-
 import fclib from '../js/fclib'
+var raw = require('../js/raw_tags')
 export default {
   name: 'Home',
   components: {
-    ScenesEditor,
-    TagsWizard,
+    ScenesViewer,
     ShieldVue
   },
 
@@ -125,26 +105,23 @@ export default {
       }
     }
   },
+
+  computed: {
+    extensionName() {
+      return browser.i18n.getMessage('extName')
+    }
+  },
+
   data() {
     return {
       data: { msg: '', scenes: [], settings: [], shield: 'unkown' }, //default values, to avoid missing keys
       zero_scenes: false,
-      auxx: '',
       snackbarText: '',
       snackbar: false,
       snackbarTimeout: 6000,
-      isCreatingScene: false,
-      isEditing: false,
 
-      //when adding a new scene:
-
-      new_scene_wizard: false,
-      new_scene_tags: [],
-      new_scene_index: 0,
-
-      //slider & mute
-      sliderValue: 0,
-      mute_on_mark: true,
+      drawer: false,
+      username: '',
 
       //shield
       shield_visible: false
@@ -152,91 +129,12 @@ export default {
   },
 
   methods: {
-    //slider_
-    changeBlur(newValue) {
-      var oldValue = this.data.settings.blur_level
-      console.log('change blur', newValue, oldValue)
-
-      this.data.settings.blur_level = newValue
-
-      this.sendMessage({ msg: 'update-settings', settings: this.data.settings }, response => {
-        console.log('save settings response', response)
-        if (response == false) {
-          this.sliderValue = oldValue
-          this.data.settings.blur_level = oldValue
-        }
-      })
-
-      this.sendMessage({ msg: 'blur', blur_level: newValue }, response => {
-        console.log('blur response', response)
-      })
-    },
-
-    changeMute(newValue) {
-      console.log('change mute', this.mute_on_mark)
-
-      this.data.settings.mute_on_mark = this.mute_on_mark
-
-      this.sendMessage({ msg: 'update-settings', settings: this.data.settings }, response => {
-        console.log('save settings response', response)
-        if (response == false) {
-          this.mute_on_mark = oldValue
-          this.data.settings.mute_on_mark = oldValue
-        }
-      })
-
-      this.sendMessage({ msg: 'mute', state: this.mute_on_mark }, response => {
-        console.log('mute: ', response)
-      })
-    },
-
-    //New Scene
-    newSceneTagsChange(tagsSoFar) {
-      console.log('updating tags in new scene -> careful, we use INDEX!!!')
-
-      //make a copy of the scene with the changes:
-      var new_scene = this.data.scenes[this.new_scene_index]
-      new_scene.tags = tagsSoFar
-
-      //send this new scene
-      this.sendMessage({ msg: 'update-scene', scene: new_scene, field: 'tags' }, response => {
-        console.log('update-scene', response)
-        //if response is success, then NOW  we apply the change to the UI
-        if (response.success) {
-          this.data.scenes[this.new_scene_index].tags = tagsSoFar //apply the change to the main OBJECT
-        }
-      })
-    },
-    markCurrentTime() {
-      this.sendMessage({ msg: 'mark-current-time' }, response => {
-        console.log(response)
-        if (response && response.scene) {
-          //scene created successfully (tbc: was it sent to the server before the response?)
-          var msg = [
-            'Wow! Did you just do that? Thank your for adding a new scene!',
-            'You are absolutely awesome!',
-            'Thank you!',
-            'The world would be a better place if everyone was like you!'
-          ]
-          //this.snackbarText = msg[Math.floor(Math.random() * msg.length)]
-          this.snackbar = false // Hide any previous snackbar
-          this.data.scenes.push(response.scene)
-          this.sendMessage({ msg: 'pause' })
-          this.isCreatingScene = false
-
-          //handle tags for new scene
-          this.new_scene_tags = []
-          this.new_scene_wizard = true
-          this.new_scene_index = this.data.scenes.length - 1
-        } else {
-          //Begin of scene:
-          this.isCreatingScene = true
-          this.isEditing = true
-          console.log('[mark-current-time] No scene, assuming start')
-          this.snackbarText = 'Press again to mark the end of the scene'
-          this.snackbar = true
-        }
-      })
+    go2Settings() {
+      if (this.$route.name == 'Settings') {
+        this.$router.go(-1) //go back to whatever route we were before :)  | (just in case at some point we have more than Home/Settings)
+      } else {
+        this.$router.push('/settings')
+      }
     },
 
     //Generic methods:
@@ -258,21 +156,41 @@ export default {
       })
     },
 
+    getTagColor(value) {
+      var color_value = 'gray' //default
+      raw.content.forEach(item => {
+        if (item.value == value) {
+          color_value = item.color
+        }
+      })
+      return color_value
+    },
+
+    inIframe() {
+      try {
+        return window.self !== window.top
+      } catch (e) {
+        return true
+      }
+    },
+
     getData(firstTime) {
       this.sendMessage({ msg: 'get-data' }, response => {
         console.log('data-received in Home', response)
+        console.log(window.innerWidth)
 
-        if (!response) {
-          return this.$router.push('/about')
+        if (this.inIframe()) {
+          return this.$router.push('/editor')
+        } else if (!response) {
+          return this.$router.push('/wrongsite')
         } else if (!response.settings || !response.scenes) {
           return this.$router.push('/no-movie')
         } else if (!response.settings.username) {
           return this.$router.push('/settings')
         }
 
-        /* careful: when adding a new scene, this makes it hard to identify it (now instead of going at the end, it appears in position xx)
+        this.username = response.settings.username
 
-*/
         if (firstTime) {
           response.scenes.sort(function(a, b) {
             //make sure default scenes are shown first, and the rest sorted by start time
@@ -283,9 +201,6 @@ export default {
         }
 
         this.data = response
-
-        this.sliderValue = response.settings.blur_level
-        this.mute_on_mark = response.settings.mute_on_mark
         this.scenes = response.scenes
       })
     }
@@ -316,4 +231,8 @@ export default {
   margin-top: 0px;
   padding-top: 0px;
 }
+</style>
+
+<style lang="scss" scoped>
+@import '/v0/popup.css';
 </style>

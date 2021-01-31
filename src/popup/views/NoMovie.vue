@@ -1,6 +1,5 @@
 <template>
-  <div>
-    <br />
+  <div class="size-wrapper">
     <h3>Almost there! Try (re)loading some content.</h3>
     <p>
       Family Cinema works with this provider, but you need to open a specific movie/show to start
@@ -18,4 +17,9 @@
 export default {}
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+.size-wrapper{
+  min-width: 300px;
+}
+</style>

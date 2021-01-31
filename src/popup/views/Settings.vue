@@ -1,6 +1,16 @@
 <template>
-  <div>
+  <div class="size-wrapper">
     <!-- skip_tags -->
+          <v-app-bar app color="#00b359" dark dense height="34px" flat>
+    <div class="d-flex align-center">
+      <h3 v-if="username">{{ username }} @ {{ extensionName }}</h3>
+      <h3 v-else>{{ extensionName }}</h3>
+    </div>
+
+    <v-spacer></v-spacer>
+
+    <v-icon small @click="$router.push('/')">mdi-movie</v-icon>
+  </v-app-bar>
 
     <v-snackbar top right v-model="snackbar" :timeout="snackbarTimeout" :color="snackbarColor">{{
       snackbarText
@@ -159,6 +169,7 @@ export default {
   components: {
     Login
   },
+
   data() {
     return {
       settings: { skip_tags: [] },
@@ -198,6 +209,9 @@ export default {
   },
 
   computed: {
+    extensionName() {
+      return browser.i18n.getMessage('extName')
+    },
     page() {
       if (this.step < this.pages.length) {
         return this.pages[this.step]
@@ -362,4 +376,9 @@ export default {
 .no-uppercase {
   text-transform: none !important;
 }
+
+.size-wrapper{
+  min-width: 500px;
+}
+
 </style>
