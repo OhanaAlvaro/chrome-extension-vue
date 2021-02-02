@@ -1,6 +1,13 @@
 <template>
   <div class="size-wrapper">
-    <h2>Family Cinema - Editor's panel</h2>
+    <div>
+      <h2>Create new filters</h2>
+      <span class="menu">
+        <span @click="go2Settings()">
+          <v-icon small>mdi-account</v-icon>
+        </span>
+      </span>
+    </div>
 
     <!-- this is a dialog used for new scenes only. Rest of the time it's hidden -->
     <!-- existing scenes use the wizard from the scenes editor-->
@@ -20,7 +27,7 @@
 
     <v-btn text small @click="shield_visible = !shield_visible">
       <fc-tooltip text="Click to define filter status">
-        <v-icon>mdi-shield-half-full</v-icon>Filter status!
+        <v-icon>mdi-shield-half-full</v-icon>Filter status
       </fc-tooltip>
     </v-btn>
 
@@ -68,7 +75,7 @@
         text
         small
       >
-        -0.5s
+        +0.5s
       </v-btn>
 
       <v-btn @click="sendMessage({ msg: 'seek-diff', diff: 5000 })" class="no-uppercase" text small>
@@ -302,8 +309,10 @@ export default {
 
 <style scoped>
 .size-wrapper {
-  height: 95vh;
+  height: 96vh;
+  width: 375px;
 }
+
 
 .no-uppercase {
   text-transform: none;

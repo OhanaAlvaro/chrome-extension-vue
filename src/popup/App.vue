@@ -73,6 +73,7 @@ export default {
 <style lang="scss">
 html {
   background: white;
+  overflow: hidden !important;
 }
 
 .v-label {

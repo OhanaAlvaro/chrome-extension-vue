@@ -4,7 +4,7 @@
       <!-- feel free to test adding fullscreen prop on the dialog :) -->
       <v-card>
         <v-card-title primary-title style="font-size:130%; padding-bottom:2px; padding-top:2px">
-          What content is fully listed for this movie?
+          What content is fully listed?
           <fc-tooltip text="Click on the shield icons below to change status">
             <v-icon color="blue" small class="pb-1">mdi-information</v-icon>
           </fc-tooltip>
@@ -69,9 +69,7 @@
             <br />
           </div>
           -->
-        </v-card-text>
-        <v-card-actions>
-          <div>
+          <div style="margin-top: 20px">
             <fc-tooltip text="The movie contains scenes of this type that are not yet listed">
               <v-icon color="red">mdi-shield-alert</v-icon>Missing
             </fc-tooltip>
@@ -84,6 +82,9 @@
               <v-icon color="#00b359">mdi-shield-check</v-icon> Done
             </fc-tooltip>
           </div>
+        </v-card-text>
+        <v-card-actions>
+          
           <v-spacer></v-spacer>
 
           <v-btn text @click="cancel()">

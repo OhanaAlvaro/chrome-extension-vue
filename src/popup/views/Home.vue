@@ -1,46 +1,86 @@
 <template>
-  <div style="min-height: 250px;">
+  <div style="min-width: 300px;">
     <div>
       <h2>Choose what to filter out</h2>
-      <span @click="go2Settings()" style="position: absolute; top:15px;right:15px; cursor: pointer;">
-        {{ username }} <v-icon small>mdi-account</v-icon>
+      <span class="menu">
+        <span @click="go2Settings()">
+          <v-icon small>mdi-account</v-icon>
+        </span>
+
+        <span @click="sendMessage({ msg: 'show-sidebar' })">
+          <v-icon small>mdi-pencil</v-icon>
+        </span>
+
+        <span>
+          <v-icon small>mdi-cog</v-icon>
+        </span>
       </span>
     </div>
-    <br>
+    <br />
 
-    <div @click="dialog = true" style="cursor: pointer;">
-      <v-chip
-        v-for="(skip_tag, index) in data.settings.skip_tags"
-        :key="index"
-        x-small
-        dark
-        :color="getTagColor(skip_tag)"
-        >{{ skip_tag }}</v-chip
-      >
+    <div class="sliders">
+      <span class="section">
+        Sex & Nudity
+      </span>
+      <div class="range">
+        <input type="range" min="0" max="4" value="3" class="slider" />
+        <div class="sliderticks">
+          <p>Watch All</p>
+          <p></p>
+          <p>Skip Some</p>
+          <p></p>
+          <p>Skip All</p>
+        </div>
+      </div>
 
-      <!-- If no tag selected - ->
-      <v-chip v-if="data.settings.skip_tags.length == 0" x-small dark
-        >Skip nothing
-        <v-icon right x-small>mdi-pencil</v-icon>
-      </v-chip>-->
+
+      <span class="section">Violence</span>
+      <div class="range">
+        <input type="range" min="0" max="4" value="2" class="slider" />
+        <div class="sliderticks">
+          <p>Watch All</p>
+          <p></p>
+          <p></p>
+          <p></p>
+          <p>Skip All</p>
+        </div>
+      </div>
+
+      <span class="section">Profanity</span>
+      <div class="range">
+        <input type="range" min="0" max="4" value="1" class="slider" />
+        <div class="sliderticks">
+          <p>Watch All</p>
+          <p></p>
+          <p></p>
+          <p></p>
+          <p>Skip All</p>
+        </div>
+      </div>
     </div>
 
-    <div v-if="zero_scenes" align="center" justify="center" style="width:300px">
-      <br /><br /><br /><br /><br />
-      No filters for this film. Be the first one to add one!
+    <br />
+    <div align="center" justify="center" style="width:300px">
+      <span v-if="data.shield == `done`">
+        <b style="color: #00b359">Grab some popcorn and enjoy!</b> We will skip all unwanted scenes  
+      </span>
+      <span v-if="data.shield == `unkown` && false">
+        <b style="color: orangered">Careful!</b> We might not be able to skip all unwanted scenes  
+      </span>
+      <span v-if="data.shield == `missing` || true">
+        <b style="color: red">Beware!</b> We won't be able to skip all unwanted scenes
+      </span>
+      <fc-tooltip text="This and that content will be skipped">
+        <v-icon color="blue" small>mdi-information</v-icon>
+      </fc-tooltip>
     </div>
-    <div v-else>
+    <!--<div v-else>
       <scenes-viewer v-model="data.scenes"></scenes-viewer>
-    </div>
+    </div>-->
 
-    <br />
-    <br />
-    <br />
-
-    <v-footer fixed color="white" dense>
       <!-- Shield -->
 
-      <v-btn text small class="no-uppercase" @click="shield_visible = !shield_visible">
+      <!--<v-btn text small class="no-uppercase">
         <fc-tooltip v-if="data.shield == `done`" text="All unwanted content will be removed!">
           <v-icon color="#00b359">mdi-shield-check</v-icon>Protected!
         </fc-tooltip>
@@ -54,44 +94,33 @@
         >
           <v-icon color="red">mdi-shield-alert</v-icon>Missing!
         </fc-tooltip>
-      </v-btn>
+      </v-btn>-->
 
-      <v-btn
-        color="black"
-        @click="sendMessage({ msg: 'show-sidebar' })"
-        text
-        small
-        class="no-uppercase"
-      >
-        Editor's panel
-      </v-btn>
-
-      <v-btn @click="sendMessage({ msg: 'play-pause' })" text small>
+      <!--<v-btn @click="sendMessage({ msg: 'play-pause' })" text small>
         <v-icon fab>mdi-play</v-icon>Play/Pause
-      </v-btn>
+      </v-btn>-->
 
-      <!-- Shield dialog -->
-      <shield-vue :visible="shield_visible" @hide="shield_visible = false"></shield-vue>
 
-      <br />
+      <!-- Shield dialog
+      <shield-vue :visible="shield_visible" @hide="shield_visible = false"></shield-vue>-->
+
       <v-snackbar top right v-model="snackbar" :timeout="snackbarTimeout" color="info">{{
         snackbarText
       }}</v-snackbar>
-    </v-footer>
   </div>
 </template>
 
 <script>
-import ScenesViewer from '../components/ScenesViewer'
-import ShieldVue from '../components/Shield.vue'
+/*import ScenesViewer from '../components/ScenesViewer'
+import ShieldVue from '../components/Shield.vue'*/
 import fclib from '../js/fclib'
 var raw = require('../js/raw_tags')
 export default {
   name: 'Home',
-  components: {
-    ScenesViewer,
+  /*components: {
+    //ScenesViewer,
     ShieldVue
-  },
+  },*/
 
   watch: {
     data: {
@@ -180,25 +209,28 @@ export default {
         console.log(window.innerWidth)
 
         if (this.inIframe()) {
+          if (!response.settings.username) {
+            return this.$router.push('/settings')
+          }
           return this.$router.push('/editor')
         } else if (!response) {
           return this.$router.push('/wrongsite')
         } else if (!response.settings || !response.scenes) {
           return this.$router.push('/no-movie')
-        } else if (!response.settings.username) {
-          return this.$router.push('/settings')
         }
 
+        this.sendMessage({ msg: 'pause' })
         this.username = response.settings.username
 
-        if (firstTime) {
+        /*if (firstTime) {
+          
           response.scenes.sort(function(a, b) {
             //make sure default scenes are shown first, and the rest sorted by start time
             if (a.default_skip && !b.default_skip) return -1
             if (!a.default_skip && b.default_skip) return 1
             return a.start - b.start
           })
-        }
+        }*/
 
         this.data = response
         this.scenes = response.scenes
@@ -215,6 +247,21 @@ export default {
 </script>
 
 <style>
+.menu {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+.menu > span {
+  cursor: pointer;
+  padding: 5px;
+}
+
+.section{
+  text-transform: uppercase;
+}
+
 .no-uppercase {
   text-transform: none;
 }
@@ -230,6 +277,50 @@ export default {
 .v-input.theme--light.v-input--selection-controls.v-input--checkbox {
   margin-top: 0px;
   padding-top: 0px;
+}
+
+.sliders {
+  display: grid;
+  padding: 10px;
+  grid-template-columns: 80px 220px;
+  grid-column-gap: 15px;
+  grid-row-gap: 15px;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.sliderticks {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.sliderticks p {
+  white-space: nowrap;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  width: 1px;
+  background: #d3d3d3;
+  height: 5px;
+  line-height: 40px;
+  margin: 0 0 20px 0;
+  font-size: 11px;
 }
 </style>
 
