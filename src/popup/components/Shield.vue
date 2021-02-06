@@ -259,11 +259,11 @@ export default {
   },
   mounted() {
     //this.getData()  // this is now triggered by watching visible prop
-    fclib.listenToMessages(xx => {
+    /*fclib.listenToMessages(xx => {
       if (xx.msg == 'get-data') {
         this.getData()
       }
-    })
+    })*/
   }
 }
 </script>

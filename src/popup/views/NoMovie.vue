@@ -2,12 +2,11 @@
   <div class="size-wrapper">
     <h3>Almost there! Try (re)loading some content.</h3>
     <p>
-      Family Cinema works with this provider, but you need to open a specific movie/show to start
-      using it. If you've already opened a movie, try refreshing the page.
+      Open a specific movie/show to start using Family Cinema. If you've already opened a movie, try refreshing the page.
     </p>
     <p>
       Visit our
-      <a href="https://familycinema.netlify.app/" target="_blank">Family Cinema Website</a> to learn
+      <a href="https://familycinema.netlify.app/" target="_blank">website</a> to learn
       more, find available content, or support our community.
     </p>
   </div>
@@ -21,5 +20,9 @@ export default {}
 
 .size-wrapper{
   min-width: 300px;
+}
+  
+p, a {
+  font-size: 14px;
 }
 </style>

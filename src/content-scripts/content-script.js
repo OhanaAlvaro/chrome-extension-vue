@@ -422,6 +422,7 @@ var browser = {
         } else {
           console.log('Unkown request: ', request)
         }
+        console.log('sending default response')
         sendResponse({ success: true })
       } catch (e) {
         console.log('[listen] Error: ', e)

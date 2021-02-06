@@ -65,6 +65,6 @@
     }
   },
   "options_ui": {
-    "page": "options.html"
+    "page": "popup.html#/Options"
   }
 }

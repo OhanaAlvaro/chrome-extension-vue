@@ -1,7 +1,7 @@
 <template>
   <div style="min-width: 300px;">
     <div>
-      <h2>Choose what to filter out</h2>
+      <h2>What do you want to skip?</h2>
       <span class="menu">
         <span @click="go2Settings()">
           <v-icon small>mdi-account</v-icon>
@@ -22,31 +22,30 @@
       <span class="section">
         Sex & Nudity
       </span>
-      <div class="range">
-        <input type="range" min="0" max="4" value="3" class="slider" />
-        <div class="sliderticks">
-          <p>Watch All</p>
-          <p></p>
-          <p>Skip Some</p>
-          <p></p>
-          <p>Skip All</p>
-        </div>
-      </div>
+      <select>
+        <option v-for="tick in ticks" v-bind:key="tick">
+          {{ tick }}
+        </option>
+      </select>
+      <span class="section">
+        Violence
+      </span>
+      <select>
+        <option v-for="tick in ticks" v-bind:key="tick">
+          {{ tick }}
+        </option>
+      </select>
 
+      <span class="section">
+        Profanity
+      </span>
+      <select>
+        <option v-for="tick in ticks" v-bind:key="tick">
+          {{ tick }}
+        </option>
+      </select>
 
-      <span class="section">Violence</span>
-      <div class="range">
-        <input type="range" min="0" max="4" value="2" class="slider" />
-        <div class="sliderticks">
-          <p>Watch All</p>
-          <p></p>
-          <p></p>
-          <p></p>
-          <p>Skip All</p>
-        </div>
-      </div>
-
-      <span class="section">Profanity</span>
+      <!--<span class="section">Profanity</span>
       <div class="range">
         <input type="range" min="0" max="4" value="1" class="slider" />
         <div class="sliderticks">
@@ -56,16 +55,16 @@
           <p></p>
           <p>Skip All</p>
         </div>
-      </div>
+      </div>-->
     </div>
 
     <br />
     <div align="center" justify="center" style="width:300px">
       <span v-if="data.shield == `done`">
-        <b style="color: #00b359">Grab some popcorn and enjoy!</b> We will skip all unwanted scenes  
+        <b style="color: #00b359">Grab some popcorn and enjoy!</b> We will skip all unwanted scenes
       </span>
       <span v-if="data.shield == `unkown` && false">
-        <b style="color: orangered">Careful!</b> We might not be able to skip all unwanted scenes  
+        <b style="color: orangered">Careful!</b> We might not be able to skip all unwanted scenes
       </span>
       <span v-if="data.shield == `missing` || true">
         <b style="color: red">Beware!</b> We won't be able to skip all unwanted scenes
@@ -78,9 +77,9 @@
       <scenes-viewer v-model="data.scenes"></scenes-viewer>
     </div>-->
 
-      <!-- Shield -->
+    <!-- Shield -->
 
-      <!--<v-btn text small class="no-uppercase">
+    <!--<v-btn text small class="no-uppercase">
         <fc-tooltip v-if="data.shield == `done`" text="All unwanted content will be removed!">
           <v-icon color="#00b359">mdi-shield-check</v-icon>Protected!
         </fc-tooltip>
@@ -96,17 +95,16 @@
         </fc-tooltip>
       </v-btn>-->
 
-      <!--<v-btn @click="sendMessage({ msg: 'play-pause' })" text small>
+    <!--<v-btn @click="sendMessage({ msg: 'play-pause' })" text small>
         <v-icon fab>mdi-play</v-icon>Play/Pause
       </v-btn>-->
 
-
-      <!-- Shield dialog
+    <!-- Shield dialog
       <shield-vue :visible="shield_visible" @hide="shield_visible = false"></shield-vue>-->
 
-      <v-snackbar top right v-model="snackbar" :timeout="snackbarTimeout" color="info">{{
-        snackbarText
-      }}</v-snackbar>
+    <v-snackbar top right v-model="snackbar" :timeout="snackbarTimeout" color="info">{{
+      snackbarText
+    }}</v-snackbar>
   </div>
 </template>
 
@@ -122,17 +120,8 @@ export default {
     ShieldVue
   },*/
 
-  watch: {
-    data: {
-      deep: true,
-      handler(newValue, oldValue) {
-        if (newValue.scenes.length == 0) {
-          this.zero_scenes = true
-        } else {
-          this.zero_scenes = false
-        }
-      }
-    }
+  props: {
+    state: Object
   },
 
   computed: {
@@ -144,16 +133,11 @@ export default {
   data() {
     return {
       data: { msg: '', scenes: [], settings: [], shield: 'unkown' }, //default values, to avoid missing keys
-      zero_scenes: false,
       snackbarText: '',
       snackbar: false,
       snackbarTimeout: 6000,
 
-      drawer: false,
-      username: '',
-
-      //shield
-      shield_visible: false
+      ticks: ['All', 'Slight & Moderate & Severe', 'Moderate & Severe', 'Severe', 'Nothing']
     }
   },
 
@@ -175,16 +159,6 @@ export default {
         })
       })
     },
-    listenToMessages() {
-      chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        console.log('[listen-Home] Received request: ', request)
-        if (request.msg == 'new-data') {
-          this.getData(false)
-        }
-        sendResponse(true)
-      })
-    },
-
     getTagColor(value) {
       var color_value = 'gray' //default
       raw.content.forEach(item => {
@@ -193,55 +167,7 @@ export default {
         }
       })
       return color_value
-    },
-
-    inIframe() {
-      try {
-        return window.self !== window.top
-      } catch (e) {
-        return true
-      }
-    },
-
-    getData(firstTime) {
-      this.sendMessage({ msg: 'get-data' }, response => {
-        console.log('data-received in Home', response)
-        console.log(window.innerWidth)
-
-        if (this.inIframe()) {
-          if (!response.settings.username) {
-            return this.$router.push('/settings')
-          }
-          return this.$router.push('/editor')
-        } else if (!response) {
-          return this.$router.push('/wrongsite')
-        } else if (!response.settings || !response.scenes) {
-          return this.$router.push('/no-movie')
-        }
-
-        this.sendMessage({ msg: 'pause' })
-        this.username = response.settings.username
-
-        /*if (firstTime) {
-          
-          response.scenes.sort(function(a, b) {
-            //make sure default scenes are shown first, and the rest sorted by start time
-            if (a.default_skip && !b.default_skip) return -1
-            if (!a.default_skip && b.default_skip) return 1
-            return a.start - b.start
-          })
-        }*/
-
-        this.data = response
-        this.scenes = response.scenes
-      })
     }
-  },
-
-  mounted() {
-    //Let's get the data as soon as mounted
-    this.getData(true)
-    this.listenToMessages()
   }
 }
 </script>
@@ -258,7 +184,7 @@ export default {
   padding: 5px;
 }
 
-.section{
+.section {
   text-transform: uppercase;
 }
 
@@ -322,8 +248,14 @@ export default {
   margin: 0 0 20px 0;
   font-size: 11px;
 }
+
+select {
+  border-bottom: 1px dashed #555 !important;
+  width: 100%;
+  outline: none;
+}
 </style>
 
 <style lang="scss" scoped>
-@import '/v0/popup.css';
+@import '/css/popup.css';
 </style>

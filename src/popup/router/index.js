@@ -6,6 +6,7 @@ import WrongSite from '../views/WrongSite.vue'
 import Editor from '../views/Editor.vue'
 import Settings from '../views/Settings.vue'
 import NoMovie from '../views/NoMovie.vue'
+import Options from '../views/Options.vue'
 
 Vue.use(VueRouter)
 
@@ -35,6 +36,11 @@ const routes = [
     path: '/settings',
     name: 'Settings',
     component: Settings
+  },
+  {
+    path: '/options',
+    name: 'Options',
+    component: Options
   }
 ]
 

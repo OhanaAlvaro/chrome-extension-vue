@@ -71,7 +71,7 @@ function getData(callback) {
  */
 function listenToMessages(callback) {
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log('[listen-Home] Received request: ', request)
+    console.log('[listen-fclib] Received request: ', request)
     this.callback(request)
     sendResponse(true)
   })

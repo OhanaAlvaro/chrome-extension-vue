@@ -249,7 +249,7 @@ export default {
 
     //Generic methods:
     sendMessage(msg, callback) {
-      console.log('[sendMessage-Home]: ', msg)
+      console.log('[sendMessage-Editor]: ', msg)
       chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, msg, function(response) {
           if (callback) callback(response)
@@ -258,7 +258,7 @@ export default {
     },
     listenToMessages() {
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        console.log('[listen-Home] Received request: ', request)
+        console.log('[listen-Editor] Received request: ', request)
         if (request.msg == 'new-data') {
           this.getData(false)
         }
@@ -268,15 +268,9 @@ export default {
 
     getData(firstTime) {
       this.sendMessage({ msg: 'get-data' }, response => {
-        console.log('data-received in Home', response)
+        console.log('data-received in Editor', response)
 
-        if (!response) {
-          return this.$router.push('/about')
-        } else if (!response.settings || !response.scenes) {
-          return this.$router.push('/no-movie')
-        } else if (!response.settings.username) {
-          return this.$router.push('/settings')
-        }
+        
 
         /* careful: when adding a new scene, this makes it hard to identify it (now instead of going at the end, it appears in position xx)
 

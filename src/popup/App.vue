@@ -3,7 +3,8 @@
     <v-app>
       <v-main>
         <v-container>
-          <router-view></router-view>
+          <!-- Use :data="data" to pass "data" as a property to router views-->
+          <router-view :data="data"></router-view>
         </v-container>
       </v-main>
     </v-app>
@@ -15,8 +16,6 @@ export default {
   name: 'PopupApp',
   data() {
     return {
-      drawer: false,
-      username: '',
       data: {}
     }
   },
@@ -39,33 +38,50 @@ export default {
     listenToMessages() {
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log('[listen-App.vue] Received request: ', request)
-        if (request.msg == 'new-data') {
-          this.getData()
-        }
+        if (request.msg == 'new-data') this.getData()
         sendResponse(true)
       })
     },
-    getData() {
+    inIframe() {
+      try {
+        return window.self !== window.top
+      } catch (e) {
+        return true
+      }
+    },
+    getData( firstTime ) {
       this.sendMessage({ msg: 'get-data' }, response => {
         console.log('data-received in App.vue', response)
 
-        /* This is done in the Home (might make sense to do it here... )
+        // If there is no response (or it is incomplete) open wrongsite/nomovie pages
         if (!response) {
-          this.$router.push('/about')
+          return this.$router.push('/wrongsite')
         } else if (!response.settings || !response.scenes) {
-          this.$router.push('/no-movie')
+          return this.$router.push('/no-movie')
         }
-        */
 
-        this.username = response.settings.username
-
+        // Make data globally accesible
         this.data = response
+
+        // If we are on an iframe (i.e. on the sidebar), open de editor
+        if (this.inIframe()) {
+          if (!response.settings.username) return this.$router.push('/settings')
+          return this.$router.push('/editor')
+        }
+
+        // Scape WrongSite and NoMovie pages if data was updated
+        if( ['WrongSite','NoMovie'].includes(this.$route.name) ){
+          this.router.push('/home')
+        }
+
+
       })
     }
   },
   mounted() {
-    this.getData()
+    this.getData(true)
     this.listenToMessages()
+    //this.sendMessage({ msg: 'pause' })
   }
 }
 </script>

@@ -47,7 +47,6 @@ This project uses the `src\vue.config.js` file to define how content is deployed
 Withing the `src` folder, we have these main folders:
 
 - `content-scripts`: folder with the content scripts (so far, we use just one). If another one were added, we'd need to update the vue.config.js file.
-- `options`: Vue silo (independent) with the Vue code for the _options_ page, accessible from the extension details (within Chrome settings).
 - `popup`: Vue silo (independent) with all the popup specific code. App.vue is its container, but then we mainly use the views and the components. Those are the ones you probably need to focus on. More specifically:
   - `popup\views`: The different MAIN pages. Might have yet a lot of noise here. Navigation between views is handled via router (`src\popup\router`). Views are the main pieces of the popup, but the "common" parts (i.e.: the toolbar) are in the `popup\App.vue` file (views get added there within the `<router-view>` component there).
   - `popup\components`: The different custom components. We import the `popup\components\index.js` file, from the `src\popup\main.js` to import some of the components globaly (like `fc-tooltip`). Components and views could be interchangeable technically speaking but, conceptually, components are... components. And views are... well, views.
