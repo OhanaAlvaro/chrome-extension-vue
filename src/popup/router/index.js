@@ -1,11 +1,12 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-import About from '../views/About.vue'
+import WrongSite from '../views/WrongSite.vue'
 
-import Jarri01 from '../views/Jarri01.vue'
+import Editor from '../views/Editor.vue'
 import Settings from '../views/Settings.vue'
 import NoMovie from '../views/NoMovie.vue'
+import Options from '../views/Options.vue'
 
 Vue.use(VueRouter)
 
@@ -22,19 +23,24 @@ const routes = [
   },
 
   {
-    path: '/about',
-    name: 'About',
-    component: About
+    path: '/wrongsite',
+    name: 'WrongSite',
+    component: WrongSite
   },
   {
-    path: '/jarri',
-    name: 'Jarri01',
-    component: Jarri01
+    path: '/Editor',
+    name: 'Editor',
+    component: Editor
   },
   {
     path: '/settings',
     name: 'Settings',
     component: Settings
+  },
+  {
+    path: '/options',
+    name: 'Options',
+    component: Options
   }
 ]
 

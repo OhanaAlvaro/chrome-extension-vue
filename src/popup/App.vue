@@ -1,72 +1,10 @@
 <template>
   <div>
     <v-app>
-      <v-app-bar app color="#00b359" dark dense height="34px" flat>
-        <!-- <v-btn icon @click="drawer = !drawer">
-          <v-icon small>mdi-menu</v-icon>
-        </v-btn>
-
-        -->
-        <div class="d-flex align-center" @click="$router.push('/')">
-          <h3 v-if="username">{{ username }} @ {{ extensionName }}</h3>
-          <h3 v-else>{{ extensionName }}</h3>
-        </div>
-
-        <v-spacer></v-spacer>
-
-        <v-icon v-if="username" small @click="go2Settings()">{{ appbarIcon }}</v-icon>
-      </v-app-bar>
-
-      <!-- NAV DRAWER -->
-
-      <!--
-      <v-navigation-drawer v-model="drawer" left app temporary>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title class="title">Family Cinema</v-list-item-title>
-            <v-list-item-subtitle>Decide what you watch</v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-divider></v-divider>
-
-        <v-list dense nav app>
-          <v-list-item link to="/">
-            <v-list-item-icon>
-              <v-icon>mdi-home-outline</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>Home</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-
-          <
-          <v-list-item link href="https://www.familycinema.netlify.app" target="_blank">
-            <v-list-item-icon>
-              <v-icon>mdi-web</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>Family Cinema Website</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          
-        </v-list>
-      </v-navigation-drawer>
-
-      -->
-
-      <!-- -->
       <v-main>
         <v-container>
-          <!--
-          <router-link to="/">Home</router-link>|
-          <router-link to="/about">About</router-link>|
-          <router-link to="/jarri">Jarri</router-link>|
-          <router-link to="/no-movie">No Movie</router-link>|
-          <router-link to="/settings">Settings</router-link>
-          -->
-
-          <router-view></router-view>
+          <!-- Use :data="data" to pass "data" as a property to router views-->
+          <router-view :data="data"></router-view>
         </v-container>
       </v-main>
     </v-app>
@@ -78,21 +16,7 @@ export default {
   name: 'PopupApp',
   data() {
     return {
-      drawer: false,
-      username: '',
       data: {}
-    }
-  },
-  computed: {
-    extensionName() {
-      return browser.i18n.getMessage('extName')
-    },
-    appbarIcon() {
-      if (this.$route.name == 'Settings') {
-        return 'mdi-movie'
-      } else {
-        return 'mdi-account'
-      }
     }
   },
   methods: {
@@ -114,45 +38,58 @@ export default {
     listenToMessages() {
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log('[listen-App.vue] Received request: ', request)
-        if (request.msg == 'new-data') {
-          this.getData()
-        }
+        if (request.msg == 'new-data') this.getData()
         sendResponse(true)
       })
     },
-    getData() {
+    inIframe() {
+      try {
+        return window.self !== window.top
+      } catch (e) {
+        return true
+      }
+    },
+    getData( firstTime ) {
       this.sendMessage({ msg: 'get-data' }, response => {
         console.log('data-received in App.vue', response)
 
-        /* This is done in the Home (might make sense to do it here... )
+        // If there is no response (or it is incomplete) open wrongsite/nomovie pages
         if (!response) {
-          this.$router.push('/about')
+          return this.$router.push('/wrongsite')
         } else if (!response.settings || !response.scenes) {
-          this.$router.push('/no-movie')
+          return this.$router.push('/no-movie')
         }
-        */
 
-        this.username = response.settings.username
-
+        // Make data globally accesible
         this.data = response
+
+        // If we are on an iframe (i.e. on the sidebar), open de editor
+        if (this.inIframe()) {
+          if (!response.settings.username) return this.$router.push('/settings')
+          return this.$router.push('/editor')
+        }
+
+        // Scape WrongSite and NoMovie pages if data was updated
+        if( ['WrongSite','NoMovie'].includes(this.$route.name) ){
+          this.router.push('/home')
+        }
+
+
       })
     }
   },
   mounted() {
-    this.getData()
+    this.getData(true)
     this.listenToMessages()
+    //this.sendMessage({ msg: 'pause' })
   }
 }
 </script>
 
 <style lang="scss">
 html {
-  width: 600px;
-  min-height: 330px !important;
-}
-
-* {
-  font-size: 12px;
+  background: white;
+  overflow: hidden !important;
 }
 
 .v-label {
@@ -167,7 +104,7 @@ html {
 
 main.v-main {
   flex: none !important;
-  padding: 10px 0px 0px 0px !important;
+  padding: 0px 0px 0px 0px !important;
 }
 
 .v-application--wrap {

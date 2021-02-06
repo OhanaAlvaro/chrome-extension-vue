@@ -4,12 +4,6 @@
       <table id="table" width="100%">
         <thead>
           <tr>
-            <th @click="go2Settings" style="cursor: pointer;">
-              Skip
-              <fc-tooltip text="You can change the default skip tags in settings">
-                <v-icon color="info" dark small class="pb-1">mdi-help-circle</v-icon>
-              </fc-tooltip>
-            </th>
             <th>Start time</th>
             <th>End time</th>
             <th>Tags</th>
@@ -18,11 +12,6 @@
         </thead>
         <tbody>
           <tr v-for="scene in scenes" :key="scene.id">
-            <!-- Skip -->
-            <td style="padding-right:18px;padding-left:18px">
-              <input type="checkbox" v-model="scene.skip" @change="updateScene(scene, 'skip')" />
-            </td>
-
             <!-- Start Time -->
             <td>
               <time-editor

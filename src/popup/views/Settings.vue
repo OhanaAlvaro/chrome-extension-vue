@@ -1,6 +1,15 @@
 <template>
-  <div>
-    <!-- skip_tags -->
+  <div class="size-wrapper">
+  <v-app-bar app color="#00b359" dark dense height="34px" flat>
+    <div class="d-flex align-center">
+      <h3 v-if="username">{{ username }} @ {{ extensionName }}</h3>
+      <h3 v-else>{{ extensionName }}</h3>
+    </div>
+
+    <v-spacer></v-spacer>
+
+    <v-icon small @click="$router.push('/')">mdi-movie</v-icon>
+  </v-app-bar>
 
     <v-snackbar top right v-model="snackbar" :timeout="snackbarTimeout" :color="snackbarColor">{{
       snackbarText
@@ -18,7 +27,7 @@
       </v-col>
 
       <v-col cols="8">
-        <div @click="dialog = true" style="cursor: pointer;">
+        <!--<div @click="dialog = true" style="cursor: pointer;">
           <b style="font-size:120%">2. Choose what to filter out </b>
           <fc-tooltip text="You can customize this for specific scenes in film view">
             <v-icon color="info" dark small class="pb-1">mdi-help-circle</v-icon>
@@ -34,13 +43,13 @@
             >{{ skip_tag }}</v-chip
           >
 
-          <!-- If no tag selected -->
+          <!-- If no tag selected - ->
           <v-chip v-if="settings.skip_tags.length == 0" x-small dark
             >Skip nothing
             <v-icon right x-small>mdi-pencil</v-icon>
           </v-chip>
         </div>
-        <br />
+        <br />-->
         <b style="font-size:120%">3. Enjoy!</b><br />
 
         Enjoy movies as usual. Family Cinema will be working for you in the background, seamlessly
@@ -56,24 +65,8 @@
           You can see all flagged scenes on the film view (log in required).
         </span>
       </v-col>
-
-      <!-- COL1: BLUR / AUTOSAVE -->
-
-      <!-- COL2: SWITCHES -->
     </v-row>
 
-    <!-- settings: {{ settings }} settings_backup: {{ settings_backup }} -->
-
-    <!--
-    <v-row>
-      <v-col>
-        <v-btn color="error" block depressed tile @click="cancelSettings()">Cancel</v-btn>
-      </v-col>
-      <v-col>
-        <v-btn color="success" block depressed tile @click="saveSettings()">Save</v-btn>
-      </v-col>
-    </v-row>
-    -->
 
     <!-- WIZARD (dialog) -->
     <v-dialog
@@ -159,6 +152,7 @@ export default {
   components: {
     Login
   },
+
   data() {
     return {
       settings: { skip_tags: [] },
@@ -198,6 +192,9 @@ export default {
   },
 
   computed: {
+    extensionName() {
+      return browser.i18n.getMessage('extName')
+    },
     page() {
       if (this.step < this.pages.length) {
         return this.pages[this.step]
@@ -362,4 +359,9 @@ export default {
 .no-uppercase {
   text-transform: none !important;
 }
+
+.size-wrapper{
+  min-width: 500px;
+}
+
 </style>

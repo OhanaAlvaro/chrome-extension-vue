@@ -5,7 +5,7 @@ var content = [
     description: '',
     color: 'green',
     severity_title: 'How graphic or erotic is it?',
-    types_title: 'Does it contain any of the following?',
+    types_title: 'Does it contain any of these?',
     severity: [
       {
         value: 'Non erotic',
@@ -61,7 +61,7 @@ var content = [
     description: '',
     color: 'red',
     severity_title: 'How graphic/gore is it?',
-    types_title: 'Does it contain any of the following?',
+    types_title: 'Does it contain any of these?',
     severity: [
       {
         value: 'Non gore',

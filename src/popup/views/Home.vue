@@ -1,78 +1,85 @@
 <template>
-  <div style="min-height: 250px;">
-    <!--<h3>Auto filtered</h3>-->
+  <div style="min-width: 300px;">
+    <div>
+      <h2>What do you want to skip?</h2>
+      <span class="menu">
+        <span @click="go2Settings()">
+          <v-icon small>mdi-account</v-icon>
+        </span>
 
-    <!-- this is a dialog used for new scenes only. Rest of the time it's hidden -->
-    <!-- existing scenes use the wizard from the scenes editor-->
-    <tags-wizard
-      :tags="new_scene_tags"
-      v-model="new_scene_wizard"
-      @change="newSceneTagsChange"
-    ></tags-wizard>
+        <span @click="sendMessage({ msg: 'show-sidebar' })">
+          <v-icon small>mdi-pencil</v-icon>
+        </span>
 
-    <div v-if="zero_scenes" align="center" justify="center" style="width:600px">
-      <br /><br /><br /><br /><br />
-      No filters for this film. Be the first one to add one!
+        <span>
+          <v-icon small>mdi-cog</v-icon>
+        </span>
+      </span>
     </div>
-    <div v-else>
-      <scenes-editor v-model="data.scenes"></scenes-editor>
+    <br />
+
+    <div class="sliders">
+      <span class="section">
+        Sex & Nudity
+      </span>
+      <select>
+        <option v-for="tick in ticks" v-bind:key="tick">
+          {{ tick }}
+        </option>
+      </select>
+      <span class="section">
+        Violence
+      </span>
+      <select>
+        <option v-for="tick in ticks" v-bind:key="tick">
+          {{ tick }}
+        </option>
+      </select>
+
+      <span class="section">
+        Profanity
+      </span>
+      <select>
+        <option v-for="tick in ticks" v-bind:key="tick">
+          {{ tick }}
+        </option>
+      </select>
+
+      <!--<span class="section">Profanity</span>
+      <div class="range">
+        <input type="range" min="0" max="4" value="1" class="slider" />
+        <div class="sliderticks">
+          <p>Watch All</p>
+          <p></p>
+          <p></p>
+          <p></p>
+          <p>Skip All</p>
+        </div>
+      </div>-->
     </div>
-    <!--
-    <br />
-    <br />
-
-    
-    <h1>Other scenes</h1>
-    <scenes-editor v-model="data.scenes"></scenes-editor>
-    -->
 
     <br />
-    <br />
-    <br />
-
-    <v-footer fixed color="white" dense>
-      <!-- New scene button-->
-
-      <fc-tooltip text="(Alt+N)">
-        <v-btn color="black" @click="markCurrentTime()" text small class="no-uppercase">
-          <div v-if="isCreatingScene == false"><v-icon>mdi-plus</v-icon>New filter</div>
-          <div v-else><v-icon>mdi-check</v-icon>End Filter</div>
-        </v-btn>
+    <div align="center" justify="center" style="width:300px">
+      <span v-if="data.shield == `done`">
+        <b style="color: #00b359">Grab some popcorn and enjoy!</b> We will skip all unwanted scenes
+      </span>
+      <span v-if="data.shield == `unkown` && false">
+        <b style="color: orangered">Careful!</b> We might not be able to skip all unwanted scenes
+      </span>
+      <span v-if="data.shield == `missing` || true">
+        <b style="color: red">Beware!</b> We won't be able to skip all unwanted scenes
+      </span>
+      <fc-tooltip text="This and that content will be skipped">
+        <v-icon color="blue" small>mdi-information</v-icon>
       </fc-tooltip>
+    </div>
+    <!--<div v-else>
+      <scenes-viewer v-model="data.scenes"></scenes-viewer>
+    </div>-->
 
-      <!-- Blur slider: allow user to control the blur right from here -->
+    <!-- Shield -->
 
-      <v-checkbox v-model="mute_on_mark" :label="`Mute`" @change="changeMute"></v-checkbox>
-
-      <v-slider
-        v-model="sliderValue"
-        inverse-label
-        :min="0"
-        :max="40"
-        thumb-label
-        :label="`Blur`"
-        step="2"
-        @change="changeBlur"
-      >
-        <template v-slot:thumb-label="{ value }">{{ 2.5 * value + '%' }}</template>
-      </v-slider>
-
-      <!-- Play/Pause button -->
-      <v-btn
-        color="black"
-        @click="sendMessage({ msg: 'play-pause' })"
-        text
-        small
-        class="no-uppercase"
-      >
-        <v-icon fab>mdi-play</v-icon>Play/Pause
-      </v-btn>
-
-      <v-spacer></v-spacer>
-
-      <!-- Shield -->
-
-      <v-btn text small class="no-uppercase" @click="shield_visible = !shield_visible">
+    <!--<v-btn text small class="no-uppercase">
         <fc-tooltip v-if="data.shield == `done`" text="All unwanted content will be removed!">
           <v-icon color="#00b359">mdi-shield-check</v-icon>Protected!
         </fc-tooltip>
@@ -86,157 +93,61 @@
         >
           <v-icon color="red">mdi-shield-alert</v-icon>Missing!
         </fc-tooltip>
-      </v-btn>
+      </v-btn>-->
 
-      <!-- Shield dialog -->
-      <shield-vue :visible="shield_visible" @hide="shield_visible = false"></shield-vue>
+    <!--<v-btn @click="sendMessage({ msg: 'play-pause' })" text small>
+        <v-icon fab>mdi-play</v-icon>Play/Pause
+      </v-btn>-->
 
-      <br />
-      <v-snackbar top right v-model="snackbar" :timeout="snackbarTimeout" color="info">{{
-        snackbarText
-      }}</v-snackbar>
-    </v-footer>
+    <!-- Shield dialog
+      <shield-vue :visible="shield_visible" @hide="shield_visible = false"></shield-vue>-->
+
+    <v-snackbar top right v-model="snackbar" :timeout="snackbarTimeout" color="info">{{
+      snackbarText
+    }}</v-snackbar>
   </div>
 </template>
 
 <script>
-import ScenesEditor from '../components/ScenesEditor'
-import ShieldVue from '../components/Shield.vue'
-import TagsWizard from '../components/TagsWizard'
-
+/*import ScenesViewer from '../components/ScenesViewer'
+import ShieldVue from '../components/Shield.vue'*/
 import fclib from '../js/fclib'
+var raw = require('../js/raw_tags')
 export default {
   name: 'Home',
-  components: {
-    ScenesEditor,
-    TagsWizard,
+  /*components: {
+    //ScenesViewer,
     ShieldVue
+  },*/
+
+  props: {
+    state: Object
   },
 
-  watch: {
-    data: {
-      deep: true,
-      handler(newValue, oldValue) {
-        if (newValue.scenes.length == 0) {
-          this.zero_scenes = true
-        } else {
-          this.zero_scenes = false
-        }
-      }
+  computed: {
+    extensionName() {
+      return browser.i18n.getMessage('extName')
     }
   },
+
   data() {
     return {
       data: { msg: '', scenes: [], settings: [], shield: 'unkown' }, //default values, to avoid missing keys
-      zero_scenes: false,
-      auxx: '',
       snackbarText: '',
       snackbar: false,
       snackbarTimeout: 6000,
-      isCreatingScene: false,
-      isEditing: false,
 
-      //when adding a new scene:
-
-      new_scene_wizard: false,
-      new_scene_tags: [],
-      new_scene_index: 0,
-
-      //slider & mute
-      sliderValue: 0,
-      mute_on_mark: true,
-
-      //shield
-      shield_visible: false
+      ticks: ['All', 'Slight & Moderate & Severe', 'Moderate & Severe', 'Severe', 'Nothing']
     }
   },
 
   methods: {
-    //slider_
-    changeBlur(newValue) {
-      var oldValue = this.data.settings.blur_level
-      console.log('change blur', newValue, oldValue)
-
-      this.data.settings.blur_level = newValue
-
-      this.sendMessage({ msg: 'update-settings', settings: this.data.settings }, response => {
-        console.log('save settings response', response)
-        if (response == false) {
-          this.sliderValue = oldValue
-          this.data.settings.blur_level = oldValue
-        }
-      })
-
-      this.sendMessage({ msg: 'blur', blur_level: newValue }, response => {
-        console.log('blur response', response)
-      })
-    },
-
-    changeMute(newValue) {
-      console.log('change mute', this.mute_on_mark)
-
-      this.data.settings.mute_on_mark = this.mute_on_mark
-
-      this.sendMessage({ msg: 'update-settings', settings: this.data.settings }, response => {
-        console.log('save settings response', response)
-        if (response == false) {
-          this.mute_on_mark = oldValue
-          this.data.settings.mute_on_mark = oldValue
-        }
-      })
-
-      this.sendMessage({ msg: 'mute', state: this.mute_on_mark }, response => {
-        console.log('mute: ', response)
-      })
-    },
-
-    //New Scene
-    newSceneTagsChange(tagsSoFar) {
-      console.log('updating tags in new scene -> careful, we use INDEX!!!')
-
-      //make a copy of the scene with the changes:
-      var new_scene = this.data.scenes[this.new_scene_index]
-      new_scene.tags = tagsSoFar
-
-      //send this new scene
-      this.sendMessage({ msg: 'update-scene', scene: new_scene, field: 'tags' }, response => {
-        console.log('update-scene', response)
-        //if response is success, then NOW  we apply the change to the UI
-        if (response.success) {
-          this.data.scenes[this.new_scene_index].tags = tagsSoFar //apply the change to the main OBJECT
-        }
-      })
-    },
-    markCurrentTime() {
-      this.sendMessage({ msg: 'mark-current-time' }, response => {
-        console.log(response)
-        if (response && response.scene) {
-          //scene created successfully (tbc: was it sent to the server before the response?)
-          var msg = [
-            'Wow! Did you just do that? Thank your for adding a new scene!',
-            'You are absolutely awesome!',
-            'Thank you!',
-            'The world would be a better place if everyone was like you!'
-          ]
-          //this.snackbarText = msg[Math.floor(Math.random() * msg.length)]
-          this.snackbar = false // Hide any previous snackbar
-          this.data.scenes.push(response.scene)
-          this.sendMessage({ msg: 'pause' })
-          this.isCreatingScene = false
-
-          //handle tags for new scene
-          this.new_scene_tags = []
-          this.new_scene_wizard = true
-          this.new_scene_index = this.data.scenes.length - 1
-        } else {
-          //Begin of scene:
-          this.isCreatingScene = true
-          this.isEditing = true
-          console.log('[mark-current-time] No scene, assuming start')
-          this.snackbarText = 'Press again to mark the end of the scene'
-          this.snackbar = true
-        }
-      })
+    go2Settings() {
+      if (this.$route.name == 'Settings') {
+        this.$router.go(-1) //go back to whatever route we were before :)  | (just in case at some point we have more than Home/Settings)
+      } else {
+        this.$router.push('/settings')
+      }
     },
 
     //Generic methods:
@@ -248,58 +159,35 @@ export default {
         })
       })
     },
-    listenToMessages() {
-      chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        console.log('[listen-Home] Received request: ', request)
-        if (request.msg == 'new-data') {
-          this.getData(false)
+    getTagColor(value) {
+      var color_value = 'gray' //default
+      raw.content.forEach(item => {
+        if (item.value == value) {
+          color_value = item.color
         }
-        sendResponse(true)
       })
-    },
-
-    getData(firstTime) {
-      this.sendMessage({ msg: 'get-data' }, response => {
-        console.log('data-received in Home', response)
-
-        if (!response) {
-          return this.$router.push('/about')
-        } else if (!response.settings || !response.scenes) {
-          return this.$router.push('/no-movie')
-        } else if (!response.settings.username) {
-          return this.$router.push('/settings')
-        }
-
-        /* careful: when adding a new scene, this makes it hard to identify it (now instead of going at the end, it appears in position xx)
-
-*/
-        if (firstTime) {
-          response.scenes.sort(function(a, b) {
-            //make sure default scenes are shown first, and the rest sorted by start time
-            if (a.default_skip && !b.default_skip) return -1
-            if (!a.default_skip && b.default_skip) return 1
-            return a.start - b.start
-          })
-        }
-
-        this.data = response
-
-        this.sliderValue = response.settings.blur_level
-        this.mute_on_mark = response.settings.mute_on_mark
-        this.scenes = response.scenes
-      })
+      return color_value
     }
-  },
-
-  mounted() {
-    //Let's get the data as soon as mounted
-    this.getData(true)
-    this.listenToMessages()
   }
 }
 </script>
 
 <style>
+.menu {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+.menu > span {
+  cursor: pointer;
+  padding: 5px;
+}
+
+.section {
+  text-transform: uppercase;
+}
+
 .no-uppercase {
   text-transform: none;
 }
@@ -316,4 +204,58 @@ export default {
   margin-top: 0px;
   padding-top: 0px;
 }
+
+.sliders {
+  display: grid;
+  padding: 10px;
+  grid-template-columns: 80px 220px;
+  grid-column-gap: 15px;
+  grid-row-gap: 15px;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.sliderticks {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.sliderticks p {
+  white-space: nowrap;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  width: 1px;
+  background: #d3d3d3;
+  height: 5px;
+  line-height: 40px;
+  margin: 0 0 20px 0;
+  font-size: 11px;
+}
+
+select {
+  border-bottom: 1px dashed #555 !important;
+  width: 100%;
+  outline: none;
+}
+</style>
+
+<style lang="scss" scoped>
+@import '/css/popup.css';
 </style>
