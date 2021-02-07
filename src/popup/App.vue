@@ -39,7 +39,7 @@ export default {
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log('[listen-App.vue] Received request: ', request)
         if (request.msg == 'new-data') this.getData()
-        sendResponse(true)
+        sendResponse({success:true,source:$this.route.name})
       })
     },
     inIframe() {
@@ -51,7 +51,7 @@ export default {
     },
     getData( firstTime ) {
       this.sendMessage({ msg: 'get-data' }, response => {
-        console.log('data-received in App.vue', response)
+        console.log('data-received in App.vue', response, this.$route.name)
 
         // If there is no response (or it is incomplete) open wrongsite/nomovie pages
         if (!response) {
@@ -81,7 +81,7 @@ export default {
   mounted() {
     this.getData(true)
     this.listenToMessages()
-    //this.sendMessage({ msg: 'pause' })
+    this.sendMessage({ msg: 'pause' })
   }
 }
 </script>

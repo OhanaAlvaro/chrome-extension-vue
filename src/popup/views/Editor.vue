@@ -262,7 +262,7 @@ export default {
         if (request.msg == 'new-data') {
           this.getData(false)
         }
-        sendResponse(true)
+        sendResponse({success:true,source:$this.route.name})
       })
     },
 
