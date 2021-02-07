@@ -56,26 +56,8 @@
         -5s
       </v-btn>
 
-      <v-btn
-        @click="sendMessage({ msg: 'seek-diff', diff: -5000 })"
-        class="no-uppercase"
-        text
-        small
-      >
-        -0.5s
-      </v-btn>
-
       <v-btn @click="sendMessage({ msg: 'play-pause' })" text small>
         <v-icon fab>mdi-play</v-icon>Play/Pause
-      </v-btn>
-
-      <v-btn
-        @click="sendMessage({ msg: 'seek-diff', diff: -5000 })"
-        class="no-uppercase"
-        text
-        small
-      >
-        +0.5s
       </v-btn>
 
       <v-btn @click="sendMessage({ msg: 'seek-diff', diff: 5000 })" class="no-uppercase" text small>
@@ -160,6 +142,13 @@ export default {
   },
 
   methods: {
+    go2Settings() {
+      if (this.$route.name == 'Settings') {
+        this.$router.go(-1) //go back to whatever route we were before :)  | (just in case at some point we have more than Home/Settings)
+      } else {
+        this.$router.push('/settings')
+      }
+    },
     //slider_
     changeBlur(newValue) {
       var oldValue = this.data.settings.blur_level
@@ -304,7 +293,7 @@ export default {
 <style scoped>
 .size-wrapper {
   height: 96vh;
-  width: 375px;
+  width: 100vw -20px;
 }
 
 

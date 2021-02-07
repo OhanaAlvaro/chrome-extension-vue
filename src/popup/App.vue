@@ -82,6 +82,9 @@ export default {
     this.getData(true)
     this.listenToMessages()
     this.sendMessage({ msg: 'pause' })
+  },
+  beforeUnmount(){ // TODO: This would be cool, but some reason it is not being detected
+    this.sendMessage({ msg: 'play' })
   }
 }
 </script>

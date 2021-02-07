@@ -751,15 +751,15 @@ function show_sidebar() {
     var style = document.createElement('style')
     style.innerHTML = `
     #hudson-wrapper, .sizing-wrapper, .app-container > div {
-      right: 400px !important;
-      width: calc(100% - 400px) !important;
+      right: 320px !important;
+      width: calc(100% - 320px) !important;
     }
     #fc-iframe{
       position:fixed;
       top:0;
       right:0;
       display:block;
-      width:400px;
+      width:320px;
       height:100%;
       z-index:1000;
     }

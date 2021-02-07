@@ -4,6 +4,7 @@
       v-model="dialog"
       scrollable
       persistent
+      fullscreen
       :overlay="false"
       max-width="100%"
       transition="dialog-transition"
