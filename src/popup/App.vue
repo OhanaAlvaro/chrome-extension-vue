@@ -20,11 +20,11 @@ export default {
     }
   },
   methods: {
-    go2Settings() {
-      if (this.$route.name == 'Settings') {
-        this.$router.go(-1) //go back to whatever route we were before :)  | (just in case at some point we have more than Home/Settings)
+    go2Login() {
+      if (this.$route.name == 'Login') {
+        this.$router.go(-1) //go back to whatever route we were before :)  | (just in case at some point we have more than Home/Login)
       } else {
-        this.$router.push('/settings')
+        this.$router.push('/login')
       }
     },
     sendMessage(msg, callback) {
