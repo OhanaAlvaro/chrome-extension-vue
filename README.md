@@ -29,16 +29,26 @@ A separated component, but key here, is our Family Cinema API. So far it's a sin
 
 The addon is the chrome-extension itself. Addons are like websites, but with peculiriates made mainly for security (addons have access to the browser, not just themselves).
 
+## To deploy
+
+Run `npm run build`. This creates the `dist` folder. That's the folder we share with Google for the Google Store.
+
+## To debug
+
+- Run `npm run serve`.
+- Same `dist` folder is created, but this time it is self-refreshed with your changes on the code, so you can see the changes in Chrome.
+- Add it to Chrome (if not done before):
+  - Go to `chrome://extensions/`
+  - Turn ON developer mode
+  - Add the extension from the `dist` folder.
+
 ## **About Vue**
 
 This Addon is now built with Vue, for simplicity and speed coding.
 
 Vue code lives within the `src` folder, although we also use a couple of stuff fromt the `public` folder. Once the project is deployed, the `dist` folder is created in the root, and it's the one that contains the static website that can be uploaded to the Chrome Store. Note: Items in the `public` folder, get copy-pasted to the `dist` folder directly.
 
-To deploy:
-
-- One-time deploy: `npm run build`. This creates the `dist` folder.
-- While developing: `npm run serve`. Same `dist` folder is created, but this time it is self-refreshed with your changes on the code, so you can see the changes in Chrome.
+## Project structure
 
 This project uses the `src\vue.config.js` file to define how content is deployed as a web extension. Not that you have to changte it, but FYI just in case.
 
