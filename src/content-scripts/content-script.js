@@ -9,7 +9,7 @@ This file implements 4 objects:
 /*
  Main family cinema object, implements
   + previewScene
-  + updae
+  + update
 
 */
 'use strict'
@@ -341,7 +341,7 @@ var browser = {
       try {
         if (request.msg == 'mark-current-time') {
           return sendResponse(fc.mark_current_time(request.tags))
-        } else if (request.msg == 'show-sidebar'){
+        } else if (request.msg == 'show-sidebar') {
           show_sidebar()
         } else if (request.msg == 'preview') {
           fc.previewScene(request.id)
@@ -566,6 +566,17 @@ var server = {
   }
 }
 
+/*
+ Player cinema object, implements
+  + mute
+  + blur
+  + pause
+  + play
+  + togglePlay
+  + seek
+  + getTime
+*/
+
 var player = {
   video: false,
 
@@ -675,6 +686,16 @@ var player = {
   }
 }
 
+/*
+ Utilities cinema object, implements
+  + merge
+  + random_id
+  + includesAny
+  + parseJSON
+  + idToIndex
+  + idToIndex
+*/
+
 var utils = {
   merge: function(official, local) {
     console.log('[merge] merging: ', official, local)
@@ -724,6 +745,9 @@ var utils = {
   }
 }
 
+
+// Everything else
+
 browser.addListeners()
 
 setInterval(fc.periodicCheck, 100)
@@ -747,7 +771,6 @@ function show_sidebar() {
     iframe.id = 'fc-iframe'
     document.body.appendChild(iframe)
 
-    
     var style = document.createElement('style')
     style.innerHTML = `
     #hudson-wrapper, .sizing-wrapper, .app-container > div {
@@ -794,4 +817,3 @@ function show_sidebar() {
 }
 
 */
-
