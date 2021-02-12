@@ -3,7 +3,7 @@
     <div>
       <h2>Create new filters</h2>
       <span class="menu">
-        <span @click="go2Settings()">
+        <span @click="go2Login()">
           <v-icon small>mdi-account</v-icon>
         </span>
       </span>
@@ -66,7 +66,11 @@
 
       <div style="display: flex;">
         <!-- Mute video while marking scene-->
-        <v-checkbox v-model="mute_on_mark" :label="`Mute on mark`" @change="changeMute"></v-checkbox>
+        <v-checkbox
+          v-model="mute_on_mark"
+          :label="`Mute on mark`"
+          @change="changeMute"
+        ></v-checkbox>
         <!-- Blur slider: allow user to control the blur right from here -->
         <v-slider
           v-model="sliderValue"
@@ -117,7 +121,6 @@ export default {
   },
   data() {
     return {
-      data: { msg: '', scenes: [], settings: [], shield: 'unkown' }, //default values, to avoid missing keys
       zero_scenes: false,
       auxx: '',
       snackbarText: '',
@@ -132,21 +135,33 @@ export default {
       new_scene_tags: [],
       new_scene_index: 0,
 
-      //slider & mute
-      sliderValue: 0,
-      mute_on_mark: true,
-
       //shield
       shield_visible: false
     }
   },
 
+  props: {
+    data: Object
+  },
+
+  computed: {
+    sliderValue() {
+      return this.data.settings.blur_level
+    },
+    mute_on_mark() {
+      return this.data.settings.mute_on_mark
+    },
+    scenes() {
+      return this.data.scenes
+    }
+  },
+
   methods: {
-    go2Settings() {
-      if (this.$route.name == 'Settings') {
-        this.$router.go(-1) //go back to whatever route we were before :)  | (just in case at some point we have more than Home/Settings)
+    go2Login() {
+      if (this.$route.name == 'Login') {
+        this.$router.go(-1) //go back to whatever route we were before :)  | (just in case at some point we have more than Home/Login)
       } else {
-        this.$router.push('/settings')
+        this.$router.push('/login')
       }
     },
     //slider_
@@ -244,48 +259,7 @@ export default {
           if (callback) callback(response)
         })
       })
-    },
-    listenToMessages() {
-      chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        console.log('[listen-Editor] Received request: ', request)
-        if (request.msg == 'new-data') {
-          this.getData(false)
-        }
-        sendResponse({success:true,source:$this.route.name})
-      })
-    },
-
-    getData(firstTime) {
-      this.sendMessage({ msg: 'get-data' }, response => {
-        console.log('data-received in Editor', response)
-
-        
-
-        /* careful: when adding a new scene, this makes it hard to identify it (now instead of going at the end, it appears in position xx)
-
-*/
-        if (firstTime) {
-          response.scenes.sort(function(a, b) {
-            //make sure default scenes are shown first, and the rest sorted by start time
-            if (a.default_skip && !b.default_skip) return -1
-            if (!a.default_skip && b.default_skip) return 1
-            return a.start - b.start
-          })
-        }
-
-        this.data = response
-
-        this.sliderValue = response.settings.blur_level
-        this.mute_on_mark = response.settings.mute_on_mark
-        this.scenes = response.scenes
-      })
     }
-  },
-
-  mounted() {
-    //Let's get the data as soon as mounted
-    this.getData(true)
-    this.listenToMessages()
   }
 }
 </script>
@@ -295,7 +269,6 @@ export default {
   height: 96vh;
   width: 100vw -20px;
 }
-
 
 .no-uppercase {
   text-transform: none;

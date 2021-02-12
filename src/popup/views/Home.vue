@@ -3,7 +3,7 @@
     <div>
       <h2>What do you want to skip?</h2>
       <span class="menu">
-        <span @click="go2Settings()">
+        <span @click="go2Login()">
           <v-icon small>mdi-account</v-icon>
         </span>
 
@@ -67,12 +67,9 @@
       <span v-if="data.shield == `unkown` && false">
         <b style="color: orangered">Careful!</b> We might not be able to skip all unwanted scenes
       </span>
-      <span v-if="data.shield == `missing` || true">
-        <b style="color: red">Beware!</b> We won't be able to skip all unwanted scenes
+      <span v-if="!data.hasFilm">
+        <b style="color: red">No movie!</b> Open a specific movie/show to start using Family Cinema. If you've already opened a movie, try refreshing the page.
       </span>
-      <fc-tooltip text="This and that content will be skipped">
-        <v-icon color="blue" small>mdi-information</v-icon>
-      </fc-tooltip>
     </div>
     <!--<div v-else>
       <scenes-viewer v-model="data.scenes"></scenes-viewer>
@@ -122,7 +119,7 @@ export default {
   },*/
 
   props: {
-    state: Object
+    data: Object
   },
 
   computed: {
@@ -133,7 +130,6 @@ export default {
 
   data() {
     return {
-      data: { msg: '', scenes: [], settings: [], shield: 'unkown' }, //default values, to avoid missing keys
       snackbarText: '',
       snackbar: false,
       snackbarTimeout: 6000,
@@ -143,11 +139,11 @@ export default {
   },
 
   methods: {
-    go2Settings() {
-      if (this.$route.name == 'Settings') {
-        this.$router.go(-1) //go back to whatever route we were before :)  | (just in case at some point we have more than Home/Settings)
+    go2Login() {
+      if (this.$route.name == 'Login') {
+        this.$router.go(-1) //go back to whatever route we were before :)  | (just in case at some point we have more than Home/Login)
       } else {
-        this.$router.push('/settings')
+        this.$router.push('/login')
       }
     },
 

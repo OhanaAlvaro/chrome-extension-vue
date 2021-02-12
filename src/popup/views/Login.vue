@@ -41,9 +41,9 @@
             dark
             :color="getTagColor(skip_tag)"
             >{{ skip_tag }}</v-chip
-          >
+          >-->
 
-          <!-- If no tag selected - ->
+          <!-- If no tag selected
           <v-chip v-if="settings.skip_tags.length == 0" x-small dark
             >Skip nothing
             <v-icon right x-small>mdi-pencil</v-icon>

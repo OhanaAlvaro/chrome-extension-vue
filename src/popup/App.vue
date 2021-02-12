@@ -16,7 +16,7 @@ export default {
   name: 'PopupApp',
   data() {
     return {
-      data: {}
+      data: { msg: '', scenes: [], settings: [], shield: 'unkown', hasFilm: false }, //default values, to avoid missing keys
     }
   },
   methods: {
@@ -56,8 +56,17 @@ export default {
         // If there is no response (or it is incomplete) open wrongsite/nomovie pages
         if (!response) {
           return this.$router.push('/wrongsite')
-        } else if (!response.settings || !response.scenes) {
+        }/* else if (!response.settings || !response.scenes) {
           return this.$router.push('/no-movie')
+        }*/
+
+        if (firstTime) {
+          response.scenes.sort(function(a, b) {
+            //make sure default scenes are shown first, and the rest sorted by start time
+            if (a.default_skip && !b.default_skip) return -1
+            if (!a.default_skip && b.default_skip) return 1
+            return a.start - b.start
+          })
         }
 
         // Make data globally accesible

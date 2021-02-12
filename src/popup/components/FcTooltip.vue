@@ -17,14 +17,6 @@
 <script>
 export default {
   props: {
-    icon: {
-      type: String,
-      default: 'mdi-information'
-    },
-    color: {
-      type: String,
-      default: 'info'
-    },
     text: {
       type: String,
       default: ''
