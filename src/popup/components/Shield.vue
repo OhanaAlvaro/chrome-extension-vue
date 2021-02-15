@@ -58,17 +58,6 @@
             </v-tab-item>
           </v-tabs-items>
 
-          <!--  
-          <div v-for="(tag, index) in tags" :key="index">
-            <div @click="tag.status = nextStatus(tag.status)" style="cursor: pointer;">
-              <v-icon v-if="tag.status == `missing`" color="red">mdi-shield-alert</v-icon>
-              <v-icon v-if="tag.status == `done`" color="#00b359">mdi-shield-check</v-icon>
-              <v-icon v-if="tag.status == `unkown`">mdi-shield-half-full</v-icon>
-              <b style="min-width: 100px">{{ tag.title }} </b> {{ tag.description }}
-            </div>
-            <br />
-          </div>
-          -->
           <div style="margin-top: 20px">
             <fc-tooltip text="The movie contains scenes of this type that are not yet listed">
               <v-icon color="red">mdi-shield-alert</v-icon>Missing
@@ -84,7 +73,6 @@
           </div>
         </v-card-text>
         <v-card-actions>
-          
           <v-spacer></v-spacer>
 
           <v-btn text @click="cancel()">
@@ -108,13 +96,18 @@ export default {
       //here v-model is for whether or not this should be visible or not.
       type: Boolean,
       default: false
+    },
+    tagged: {
+      type: Object,
+      default() {
+        return {}
+      }
     }
   },
   data() {
     return {
       tab: 0,
       tags: [],
-      tagged: {},
       //alex:
       tagged_backup: {},
       tags_sex: [],
@@ -162,19 +155,9 @@ export default {
         return 'done'
       }
     },
-    save(msg) {
+    save() {
       console.log('shield-save')
-      /*
-      var tagged = {}
-      for (var i = 0; i < this.tags.length; i++) {
-        tagged[this.tags[i].value] = {
-          status: this.tags[i].status
-        }
-      }
-      */
 
-      //this.tags_sex = this.tags_sex.reverse()
-      //this.tags_violence = this.tags_violence.reverse()
       this.tagged = {}
       this.tags_sex.forEach(ts => {
         this.tagged[ts.value] = { status: ts.status }
@@ -182,8 +165,6 @@ export default {
       this.tags_violence.forEach(tv => {
         this.tagged[tv.value] = { status: tv.status }
       })
-
-      //console.log(tagged)
 
       //send message to save!
       fclib.sendMessage({ msg: 'set-tagged', tagged: this.tagged })
@@ -235,27 +216,8 @@ export default {
           }
         })
         this.tags_violence = JSON.parse(JSON.stringify(tags_violence))
-        //-----------
-        /*
-        console.log(tags, tagged)
-        for (var i = 0; i < tags.length; i++) {
-          var value = tags[i].value
-          if (!tagged[value]) {
-            tags[i].status = 'unkown'
-          } else if (tagged[value].status == 'done') {
-            tags[i].status = 'done'
-          } else if (tagged[value].status == 'missing') {
-            tags[i].status = 'missing'
-          } else {
-            tags[i].status = 'unkown'
-          }
-        }
-        this.tags = JSON.parse(JSON.stringify(tags)) //needed to force refresh of deep object
-        console.log(this.tags)
-        */
       })
-    },
-    getTagColor() {}
+    }
   },
   mounted() {
     //this.getData()  // this is now triggered by watching visible prop

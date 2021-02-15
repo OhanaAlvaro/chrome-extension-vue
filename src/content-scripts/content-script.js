@@ -39,10 +39,9 @@ var fc = {
   skip_ids: {},
   tagged: {},
 
-  previewScene: function(id) {
-    var i = utils.idToIndex(id)
-    console.log('Previewing scene: ', fc.scenes[i])
-    fc.preview_skip = fc.scenes[i]
+  previewScene: function(scene) {
+    console.log('Previewing scene: ', scene)
+    fc.preview_skip = scene
     player.play()
     player.seek(fc.preview_skip.start - 2500)
     return true
@@ -269,7 +268,7 @@ var fc = {
     var next_good = 0
 
     if (fc.frame_seeked) {
-      if (player.video.paused) return
+      if (player.video.paused || Date.now() < fc.frame_seeked + 500) return
       player.blur(0)
       fc.frame_seeked = false
     }
@@ -310,6 +309,8 @@ var fc = {
   }
 }
 
+
+
 /*
   Browser object, interacts with the browser (popup, background, storage). Implements:
     - sendMessage
@@ -344,7 +345,7 @@ var browser = {
         } else if (request.msg == 'show-sidebar'){
           show_sidebar()
         } else if (request.msg == 'preview') {
-          fc.previewScene(request.id)
+          fc.previewScene(request.scene)
         } else if (request.msg == 'remove') {
           fc.removeScene(request.id)
         } else if (request.msg == 'update-scene') {
@@ -376,7 +377,7 @@ var browser = {
         } else if (request.msg == 'blur') {
           player.blur(request.blur_level)
           // This is not really true, but it keeps the blur level while movie is paused
-          if (!fc.marking_started) fc.frame_seeked = true
+          if (!fc.marking_started) fc.frame_seeked = Date.now()
         } else if (request.msg == 'seek-frame') {
           player.seek(request.time, 'frame')
         } else if (request.msg == 'seek-diff') {
@@ -621,6 +622,7 @@ var player = {
         new CustomEvent('netflix-video-controller', { detail: { pause: true } })
       )
     } else {
+      console.log('pausing video')
       player.video.pause()
     }
   },
@@ -632,6 +634,7 @@ var player = {
         new CustomEvent('netflix-video-controller', { detail: { play: true } })
       )
     } else {
+      console.log('playing video')
       player.video.play()
     }
   },
@@ -646,12 +649,24 @@ var player = {
 
   seek: function(time, mode) {
     console.log('[seek_time] seeking time ', time)
+
     // Check objective time is within range
     if (!time || time < 0 || time > fc.metadata.duration) {
       console.log('Invalid time ', time, ', video length is ', fc.metadata.duration)
       return
     }
 
+    // Pause player if it is framed seeked
+    if (mode == 'frame') {
+      console.log('Frame seeking!')
+      fc.frame_seeked = Date.now()
+      if(fc.settings.blur_level_on_frame_seek){
+        player.blur(fc.settings.blur_level_on_frame_seek)  
+      }      
+      player.pause()
+    }
+
+    // Seek requested time
     if (fc.metadata.provider == 'netflix') {
       document.dispatchEvent(
         new CustomEvent('netflix-video-controller', { detail: { time: time } })
@@ -660,13 +675,7 @@ var player = {
       player.video.currentTime = time / 1000
     }
 
-    if (mode == 'frame') {
-      fc.frame_seeked = true
-      var blur_level = fc.settings.blur_level_on_frame_seek
-      if (!blur_level) blur_level = fc.settings.blur_level / 3
-      player.blur(blur_level)
-      player.pause()
-    }
+    if (mode == 'frame') player.pause()
   },
 
   // Get current time in milliseconds (all times are always in milliseconds!)
@@ -767,31 +776,4 @@ function show_sidebar() {
     document.head.appendChild(style)
   }
 }
-
-/*
-#chat-wrapper {
-  width: 288px !important;
-  height: 100% !important;
-  background: #1a1a1a;
-  position: fixed !important;
-  top: 0 !important;
-  left: auto !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  cursor: auto;
-  user-select: text;
-  -webkit-user-select: text;
-  z-index: 9999999999 !important;
-}
-
-#chat-wrapper #chat-container {
-  // width: 228px;
-  height: 100%;
-  position: relative;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-}
-
-*/
 

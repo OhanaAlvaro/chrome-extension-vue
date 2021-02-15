@@ -9,30 +9,57 @@
       </span>
     </div>
 
-    <!-- this is a dialog used for new scenes only. Rest of the time it's hidden -->
-    <!-- existing scenes use the wizard from the scenes editor-->
-    <tags-wizard
-      :tags="new_scene_tags"
-      v-model="new_scene_wizard"
-      @change="newSceneTagsChange"
-    ></tags-wizard>
+    <!-- Shield & scene edit dialogs -->
+    <shield-vue :visible="shield_visible" :tagged="data.tagged"></shield-vue>
+    <scene-editor :visible="edit_scene_dialog" :scene="scene_being_edited"></scene-editor>
 
-    <div v-if="zero_scenes" align="center" justify="center" style="width:100%">
-      <br /><br /><br /><br /><br />
-      No filters for this film. Be the first one to add one!
+
+    <!-- List/table of scenes -->
+    <div v-if="data.scenes.length == 0" align="center" justify="center" style="width:100%">
+      <br>
+      No filters for this film. Be the first one to add one! 
+      <br>
     </div>
     <div v-else>
-      <scenes-editor v-model="data.scenes"></scenes-editor>
+      <table width="100%">
+        <thead>
+          <tr>
+            <th>Start</th>
+            <th>Lenght</th>
+            <th>Category</th>
+            <th>Severity</th>
+            <th>Context</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="scene in data.scenes" :key="scene.id" @click="editScene(scene)">
+            <!-- Start Time -->
+            <td>{{ Math.round(scene.start / 100) / 10 }}</td>
+            <!-- Duration -->
+            <td>{{ Math.round((scene.end - scene.start) / 100) / 10 }}</td>
+
+            <td>{{ scene.category }}</td>
+
+            <td>{{ scene.severity }}</td>
+
+            <td>
+              <v-chip x-small v-for="(tag, index) in scene.context" :key="index" dark>
+                {{ tag }}
+              </v-chip>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <!-- Filter status (shield) -->
     <v-btn text small @click="shield_visible = !shield_visible">
       <fc-tooltip text="Click to define filter status">
         <v-icon>mdi-shield-half-full</v-icon>Filter status
       </fc-tooltip>
     </v-btn>
 
-    <!-- New scene button-->
-
+    <!-- New scene button -->
     <fc-tooltip text="(Alt+N)">
       <v-btn color="black" @click="markCurrentTime()" text small>
         <div v-if="isCreatingScene == false"><v-icon>mdi-plus</v-icon>New filter</div>
@@ -40,8 +67,7 @@
       </v-btn>
     </fc-tooltip>
 
-    <!-- Shield dialog -->
-    <shield-vue :visible="shield_visible" @hide="shield_visible = false"></shield-vue>
+    
 
     <div id="bottom">
       <h3>Player controls</h3>
@@ -73,7 +99,7 @@
         ></v-checkbox>
         <!-- Blur slider: allow user to control the blur right from here -->
         <v-slider
-          v-model="sliderValue"
+          v-model="blurLevel"
           inverse-label
           :min="0"
           :max="40"
@@ -94,48 +120,20 @@
 </template>
 
 <script>
-import ScenesEditor from '../components/ScenesEditor'
 import ShieldVue from '../components/Shield.vue'
-import TagsWizard from '../components/TagsWizard'
+import SceneEditor from '../components/SceneEditor.vue'
 
 import fclib from '../js/fclib'
 export default {
   name: 'Editor',
   components: {
-    ScenesEditor,
-    TagsWizard,
+    SceneEditor,
     ShieldVue
-  },
-
-  watch: {
-    data: {
-      deep: true,
-      handler(newValue, oldValue) {
-        if (newValue.scenes.length == 0) {
-          this.zero_scenes = true
-        } else {
-          this.zero_scenes = false
-        }
-      }
-    }
   },
   data() {
     return {
-      zero_scenes: false,
-      auxx: '',
-      snackbarText: '',
-      snackbar: false,
-      snackbarTimeout: 6000,
-      isCreatingScene: false,
-      isEditing: false,
-
-      //when adding a new scene:
-
-      new_scene_wizard: false,
-      new_scene_tags: [],
-      new_scene_index: 0,
-
-      //shield
+      edit_scene_dialog: false,
+      scene_being_edited: {},
       shield_visible: false
     }
   },
@@ -145,14 +143,11 @@ export default {
   },
 
   computed: {
-    sliderValue() {
+    blurLevel() {
       return this.data.settings.blur_level
     },
     mute_on_mark() {
       return this.data.settings.mute_on_mark
-    },
-    scenes() {
-      return this.data.scenes
     }
   },
 
@@ -164,24 +159,19 @@ export default {
         this.$router.push('/login')
       }
     },
-    //slider_
+    editScene(scene) {
+      this.scene_being_edited = scene
+      this.edit_scene_dialog = true
+    },
+
     changeBlur(newValue) {
       var oldValue = this.data.settings.blur_level
       console.log('change blur', newValue, oldValue)
 
       this.data.settings.blur_level = newValue
 
-      this.sendMessage({ msg: 'update-settings', settings: this.data.settings }, response => {
-        console.log('save settings response', response)
-        if (response == false) {
-          this.sliderValue = oldValue
-          this.data.settings.blur_level = oldValue
-        }
-      })
-
-      this.sendMessage({ msg: 'blur', blur_level: newValue }, response => {
-        console.log('blur response', response)
-      })
+      this.sendMessage({ msg: 'update-settings', settings: this.data.settings })
+      this.sendMessage({ msg: 'blur', blur_level: newValue })
     },
 
     changeMute(newValue) {
@@ -189,17 +179,8 @@ export default {
 
       this.data.settings.mute_on_mark = this.mute_on_mark
 
-      this.sendMessage({ msg: 'update-settings', settings: this.data.settings }, response => {
-        console.log('save settings response', response)
-        if (response == false) {
-          this.mute_on_mark = oldValue
-          this.data.settings.mute_on_mark = oldValue
-        }
-      })
-
-      this.sendMessage({ msg: 'mute', state: this.mute_on_mark }, response => {
-        console.log('mute: ', response)
-      })
+      this.sendMessage({ msg: 'update-settings', settings: this.data.settings })
+      this.sendMessage({ msg: 'mute', state: this.mute_on_mark })
     },
 
     //New Scene
@@ -238,7 +219,7 @@ export default {
 
           //handle tags for new scene
           this.new_scene_tags = []
-          this.new_scene_wizard = true
+          this.edit_scene_dialog = true
           this.new_scene_index = this.data.scenes.length - 1
         } else {
           //Begin of scene:
@@ -256,7 +237,11 @@ export default {
       console.log('[sendMessage-Editor]: ', msg)
       chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, msg, function(response) {
-          if (callback) callback(response)
+          if (callback) {
+            callback(response)
+          } else {
+            console.log('Message:', msg, ', got response: ', response)
+          }
         })
       })
     }
@@ -272,6 +257,19 @@ export default {
 
 .no-uppercase {
   text-transform: none;
+}
+
+
+tr {
+  cursor: pointer;
+}
+
+tr:hover {
+  opacity: 0.5;
+}
+
+.v-input {
+  font-size: 1.2em;
 }
 
 .bordered {

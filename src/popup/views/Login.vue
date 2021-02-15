@@ -52,8 +52,7 @@
         <br />-->
         <b style="font-size:120%">3. Enjoy!</b><br />
 
-        Enjoy movies as usual. Family Cinema will be working for you in the background, seamlessly
-        skipping any unwanted content.<br /><br />
+        Enjoy movies as usual. Family Cinema will be working for you in the background, seamlessly skipping any unwanted content.<br /><br />
 
         If you spot any unwanted content, press "Alt+N" or "New filter" to flag it and help other
         users like you.<br /><br />

@@ -7,7 +7,7 @@
           <v-icon small>mdi-account</v-icon>
         </span>
 
-        <!--ADD  window.close(); to close popup (beware you will have to make the windows object accessible to within vue)-->
+        <!--ADD window.close(); to close popup (beware you will have to make the windows object accessible to within vue)-->
         <span @click="sendMessage({ msg: 'show-sidebar' });">
           <v-icon small>mdi-pencil</v-icon>
         </span>

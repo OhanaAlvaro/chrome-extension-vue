@@ -74,7 +74,7 @@ export default {
 
         // If we are on an iframe (i.e. on the sidebar), open de editor
         if (this.inIframe()) {
-          if (!response.settings.username) return this.$router.push('/settings')
+          if (!response.settings.username) return this.$router.push('/login')
           return this.$router.push('/editor')
         }
 
