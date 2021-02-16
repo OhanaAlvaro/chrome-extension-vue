@@ -10,15 +10,23 @@
     </div>
 
     <!-- Shield & scene edit dialogs -->
-    <shield-vue :visible="shield_visible" :tagged="data.tagged"></shield-vue>
-    <scene-editor :visible="edit_scene_dialog" :scene="scene_being_edited"></scene-editor>
+    <shield-editor
+      :visible="shield_visible"
+      :tagged="data.tagged"
+      @hide="shield_visible = false"
+    ></shield-editor>
 
+    <scene-editor
+      :visible="edit_scene_dialog"
+      :scene="active_scene"
+      @hide="edit_scene_dialog = false"
+    ></scene-editor>
 
     <!-- List/table of scenes -->
     <div v-if="data.scenes.length == 0" align="center" justify="center" style="width:100%">
-      <br>
-      No filters for this film. Be the first one to add one! 
-      <br>
+      <br />
+      No filters for this film. Be the first one to add one!
+      <br />
     </div>
     <div v-else>
       <table width="100%">
@@ -26,7 +34,6 @@
           <tr>
             <th>Start</th>
             <th>Lenght</th>
-            <th>Category</th>
             <th>Severity</th>
             <th>Context</th>
           </tr>
@@ -38,9 +45,11 @@
             <!-- Duration -->
             <td>{{ Math.round((scene.end - scene.start) / 100) / 10 }}</td>
 
-            <td>{{ scene.category }}</td>
-
-            <td>{{ scene.severity }}</td>
+            <td>
+              <v-chip x-small :color="getTagColor(scene.severity)" dark>
+                {{ scene.severity }}
+              </v-chip>
+            </td>
 
             <td>
               <v-chip x-small v-for="(tag, index) in scene.context" :key="index" dark>
@@ -62,12 +71,10 @@
     <!-- New scene button -->
     <fc-tooltip text="(Alt+N)">
       <v-btn color="black" @click="markCurrentTime()" text small>
-        <div v-if="isCreatingScene == false"><v-icon>mdi-plus</v-icon>New filter</div>
+        <div v-if="data.state.marking == false"><v-icon>mdi-plus</v-icon>New filter</div>
         <div v-else><v-icon>mdi-check</v-icon>End Filter</div>
       </v-btn>
     </fc-tooltip>
-
-    
 
     <div id="bottom">
       <h3>Player controls</h3>
@@ -93,13 +100,13 @@
       <div style="display: flex;">
         <!-- Mute video while marking scene-->
         <v-checkbox
-          v-model="mute_on_mark"
+          v-model="data.settings.mute_on_mark"
           :label="`Mute on mark`"
           @change="changeMute"
         ></v-checkbox>
         <!-- Blur slider: allow user to control the blur right from here -->
         <v-slider
-          v-model="blurLevel"
+          v-model="data.settings.blur_level"
           inverse-label
           :min="0"
           :max="40"
@@ -111,44 +118,32 @@
           <template v-slot:thumb-label="{ value }">{{ 2.5 * value + '%' }}</template>
         </v-slider>
       </div>
-
-      <v-snackbar top right v-model="snackbar" :timeout="snackbarTimeout" color="info">{{
-        snackbarText
-      }}</v-snackbar>
     </div>
   </div>
 </template>
 
 <script>
-import ShieldVue from '../components/Shield.vue'
+import ShieldEditor from '../components/ShieldEditor.vue'
 import SceneEditor from '../components/SceneEditor.vue'
-
 import fclib from '../js/fclib'
+import raw from '../js/raw_tags'
+
 export default {
   name: 'Editor',
   components: {
     SceneEditor,
-    ShieldVue
+    ShieldEditor
   },
   data() {
     return {
       edit_scene_dialog: false,
-      scene_being_edited: {},
+      active_scene: {},
       shield_visible: false
     }
   },
 
   props: {
     data: Object
-  },
-
-  computed: {
-    blurLevel() {
-      return this.data.settings.blur_level
-    },
-    mute_on_mark() {
-      return this.data.settings.mute_on_mark
-    }
   },
 
   methods: {
@@ -159,91 +154,49 @@ export default {
         this.$router.push('/login')
       }
     },
+    getTagColor(value) {
+      var color_value = 'gray' //default
+      raw.content.forEach(item => {
+        if (item.value == value) {
+          color_value = item.color
+        }
+      })
+      return color_value
+    },
+
     editScene(scene) {
-      this.scene_being_edited = scene
+      this.active_scene = scene
       this.edit_scene_dialog = true
     },
 
-    changeBlur(newValue) {
-      var oldValue = this.data.settings.blur_level
-      console.log('change blur', newValue, oldValue)
-
-      this.data.settings.blur_level = newValue
-
-      this.sendMessage({ msg: 'update-settings', settings: this.data.settings })
-      this.sendMessage({ msg: 'blur', blur_level: newValue })
+    changeBlur() {
+      console.log('change blur', this.data.settings.blur_level)
+      fclib.sendMessage({ msg: 'update-settings', settings: this.data.settings })
+      fclib.sendMessage({ msg: 'blur', blur_level: this.data.settings.blur_level })
     },
 
-    changeMute(newValue) {
-      console.log('change mute', this.mute_on_mark)
-
-      this.data.settings.mute_on_mark = this.mute_on_mark
-
-      this.sendMessage({ msg: 'update-settings', settings: this.data.settings })
-      this.sendMessage({ msg: 'mute', state: this.mute_on_mark })
+    changeMute() {
+      console.log('change mute', this.data.settings.mute_on_mark)
+      fclib.sendMessage({ msg: 'update-settings', settings: this.data.settings })
+      fclib.sendMessage({ msg: 'mute', state: this.data.settings.mute_on_mark })
     },
 
-    //New Scene
-    newSceneTagsChange(tagsSoFar) {
-      console.log('updating tags in new scene -> careful, we use INDEX!!!')
-
-      //make a copy of the scene with the changes:
-      var new_scene = this.data.scenes[this.new_scene_index]
-      new_scene.tags = tagsSoFar
-
-      //send this new scene
-      this.sendMessage({ msg: 'update-scene', scene: new_scene, field: 'tags' }, response => {
-        console.log('update-scene', response)
-        //if response is success, then NOW  we apply the change to the UI
-        if (response.success) {
-          this.data.scenes[this.new_scene_index].tags = tagsSoFar //apply the change to the main OBJECT
-        }
-      })
-    },
     markCurrentTime() {
-      this.sendMessage({ msg: 'mark-current-time' }, response => {
+      fclib.sendMessage({ msg: 'mark-current-time' }, response => {
         console.log(response)
         if (response && response.scene) {
-          //scene created successfully (tbc: was it sent to the server before the response?)
-          var msg = [
-            'Wow! Did you just do that? Thank your for adding a new scene!',
-            'You are absolutely awesome!',
-            'Thank you!',
-            'The world would be a better place if everyone was like you!'
-          ]
-          //this.snackbarText = msg[Math.floor(Math.random() * msg.length)]
-          this.snackbar = false // Hide any previous snackbar
-          this.data.scenes.push(response.scene)
+          // We have a new scene!!
+          this.editScene(response.scene)
           this.sendMessage({ msg: 'pause' })
-          this.isCreatingScene = false
-
-          //handle tags for new scene
-          this.new_scene_tags = []
-          this.edit_scene_dialog = true
-          this.new_scene_index = this.data.scenes.length - 1
+          this.data.state.marking = false
         } else {
-          //Begin of scene:
-          this.isCreatingScene = true
-          this.isEditing = true
-          console.log('[mark-current-time] No scene, assuming start')
-          this.snackbarText = 'Press again to mark the end of the scene'
-          this.snackbar = true
+          // We are marking a scene
+          this.data.state.marking = true
         }
       })
     },
-
-    //Generic methods:
-    sendMessage(msg, callback) {
-      console.log('[sendMessage-Editor]: ', msg)
-      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-        chrome.tabs.sendMessage(tabs[0].id, msg, function(response) {
-          if (callback) {
-            callback(response)
-          } else {
-            console.log('Message:', msg, ', got response: ', response)
-          }
-        })
-      })
+    sendMessage(msg) {
+      fclib.sendMessage(msg)
     }
   }
 }
@@ -258,7 +211,6 @@ export default {
 .no-uppercase {
   text-transform: none;
 }
-
 
 tr {
   cursor: pointer;

@@ -1,47 +1,57 @@
 <template>
   <div>
-    <v-dialog v-model="visible" width="500" max-width="100%" persistent fullscreen>
+    <v-dialog v-model="visible" max-width="100%" persistent fullscreen>
       <!-- feel free to test adding fullscreen prop on the dialog :) -->
       <v-card>
-        <v-card-title primary-title>
+        <v-card-title style="font-size:130%;">
           <h2>Scene editor</h2>
         </v-card-title>
         <v-card-text>
           <br />
 
           <h3>Describe the scene</h3>
-          <v-select small label="Category" v-model="scene.category" :items="categories"></v-select>
+          <br />
+          <v-select dense label="Category" v-model="scene.category" :items="categories"></v-select>
 
-          <v-select label="Severity" v-model="scene.severity" :items="severities"></v-select>
+          <v-select dense label="Severity" v-model="scene.severity" :items="severities"></v-select>
 
-          <v-select
-            v-model="scene.context"
-            :items="context"
-            attach
-            chips
-            label="Context"
-            multiple
-          ></v-select>
+          <v-select dense v-model="scene.context" :items="context" label="Context" multiple>
+            <template v-slot:selection="{ item }">
+              <v-chip small>{{ item }}</v-chip>
+            </template>
+            <template v-slot:item="{ item }">
+              <fc-tooltip v-bind:text="item">
+                {{ item }}
+              </fc-tooltip>
+            </template>
+          </v-select>
 
-          <v-textarea label="Comments" v-model="scene.comments" auto-grow rows="2" row-height="15"></v-textarea>
+          <v-textarea
+            dense
+            label="Comments"
+            v-model="scene.comments"
+            auto-grow
+            rows="2"
+            row-height="15"
+          ></v-textarea>
 
           <!-- -->
           <br />
           <div style="display: flex;">
             <h3 style="margin: auto 0;">Fine tune the times</h3>
-            <v-btn text @click="sendMessage({ msg: 'preview', scene: scene })">
+            <v-btn text small @click="sendMessage({ msg: 'preview', scene: scene })">
               Preview
             </v-btn>
           </div>
 
           <div style="display: flex;">
-            <span style="margin: auto 0;">Start</span>
+            <span style="margin: auto 0;">Start:</span>
             <time-editor v-model="scene.start" @change="seekFrame(scene.start)"></time-editor>
             <v-btn text small>Now</v-btn>
             <v-btn text small @click="seekFrame(scene.start)">Go</v-btn>
           </div>
           <div style="display: flex;">
-            <span style="margin: auto 0;">End</span>
+            <span style="margin: auto 0;">End: </span>
             <time-editor v-model="scene.end" @change="seekFrame(scene.end)"></time-editor>
             <v-btn text small>Now</v-btn>
             <v-btn text small @click="seekFrame(scene.end)">Go</v-btn>
@@ -67,22 +77,22 @@
             +5s
           </v-btn>
 
-          <br>
-          <br>
+          <br />
+          <br />
 
           <h3>Editor's safety</h3>
 
           <div style="display: flex;">
             <!-- Mute video while marking scene-->
             <v-checkbox
-            style="margin: auto 0px;"
+              style="margin: auto 0px;"
               v-model="mute_on_mark"
               :label="`Mute`"
               @change="changeMute"
             ></v-checkbox>
             <!-- Blur slider: allow user to control the blur right from here -->
             <v-slider
-            style="margin: auto 0px;"
+              style="margin: auto 0px;"
               v-model="sliderValue"
               inverse-label
               :min="0"
@@ -96,9 +106,8 @@
             </v-slider>
           </div>
         </v-card-text>
+        <v-spacer></v-spacer>
         <v-card-actions>
-          <v-spacer></v-spacer>
-
           <v-btn text small @click="removeScene()">
             Remove
           </v-btn>
@@ -119,9 +128,10 @@
 </template>
 
 <script>
-import fclib from '../js/fclib'
 import TimeEditor from '../components/TimeEditor.vue'
-var raw = require('../js/raw_tags')
+import fclib from '../js/fclib'
+import raw from '../js/raw_tags'
+
 export default {
   components: {
     TimeEditor
@@ -151,25 +161,21 @@ export default {
   },
 
   methods: {
-    hide(){
-      this.visible = false
-      this.$emit('hide') // Not sure why/if this is needed
-    },
     cancel() {
-      this.hide()
+      this.$emit('hide')
     },
     save() {
       this.sendMessage({ msg: 'update-scene', scene: this.scene, field: 'all' })
-      this.hide()
+      this.$emit('hide')
     },
     removeScene() {
       this.sendMessage({ msg: 'remove', id: this.scene.id })
-      this.hide()
+      this.$emit('hide')
     },
     seekForward(diff) {
       this.sendMessage({ msg: 'seek-diff', diff: diff })
     },
-    seekFrame(time){
+    seekFrame(time) {
       this.sendMessage({ msg: 'seek-frame', time: time })
     },
     sendMessage(msg, callback) {

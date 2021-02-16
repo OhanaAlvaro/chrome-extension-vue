@@ -38,8 +38,10 @@ export default {
     listenToMessages() {
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log('[listen-App.vue] Received request: ', request)
-        if (request.msg == 'new-data') this.getData()
-        sendResponse({success:true,source:$this.route.name})
+        if (request.msg == 'new-data'){
+          this.getData()
+          sendResponse({success:true,source:$this.route.name})
+        }
       })
     },
     inIframe() {

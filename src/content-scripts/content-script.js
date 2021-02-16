@@ -309,8 +309,6 @@ var fc = {
   }
 }
 
-
-
 /*
   Browser object, interacts with the browser (popup, background, storage). Implements:
     - sendMessage
@@ -342,7 +340,7 @@ var browser = {
       try {
         if (request.msg == 'mark-current-time') {
           return sendResponse(fc.mark_current_time(request.tags))
-        } else if (request.msg == 'show-sidebar'){
+        } else if (request.msg == 'show-sidebar') {
           show_sidebar()
         } else if (request.msg == 'preview') {
           fc.previewScene(request.scene)
@@ -356,9 +354,12 @@ var browser = {
             msg: 'new-data',
             scenes: fc.scenes,
             settings: fc.settings,
-            tagged: fc.tagged,
+            tagged: Object.assign({}, fc.tagged), // Make sure this is an object
             shield: fc.shield,
-            metadata: fc.metadata
+            metadata: fc.metadata,
+            state: {
+              marking: fc.marking_started
+            }
           })
         } else if (request.msg == 'update-settings') {
           fc.loadSettings(request.settings)
@@ -531,7 +532,7 @@ var server = {
         return console.error('[getData] Something is wrong with the server...')
       }
       fc.scenes = utils.merge(result.data.scenes, fc.scenes)
-      fc.tagged = result.data.tagged
+      fc.tagged = Object.assign({}, result.data.tagged)
       fc.onContentEdit('server')
     })
   },
@@ -660,9 +661,9 @@ var player = {
     if (mode == 'frame') {
       console.log('Frame seeking!')
       fc.frame_seeked = Date.now()
-      if(fc.settings.blur_level_on_frame_seek){
-        player.blur(fc.settings.blur_level_on_frame_seek)  
-      }      
+      if (fc.settings.blur_level_on_frame_seek) {
+        player.blur(fc.settings.blur_level_on_frame_seek)
+      }
       player.pause()
     }
 
@@ -756,7 +757,6 @@ function show_sidebar() {
     iframe.id = 'fc-iframe'
     document.body.appendChild(iframe)
 
-    
     var style = document.createElement('style')
     style.innerHTML = `
     #hudson-wrapper, .sizing-wrapper, .app-container > div {
@@ -776,4 +776,3 @@ function show_sidebar() {
     document.head.appendChild(style)
   }
 }
-

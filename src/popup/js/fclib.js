@@ -41,10 +41,14 @@ function ms2time(s) {
  * @param {*} callback Function to be executed with the response
  */
 function sendMessage(msg, callback) {
-  console.log('[sendMessage-fclib]: ', msg)
-  chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+  console.log('[sendMessage-Editor]: ', msg)
+  chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
     chrome.tabs.sendMessage(tabs[0].id, msg, function(response) {
-      if (callback) callback(response)
+      if (callback) {
+        callback(response)
+      } else {
+        console.log('Message:', msg, ', got response: ', response)
+      }
     })
   })
 }
