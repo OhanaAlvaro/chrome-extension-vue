@@ -138,7 +138,6 @@ export default {
   },
   props: {
     visible: {
-      //here v-model is for whether or not this should be visible or not.
       type: Boolean,
       default: false
     },

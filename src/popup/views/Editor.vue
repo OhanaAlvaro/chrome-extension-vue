@@ -1,5 +1,6 @@
 <template>
   <div class="size-wrapper">
+    <!-- Header -->
     <div>
       <h2>Create new filters</h2>
       <span class="menu">
@@ -44,13 +45,13 @@
             <td>{{ Math.round(scene.start / 100) / 10 }}</td>
             <!-- Duration -->
             <td>{{ Math.round((scene.end - scene.start) / 100) / 10 }}</td>
-
+            <!-- Severity -->
             <td>
               <v-chip x-small :color="getTagColor(scene.severity)" dark>
                 {{ scene.severity }}
               </v-chip>
             </td>
-
+            <!-- Context -->
             <td>
               <v-chip x-small v-for="(tag, index) in scene.context" :key="index" dark>
                 {{ tag }}
@@ -61,7 +62,7 @@
       </table>
     </div>
 
-    <!-- Filter status (shield) -->
+    <!-- Filter status button (show shield button) -->
     <v-btn text small @click="shield_visible = !shield_visible">
       <fc-tooltip text="Click to define filter status">
         <v-icon>mdi-shield-half-full</v-icon>Filter status
@@ -76,6 +77,7 @@
       </v-btn>
     </fc-tooltip>
 
+    <!-- Bottom menu -->
     <div id="bottom">
       <h3>Player controls</h3>
       <!-- Play/Pause button -->
@@ -90,7 +92,7 @@
       </v-btn>
 
       <v-btn @click="sendMessage({ msg: 'play-pause' })" text small>
-        <v-icon fab>mdi-play</v-icon>Play/Pause
+        <v-icon fab>mdi-play-pause</v-icon>Play/Pause
       </v-btn>
 
       <v-btn @click="sendMessage({ msg: 'seek-diff', diff: 5000 })" class="no-uppercase" text small>
@@ -104,6 +106,7 @@
           :label="`Mute on mark`"
           @change="changeMute"
         ></v-checkbox>
+
         <!-- Blur slider: allow user to control the blur right from here -->
         <v-slider
           v-model="data.settings.blur_level"
@@ -187,7 +190,7 @@ export default {
         if (response && response.scene) {
           // We have a new scene!!
           this.editScene(response.scene)
-          this.sendMessage({ msg: 'pause' })
+          fclib.sendMessage({ msg: 'pause' })
           this.data.state.marking = false
         } else {
           // We are marking a scene
