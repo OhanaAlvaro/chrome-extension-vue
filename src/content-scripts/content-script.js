@@ -7,10 +7,9 @@ This file implements 4 objects:
 */
 
 /*
- Main family cinema object, implements
-  + previewScene
-  + updae
-
+ 
+ Main family cinema object
+  
 */
 'use strict'
 
@@ -25,7 +24,7 @@ var fc = {
     pause_after_adding_scene: false,
     playbackRate_on_mark: 1.5,
     mute_on_mark: true,
-    blur_level_on_frame_seek: false // if false, it uses settings.blur_level
+    blur_on_frame_seek: false // if false, it uses settings.blur_level
   },
 
   settings: false,
@@ -340,6 +339,11 @@ var browser = {
       try {
         if (request.msg == 'mark-current-time') {
           return sendResponse(fc.mark_current_time(request.tags))
+        } else if (request.msg == 'get-time') {
+          return sendResponse({
+            success: true,
+            time: player.getTime()
+          })
         } else if (request.msg == 'show-sidebar') {
           show_sidebar()
         } else if (request.msg == 'preview') {
@@ -661,8 +665,8 @@ var player = {
     if (mode == 'frame') {
       console.log('Frame seeking!')
       fc.frame_seeked = Date.now()
-      if (fc.settings.blur_level_on_frame_seek) {
-        player.blur(fc.settings.blur_level_on_frame_seek)
+      if (fc.settings.blur_on_frame_seek) {
+        player.blur(fc.settings.blur_on_frame_seek)
       }
       player.pause()
     }

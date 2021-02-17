@@ -11,24 +11,39 @@
 
           <h3>Describe the scene</h3>
           <br />
-          <v-select dense label="Category" v-model="scene.category" :items="categories"></v-select>
+          <v-select
+            dense
+            label="Category"
+            v-model="scene.category"
+            :items="categories"
+            @change="categoryUpdated"
+          ></v-select>
 
-          <v-select dense label="Severity" v-model="scene.severity" :items="severities"></v-select>
-
-          <v-select dense v-model="scene.context" :items="context" label="Context" multiple>
+          <v-select dense label="Severity" v-model="scene.severity" :items="content.severity">
             <template v-slot:selection="{ item }">
-              <v-chip small>{{ item }}</v-chip>
+              {{ item.value }}
             </template>
             <template v-slot:item="{ item }">
-              <fc-tooltip v-bind:text="item">
-                {{ item }}
+              <fc-tooltip :text="item.description">
+                {{ item.value }}
+              </fc-tooltip>
+            </template>
+          </v-select>
+
+          <v-select dense v-model="scene.context" :items="content.types" label="Context" multiple>
+            <template v-slot:selection="{ item }">
+              <v-chip small>{{ item.value }}</v-chip>
+            </template>
+            <template v-slot:item="{ item }">
+              <fc-tooltip :text="item.description">
+                {{ item.value }}
               </fc-tooltip>
             </template>
           </v-select>
 
           <v-textarea
             dense
-            label="Comments"
+            label="Comments "
             v-model="scene.comments"
             auto-grow
             rows="2"
@@ -47,22 +62,22 @@
           <div style="display: flex;">
             <span style="margin: auto 0;">Start:</span>
             <time-editor v-model="scene.start" @change="seekFrame(scene.start)"></time-editor>
-            <v-btn text small>Now</v-btn>
+            <v-btn text small @click="getTime('start')">Now</v-btn>
             <v-btn text small @click="seekFrame(scene.start)">Go</v-btn>
           </div>
           <div style="display: flex;">
             <span style="margin: auto 0;">End: </span>
             <time-editor v-model="scene.end" @change="seekFrame(scene.end)"></time-editor>
-            <v-btn text small>Now</v-btn>
+            <v-btn text small @click="getTime('end')">Now</v-btn>
             <v-btn text small @click="seekFrame(scene.end)">Go</v-btn>
           </div>
 
-          <v-btn @click="seekForward(-5000)" class="no-uppercase" text small>
-            -5s
+          <v-btn @click="seekForward(-1000)" class="no-uppercase" text small>
+            -1s
           </v-btn>
 
           <v-btn @click="seekForward(-50)" class="no-uppercase" text small>
-            -1
+            -1f
           </v-btn>
 
           <v-btn @click="sendMessage({ msg: 'play-pause' })" text small>
@@ -70,11 +85,11 @@
           </v-btn>
 
           <v-btn @click="seekForward(50)" class="no-uppercase" text small>
-            +1
+            +1f
           </v-btn>
 
-          <v-btn @click="seekForward(5000)" class="no-uppercase" text small>
-            +5s
+          <v-btn @click="seekForward(1000)" class="no-uppercase" text small>
+            +1s
           </v-btn>
 
           <br />
@@ -86,21 +101,21 @@
             <!-- Mute video while marking scene-->
             <v-checkbox
               style="margin: auto 0px;"
-              v-model="mute_on_mark"
+              v-model="mute_status"
               :label="`Mute`"
-              @change="changeMute"
+              @change="mute"
             ></v-checkbox>
             <!-- Blur slider: allow user to control the blur right from here -->
             <v-slider
               style="margin: auto 0px;"
-              v-model="sliderValue"
+              v-model="blur_level"
               inverse-label
               :min="0"
               :max="40"
               thumb-label
               :label="`Blur`"
               step="2"
-              @change="changeBlur"
+              @change="blur"
             >
               <template v-slot:thumb-label="{ value }">{{ 2.5 * value + '%' }}</template>
             </v-slider>
@@ -130,7 +145,7 @@
 <script>
 import TimeEditor from '../components/TimeEditor.vue'
 import fclib from '../js/fclib'
-import raw from '../js/raw_tags'
+import raw_tags from '../js/raw_tags'
 
 export default {
   components: {
@@ -144,18 +159,26 @@ export default {
     scene: {
       type: Object,
       default() {
-        return { tags: [], start: 0, end: 0, id: '' }
+        return { category: '' }
       }
     }
   },
 
   data() {
     return {
-      categories: ['Sex & Nudity', 'Violence', 'Profanity'],
-      severities: ['Slight', 'Mild', 'Severe'],
-      context: ['No consent', 'Unloving/objectifying', 'Non-procreative', 'Infidelity'],
       sliderValue: 4,
-      mute_on_mark: false
+      mute_on_mark: false,
+      severities: [],
+      context: [],
+      content: {},
+      blur_level: 0,
+      mute_status: false
+    }
+  },
+
+  computed: {
+    categories() {
+      return raw_tags.categories
     }
   },
 
@@ -164,8 +187,13 @@ export default {
       this.$emit('hide')
     },
     save() {
-      this.sendMessage({ msg: 'update-scene', scene: this.scene, field: 'all' })
+      this.sendMessage({ msg: 'update-scene', scene: this.cleanScene(this.scene) })
       this.$emit('hide')
+    },
+    getTime(edge) {
+      this.sendMessage({ msg: 'get-time' }, response => {
+        if (response && response.time) this.scene[edge] = response.time
+      })
     },
     removeScene() {
       this.sendMessage({ msg: 'remove', id: this.scene.id })
@@ -176,6 +204,28 @@ export default {
     },
     seekFrame(time) {
       this.sendMessage({ msg: 'seek-frame', time: time })
+    },
+    blur() {
+      fclib.sendMessage({ msg: 'blur', blur_level: this.blur_level })
+    },
+    mute() {
+      fclib.sendMessage({ msg: 'mute', state: this.mute_status })
+    },
+    // Prepare scene to be shared (collapse category, severity and context into tags)
+    cleanScene(scene) {
+      scene.tags = fclib.intersect(scene.context, this.context) // remove invalid tags
+      scene.tags.push(scene.category)
+      scene.tags.push(scene.severity)
+      delete scene.category
+      delete scene.context
+      delete scene.severity
+      return scene
+    },
+    categoryUpdated() {
+      var i = raw_tags.categories.indexOf(this.scene.category)
+      this.severities = raw_tags.severities[i]
+      this.content = raw_tags.content[i]
+      this.context = raw_tags.context[i]
     },
     sendMessage(msg, callback) {
       console.log('[sendMessage-Editor]: ', msg)
@@ -189,4 +239,9 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.no-uppercase {
+  text-transform: none;
+}
+
+</style>

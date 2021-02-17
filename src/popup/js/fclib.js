@@ -109,6 +109,19 @@ function fixTime(new_time_ms, old_time_ms) {
   return new_time
 }
 
+function intersect(a, b) {
+  return a.filter(x => b.includes(x))
+}
+function difference(a, b) {
+  return a.filter(x => !b.includes(x))
+}
+function union(a, b) {
+  return [...a, ...b]
+}
+function collapse(A) {
+  return [].concat.apply([], A)
+}
+
 module.exports = {
   ms2time,
   pad,
@@ -118,5 +131,10 @@ module.exports = {
   sendMessage,
 
   getData,
-  listenToMessages
+  listenToMessages,
+
+  intersect,
+  difference,
+  union,
+  collapse
 }

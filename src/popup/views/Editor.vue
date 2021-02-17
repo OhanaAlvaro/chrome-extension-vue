@@ -2,7 +2,7 @@
   <div class="size-wrapper">
     <!-- Header -->
     <div>
-      <h2>Create new filters</h2>
+      <h1>Create new filters</h1>
       <span class="menu">
         <span @click="go2Login()">
           <v-icon small>mdi-account</v-icon>
@@ -28,6 +28,7 @@
       <br />
       No filters for this film. Be the first one to add one!
       <br />
+      <br />
     </div>
     <div v-else>
       <table width="100%">
@@ -40,14 +41,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="scene in data.scenes" :key="scene.id" @click="editScene(scene)">
+          <tr v-for="scene in scenes_list" :key="scene.id" @click="editScene(scene)">
             <!-- Start Time -->
             <td>{{ Math.round(scene.start / 100) / 10 }}</td>
             <!-- Duration -->
             <td>{{ Math.round((scene.end - scene.start) / 100) / 10 }}</td>
             <!-- Severity -->
             <td>
-              <v-chip x-small :color="getTagColor(scene.severity)" dark>
+              <v-chip x-small :color="getTagColor(scene.category)" dark>
                 {{ scene.severity }}
               </v-chip>
             </td>
@@ -81,22 +82,24 @@
     <div id="bottom">
       <h3>Player controls</h3>
       <!-- Play/Pause button -->
+      <v-btn @click="seekForward(-15000)" class="no-uppercase" text small>
+        -15s
+      </v-btn>
 
-      <v-btn
-        @click="sendMessage({ msg: 'seek-diff', diff: -5000 })"
-        class="no-uppercase"
-        text
-        small
-      >
+      <v-btn @click="seekForward(-5000)" class="no-uppercase" text small>
         -5s
       </v-btn>
 
       <v-btn @click="sendMessage({ msg: 'play-pause' })" text small>
-        <v-icon fab>mdi-play-pause</v-icon>Play/Pause
+        <v-icon fab>mdi-play-pause</v-icon>
       </v-btn>
 
-      <v-btn @click="sendMessage({ msg: 'seek-diff', diff: 5000 })" class="no-uppercase" text small>
+      <v-btn @click="seekForward(5000)" class="no-uppercase" text small>
         +5s
+      </v-btn>
+
+      <v-btn @click="seekForward(15000)" class="no-uppercase" text small>
+        +15s
       </v-btn>
 
       <div style="display: flex;">
@@ -129,7 +132,7 @@
 import ShieldEditor from '../components/ShieldEditor.vue'
 import SceneEditor from '../components/SceneEditor.vue'
 import fclib from '../js/fclib'
-import raw from '../js/raw_tags'
+import raw_tags from '../js/raw_tags'
 
 export default {
   name: 'Editor',
@@ -142,6 +145,23 @@ export default {
       edit_scene_dialog: false,
       active_scene: {},
       shield_visible: false
+    }
+  },
+
+  computed: {
+    scenes_list() {
+      var scenes = Object.assign([], this.data.scenes)
+
+      var categories = raw_tags.categories
+      var severities = fclib.collapse(raw_tags.severities)
+      var u_cat_sev = fclib.union(categories, severities) //collapse(raw_tags.context)
+
+      for (var i = 0; i < scenes.length; i++) {
+        scenes[i].category = fclib.intersect(categories, scenes[i].tags)[0]
+        scenes[i].severity = fclib.intersect(severities, scenes[i].tags)[0]
+        scenes[i].context = fclib.difference(scenes[i].tags, u_cat_sev)
+      }
+      return scenes
     }
   },
 
@@ -159,7 +179,7 @@ export default {
     },
     getTagColor(value) {
       var color_value = 'gray' //default
-      raw.content.forEach(item => {
+      raw_tags.content.forEach(item => {
         if (item.value == value) {
           color_value = item.color
         }
@@ -168,8 +188,13 @@ export default {
     },
 
     editScene(scene) {
+      console.log(scene)
       this.active_scene = scene
       this.edit_scene_dialog = true
+    },
+
+    seekForward(diff) {
+      this.sendMessage({ msg: 'seek-diff', diff: diff })
     },
 
     changeBlur() {
