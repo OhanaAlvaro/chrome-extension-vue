@@ -6,9 +6,7 @@
         <span @click="go2Login()">
           <v-icon small>mdi-account</v-icon>
         </span>
-
-        <!--ADD window.close(); to close popup (beware you will have to make the windows object accessible to within vue)-->
-        <span @click="sendMessage({ msg: 'show-sidebar' });">
+        <span @click="showSidebar">
           <v-icon small>mdi-pencil</v-icon>
         </span>
 
@@ -164,6 +162,10 @@ export default {
         }
       })
       return color_value
+    },
+    showSidebar(){
+      this.sendMessage({ msg: 'show-sidebar' });
+      window.close()
     }
   }
 }
