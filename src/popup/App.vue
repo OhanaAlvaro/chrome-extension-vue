@@ -55,6 +55,10 @@ export default {
       this.sendMessage({ msg: 'get-data' }, response => {
         console.log('data-received in App.vue', response, this.$route.name)
 
+        if( ['Options'].includes(this.$route.name) ){
+          return
+        }
+
         // If there is no response (or it is incomplete) open wrongsite/nomovie pages
         if (!response) {
           return this.$router.push('/wrongsite')
