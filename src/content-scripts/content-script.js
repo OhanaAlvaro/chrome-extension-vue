@@ -345,7 +345,7 @@ var browser = {
             time: player.getTime()
           })
         } else if (request.msg == 'show-sidebar') {
-          show_sidebar()
+          show_sidebar( request.show)
         } else if (request.msg == 'preview') {
           fc.previewScene(request.scene)
         } else if (request.msg == 'remove') {
@@ -750,28 +750,36 @@ browser.getData('settings', function(settings) {
   fc.loadSettings(settings)
 })
 
-function show_sidebar() {
-  console.log('injecting iframe')
-  // Avoid recursive frame insertion...
+function show_sidebar( show ) {
+  console.log('[show-sidebar] ', show)
+  // Remove fc-active class (this will hide the sidebar)
+  if (!show) return document.body.classList.remove("fc-active");
+  
+  // Add fc-active class (this will show the sidebar)
+  document.body.classList.add("fc-active");
 
+  // Inject iframe and css (if it is not already there)
   if (!document.getElementById('fc-iframe')) {
+    console.log('injecting iframe')
     var iframe = document.createElement('iframe')
     iframe.src = chrome.runtime.getURL('popup.html')
-    console.log('injecting iframe: ', iframe.src)
     iframe.id = 'fc-iframe'
+    iframe.style = 'display: none;'
     document.body.appendChild(iframe)
 
     var style = document.createElement('style')
     style.innerHTML = `
-    #hudson-wrapper, .sizing-wrapper, .app-container > div {
+    .fc-active #hudson-wrapper:not(:fullscreen),
+    .fc-active .sizing-wrapper,
+    .fc-active .app-container > div {
       right: 320px !important;
       width: calc(100% - 320px) !important;
     }
-    #fc-iframe{
+    .fc-active #fc-iframe {
       position:fixed;
       top:0;
       right:0;
-      display:block;
+      display:block !important;
       width:320px;
       height:100%;
       z-index:1000;

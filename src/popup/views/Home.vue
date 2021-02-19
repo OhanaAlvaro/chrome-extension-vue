@@ -164,7 +164,7 @@ export default {
       return color_value
     },
     showSidebar(){
-      this.sendMessage({ msg: 'show-sidebar' });
+      this.sendMessage({ msg: 'show-sidebar', show: true });
       window.close()
     }
   }
