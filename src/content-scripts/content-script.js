@@ -769,7 +769,7 @@ function show_sidebar( show ) {
 
     var style = document.createElement('style')
     style.innerHTML = `
-    .fc-active #hudson-wrapper:not(:fullscreen),
+    .fc-active #app_body_content:not(:fullscreen) #hudson-wrapper, /* disneyplus */
     .fc-active .sizing-wrapper,
     .fc-active .app-container > div {
       right: 320px !important;
