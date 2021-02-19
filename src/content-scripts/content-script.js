@@ -771,10 +771,13 @@ function show_sidebar( show ) {
     style.innerHTML = `
     .fc-active #app_body_content:not(:fullscreen) #hudson-wrapper, /* disneyplus */
     .fc-active .sizing-wrapper,
-    .fc-active .app-container > div {
+    .fc-active .app-container > div,
+    .fc-active ytd-masthead /* youtube header */
+    {
       right: 320px !important;
       width: calc(100% - 320px) !important;
     }
+
     .fc-active #fc-iframe {
       position:fixed;
       top:0;
