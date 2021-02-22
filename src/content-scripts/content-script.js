@@ -3,12 +3,12 @@ This file implements 4 objects:
   + player: controls and interacts with the video player
   + server: communicates with the server
   + browser: communicates with the browser (popup, background and storage)
-  + fc: main family cinema object, it keeps everything running, serving as main data hub for the other objects
+  + fc: main Ohana object, it keeps everything running, serving as main data hub for the other objects
 */
 
 /*
  
- Main family cinema object
+ Main Ohana object
   
 */
 'use strict'

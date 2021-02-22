@@ -66,7 +66,7 @@
         <b style="color: orangered">Careful!</b> We might not be able to skip all unwanted scenes
       </span>
       <span v-if="!data.hasFilm">
-        <b style="color: red">No movie!</b> Open a specific movie/show to start using Family Cinema. If you've already opened a movie, try refreshing the page.
+        <b style="color: red">No movie!</b> Open a specific movie/show to start using Ohana. If you've already opened a movie, try refreshing the page.
       </span>
     </div>
     <!--<div v-else>

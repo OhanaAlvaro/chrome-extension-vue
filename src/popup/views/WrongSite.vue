@@ -2,7 +2,7 @@
   <div class="size-wrapper">
     <br />
     <p>
-      To use Family Cinema please open a video on
+      To use Ohana please open a video on
       <a href="https://www.netflix.com" target="_blank">Netflix</a>,
       <a href="https://es.hboespana.com/" target="_blank">HBO</a>,
       <a href="https://www.disneyplus.com/" target="_blank">Disney Plus</a>,
@@ -11,7 +11,7 @@
       <!-- Pending Amazon Prime Video -->
     </p>
     <p>
-      Visit <a href="https://familycinema.netlify.app/" target="_blank">Family Cinema Website</a> to find out more about skipping content.
+      Visit <a href="https://familycinema.netlify.app/" target="_blank">Ohana Website</a> to find out more about skipping content.
     </p>
   </div>
 </template>

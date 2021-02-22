@@ -2,7 +2,7 @@
   <div>
     <h2>Options</h2>
     <p>
-      To change your settings, just click on the Family Cinema icon and change the settings in the popup.
+      To change your settings, just click on the Ohana icon and change the settings in the popup.
     </p>
   </div>
 </template>
