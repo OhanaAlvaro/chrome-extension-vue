@@ -29,12 +29,8 @@
               item
             }"
           >
-            <fc-tooltip
-              position="bottom"
-              :text="'There are ' + Math.floor(Math.random() * 11) + ' filters'"
-            >
-              {{ item }}
-            </fc-tooltip>
+            {{ item }}
+
             <v-spacer></v-spacer>
             <span style="font-size: 9px; color: gray">{{
               '(' + Math.floor(Math.random() * 11) + ' filters)'
