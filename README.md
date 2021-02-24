@@ -1,8 +1,8 @@
-# Family Cinema Vue Extension
+# Ohana Vue Extension
 
 # API
 
-A separated component, but key here, is our Family Cinema API. So far it's a single php file which receives and `action` together with the necessary data to perform the action.
+A separated component, but key here, is our Ohana API. So far it's a single php file which receives and `action` together with the necessary data to perform the action.
 
 **Available actions:**
 
@@ -93,9 +93,21 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 ## **content-script**
 
-Contains the Family Cinema object (fc), and the player. This one has direct contact with the websites users is watching.
+The content script is like the backend of the extension itself. It has direct contact with the websites users is on, and can make changes there.
 
-It can send messages (`speak`) and receive messages (`listen`) to the `chrome.runtime`. The first time it's loaded, it sets the listener, and it loads the local settings.
+**Main content-script objects:**
+
+- fc
+- player
+- browser
+- server
+- utils
+
+In short, the UX interacts with the users' website by sending messages to the content-script, and we use it to also interact with our server and simplify the data for the UX.
+
+This backend can send messages (`speak`) and receive messages (`listen`) to the `chrome.runtime`. It also have callback functions for the messages that makes sense.
+
+Note: The first time it's loaded, it sets the listener, and it loads the local settings.
 
 ### _**speak**_
 
@@ -107,25 +119,113 @@ chrome.runtime.sendMessage(msg, function(response) {
 
 The messages it sends using speak are:
 
-- update-badge
-- new-data
+- update-badge: Change the number on the icon.
+- new-data: [tbc]: Notify there has been changes, so we can refresh the UX.
 
 Example: `fc.speak({ msg: 'new-data' })`
 
 ### _**listen**_
 
-It listens to the following messages from the extension (runtime):
+It listens to the following messages (`msg`) from the extension (runtime):
 
 ```
 - mark-current-time
+- show-sidebar
 - preview
 - remove
 - update-scene
 - get-data
 - update-settings
+- set-tagged
 - play-pause
 - pause
+- mute
+- blur
+- seek-frame
+- seek-diff
+- login
+- newuser
+- newpass
 ```
+
+Every time we send a message, we send the `request` object, and optionally use a callback to handle the response. The `request` object always includes the `msg` key with the actual action we want to perform, then each action/message works with different extra parameters within the `request` object.
+
+Let's dive deeper on what each msg does:
+
+`mark-current-time`
+
+- **Description:** [tbc] Used when creating a new scene: first time called it markes current time as start-time, second time it's end-time and returns the new scene [tbc].
+- **Parameters:**
+
+`show-sidebar`
+
+- **Description:** Opens the iframe with the side bar (Editor mode).
+- **Parameters:**
+  - `msg`
+  - `show`: `true` or `false`. [explanation tbc, by default use `true`]
+
+`preview`
+
+- **Description:** Start the preview of the given scene
+- **Parameters:**
+  - `msg`
+  - `id`: Id of the scene to preview
+
+`remove`
+
+- **Description:** Remove a given scene
+- **Parameters:**
+  - `msg`
+  - `id`: Id of the scene to remove
+
+`update-scene`
+
+- **Description:** make changes on a field of the given scene
+- **Parameters:**
+  - `msg`:
+  - `scene`: [tbc] scene object?
+  - `field`: [tbc] field to change. One of `start`, `end`, `skip`.
+
+`get-data`
+
+- **Description:**
+- **Parameters:**
+- **Response:** The response becomes, through `App.vue`, the actual main `data` object used in the UX (and passed to the child views as property).
+
+```
+  response: {
+    success: true/false,
+    msg: 'new-data',
+    scenes: fc.scenes,
+    settings: fc.settings,
+    tagged: fc.tagged,
+    shield: fc.shield, //unknown|xxx|xxx
+    metadata: fc.metadata
+  }
+```
+
+`update-settings`
+
+- **Description:**
+- **Parameters:**
+  - `msg`
+  - `settings`: The new settings objects to replace
+- **Response:** [tbc] `true` if successfully saved the settings.
+
+`play-pause`
+
+- **Description:** Toggles play/pause on the current movie
+- **Parameters:**
+
+`pause`
+
+- **Description:** Presses "pause" on the current movie
+- **Parameters:**
+
+`play`
+
+- **Description:** Presses "play" on the current movie
+- **Parameters:**
 
 ```js
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {}
@@ -135,11 +235,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {}
 
 Note: background.js can send/receive same messages as `popup.js`.
 
-It does basically two things, (1) handle commands, and (2) update the badge.
+It does basically two things, (1) handle commands (shortkeys), and (2) update the badge.
 
 **Handle commands**
 
-Commands are just shortkeys (like `Ctrl+Shift+S`). When catched (tbc if it works well everywhere), it and sends a message with the correspondent action (same messages as used in popup.js)
+Commands are just shortkeys (like `Ctrl+Shift+S`). When triggered (tbc if it works well everywhere), it and sends a message with the correspondent action (same messages as used in popup.js)
 
 ```js
 function sendMessage(data) {
@@ -173,7 +273,7 @@ Though already described above, let's recap the type of messages and who uses th
 
 `chrome.runtime.sendMessage(msg, callback(response))`
 
-`chrome.runtime.onMessage.addListener(function(data,sender,sendResponse))`
+`chrome.runtime.onMessage.addListener(function(data, sender, sendResponse))`
 
 `chrome.tabs.query` Returns the list of tabs that match the query
 

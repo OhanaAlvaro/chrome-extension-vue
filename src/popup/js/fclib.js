@@ -39,6 +39,7 @@ function ms2time(s) {
  * Sends a meessage to the backend
  * @param {*} msg the message you want to send
  * @param {*} callback Function to be executed with the response
+ * //TODO: add a parameter so caller can identify itself on the consoleLog (instead of always using fclib)
  */
 function sendMessage(msg, callback) {
   console.log('[sendMessage-Editor]: ', msg)

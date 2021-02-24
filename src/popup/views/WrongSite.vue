@@ -11,7 +11,8 @@
       <!-- Pending Amazon Prime Video -->
     </p>
     <p>
-      Visit <a href="https://familycinema.netlify.app/" target="_blank">Ohana Website</a> to find out more about skipping content.
+      Visit <a href="https://familycinema.netlify.app/" target="_blank">Ohana Website</a> to find
+      out more about skipping content.
     </p>
   </div>
 </template>
@@ -21,12 +22,12 @@ export default {}
 </script>
 
 <style lang="scss" scoped>
-
-.size-wrapper{
+.size-wrapper {
   min-width: 300px;
 }
-  
-p, a {
+
+p,
+a {
   font-size: 14px;
 }
 </style>

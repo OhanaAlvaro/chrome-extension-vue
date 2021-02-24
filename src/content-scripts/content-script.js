@@ -7,9 +7,16 @@ This file implements 4 objects:
 */
 
 /*
+<<<<<<< HEAD
  
  Main Ohana object
   
+=======
+ Main Ohana object, implements
+  + previewScene
+  + updae
+
+>>>>>>> alex1
 */
 'use strict'
 
@@ -313,14 +320,22 @@ var fc = {
     - sendMessage
     - addListeners: add listeners for the following events
       * mark-current-time
+      * show-sidebar
       * preview
       * remove
       * update-scene
       * get-data
       * update-settings
+      * set-tagged
       * play-pause
       * pause
-      * play
+      * mute
+      * blur
+      * seek-frame
+      * seek-diff
+      * login
+      * newuser
+      * newpass
     - setData
     - getData
 */
@@ -345,7 +360,7 @@ var browser = {
             time: player.getTime()
           })
         } else if (request.msg == 'show-sidebar') {
-          show_sidebar( request.show)
+          show_sidebar(request.show)
         } else if (request.msg == 'preview') {
           fc.previewScene(request.scene)
         } else if (request.msg == 'remove') {
@@ -750,13 +765,13 @@ browser.getData('settings', function(settings) {
   fc.loadSettings(settings)
 })
 
-function show_sidebar( show ) {
+function show_sidebar(show) {
   console.log('[show-sidebar] ', show)
   // Remove fc-active class (this will hide the sidebar)
-  if (!show) return document.body.classList.remove("fc-active");
-  
+  if (!show) return document.body.classList.remove('fc-active')
+
   // Add fc-active class (this will show the sidebar)
-  document.body.classList.add("fc-active");
+  document.body.classList.add('fc-active')
 
   // Inject iframe and css (if it is not already there)
   if (!document.getElementById('fc-iframe')) {

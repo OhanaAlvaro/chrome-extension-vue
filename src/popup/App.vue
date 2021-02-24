@@ -16,7 +16,7 @@ export default {
   name: 'PopupApp',
   data() {
     return {
-      data: { msg: '', scenes: [], settings: [], shield: 'unkown', hasFilm: false }, //default values, to avoid missing keys
+      data: { msg: '', scenes: [], settings: [], shield: 'unkown', hasFilm: false } //default values, to avoid missing keys
     }
   },
   methods: {
@@ -38,10 +38,8 @@ export default {
     listenToMessages() {
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log('[listen-App.vue] Received request: ', request)
-        if (request.msg == 'new-data'){
-          this.getData()
-          sendResponse({success:true,source:$this.route.name})
-        }
+        if (request.msg == 'new-data') this.getData()
+        //sendResponse({ success: true, source: this.$route.name })  //TODO: [Alex]: I don't understand why this is here for, but it seems that this.data gets overwriten with the content of this response...
       })
     },
     inIframe() {
@@ -51,18 +49,18 @@ export default {
         return true
       }
     },
-    getData( firstTime ) {
+    getData(firstTime) {
       this.sendMessage({ msg: 'get-data' }, response => {
         console.log('data-received in App.vue', response, this.$route.name)
 
-        if( ['Options'].includes(this.$route.name) ){
+        if (['Options'].includes(this.$route.name)) {
           return
         }
 
         // If there is no response (or it is incomplete) open wrongsite/nomovie pages
         if (!response) {
           return this.$router.push('/wrongsite')
-        }/* else if (!response.settings || !response.scenes) {
+        } /* else if (!response.settings || !response.scenes) {
           return this.$router.push('/no-movie')
         }*/
 
@@ -85,11 +83,9 @@ export default {
         }
 
         // Scape WrongSite and NoMovie pages if data was updated
-        if( ['WrongSite','NoMovie'].includes(this.$route.name) ){
+        if (['WrongSite', 'NoMovie'].includes(this.$route.name)) {
           this.router.push('/home')
         }
-
-
       })
     }
   },
@@ -98,7 +94,8 @@ export default {
     this.listenToMessages()
     this.sendMessage({ msg: 'pause' })
   },
-  beforeUnmount(){ // TODO: This would be cool, but some reason it is not being detected
+  beforeUnmount() {
+    // TODO: This would be cool, but some reason it is not being detected
     this.sendMessage({ msg: 'play' })
   }
 }

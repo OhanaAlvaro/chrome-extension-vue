@@ -1,15 +1,15 @@
 <template>
   <div class="size-wrapper">
-  <v-app-bar app color="#00b359" dark dense height="34px" flat>
-    <div class="d-flex align-center">
-      <h3 v-if="username">{{ username }} @ {{ extensionName }}</h3>
-      <h3 v-else>{{ extensionName }}</h3>
-    </div>
+    <v-app-bar app color="#00b359" dark dense height="34px" flat>
+      <div class="d-flex align-center">
+        <h3 v-if="username">{{ username }} @ {{ extensionName }}</h3>
+        <h3 v-else>{{ extensionName }}</h3>
+      </div>
 
-    <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
 
-    <v-icon small @click="$router.push('/')">mdi-movie</v-icon>
-  </v-app-bar>
+      <v-icon small @click="$router.push('/')">mdi-movie</v-icon>
+    </v-app-bar>
 
     <v-snackbar top right v-model="snackbar" :timeout="snackbarTimeout" :color="snackbarColor">{{
       snackbarText
@@ -43,7 +43,7 @@
             >{{ skip_tag }}</v-chip
           >-->
 
-          <!-- If no tag selected
+        <!-- If no tag selected
           <v-chip v-if="settings.skip_tags.length == 0" x-small dark
             >Skip nothing
             <v-icon right x-small>mdi-pencil</v-icon>
@@ -52,7 +52,8 @@
         <br />-->
         <b style="font-size:120%">3. Enjoy!</b><br />
 
-        Enjoy movies as usual. Ohana will be working for you in the background, seamlessly skipping any unwanted content.<br /><br />
+        Enjoy movies as usual. Ohana will be working for you in the background, seamlessly skipping
+        any unwanted content.<br /><br />
 
         If you spot any unwanted content, press "Alt+N" or "New filter" to flag it and help other
         users like you.<br /><br />
@@ -65,7 +66,6 @@
         </span>
       </v-col>
     </v-row>
-
 
     <!-- WIZARD (dialog) -->
     <v-dialog
@@ -359,8 +359,7 @@ export default {
   text-transform: none !important;
 }
 
-.size-wrapper{
+.size-wrapper {
   min-width: 500px;
 }
-
 </style>
