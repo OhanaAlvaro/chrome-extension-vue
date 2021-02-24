@@ -1,8 +1,8 @@
-# Family Cinema Vue Extension
+# Ohana Vue Extension
 
 # API
 
-A separated component, but key here, is our Family Cinema API. So far it's a single php file which receives and `action` together with the necessary data to perform the action.
+A separated component, but key here, is our Ohana API. So far it's a single php file which receives and `action` together with the necessary data to perform the action.
 
 **Available actions:**
 

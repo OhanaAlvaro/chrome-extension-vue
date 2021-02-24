@@ -3,11 +3,11 @@ This file implements 4 objects:
   + player: controls and interacts with the video player
   + server: communicates with the server
   + browser: communicates with the browser (popup, background and storage)
-  + fc: main family cinema object, it keeps everything running, serving as main data hub for the other objects
+  + fc: main Ohana object, it keeps everything running, serving as main data hub for the other objects
 */
 
 /*
- Main family cinema object, implements
+ Main Ohana object, implements
   + previewScene
   + updae
 
@@ -341,7 +341,7 @@ var browser = {
       try {
         if (request.msg == 'mark-current-time') {
           return sendResponse(fc.mark_current_time(request.tags))
-        } else if (request.msg == 'show-sidebar'){
+        } else if (request.msg == 'show-sidebar') {
           show_sidebar()
         } else if (request.msg == 'preview') {
           fc.previewScene(request.id)
@@ -747,7 +747,6 @@ function show_sidebar() {
     iframe.id = 'fc-iframe'
     document.body.appendChild(iframe)
 
-    
     var style = document.createElement('style')
     style.innerHTML = `
     #hudson-wrapper, .sizing-wrapper, .app-container > div {
@@ -794,4 +793,3 @@ function show_sidebar() {
 }
 
 */
-
