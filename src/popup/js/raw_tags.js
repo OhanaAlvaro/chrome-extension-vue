@@ -168,7 +168,14 @@ var actions = {
   ]
 }
 
+var categories = content.map(x => x.value)
+var severities = content.map(x => x.severity.map(y => y.value))
+var context = content.map(x => x.types.map(y => y.value))
+
 module.exports = {
   content,
-  actions
+  actions,
+  categories,
+  severities,
+  context
 }
