@@ -315,14 +315,22 @@ var fc = {
     - sendMessage
     - addListeners: add listeners for the following events
       * mark-current-time
+      * show-sidebar
       * preview
       * remove
       * update-scene
       * get-data
       * update-settings
+      * set-tagged
       * play-pause
       * pause
-      * play
+      * mute
+      * blur
+      * seek-frame
+      * seek-diff
+      * login
+      * newuser
+      * newpass
     - setData
     - getData
 */

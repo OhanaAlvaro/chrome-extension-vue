@@ -130,51 +130,67 @@ It listens to the following messages (`msg`) from the extension (runtime):
 
 ```
 - mark-current-time
+- show-sidebar
 - preview
 - remove
 - update-scene
 - get-data
 - update-settings
+- set-tagged
 - play-pause
 - pause
+- mute
+- blur
+- seek-frame
+- seek-diff
+- login
+- newuser
+- newpass
 ```
 
 Every time we send a message, we send the `request` object, and optionally use a callback to handle the response. The `request` object always includes the `msg` key with the actual action we want to perform, then each action/message works with different extra parameters within the `request` object.
 
 Let's dive deeper on what each msg does:
 
-**mark-current-time**
+`mark-current-time`
 
-- **Description**: [tbc] Used when creating a new scene: first time called it markes current time as start-time, second time it's end-time and returns the new scene [tbc].
-- **Parameters**:
+- **Description:** [tbc] Used when creating a new scene: first time called it markes current time as start-time, second time it's end-time and returns the new scene [tbc].
+- **Parameters:**
 
-**preview**
+`show-sidebar`
 
-- **Description**: Start the preview of the given scene
-- **Parameters**:
+- **Description:** Opens the iframe with the side bar (Editor mode).
+- **Parameters:**
+  - `msg`
+  - `show`: `true` or `false`. [explanation tbc, by default use `true`]
+
+`preview`
+
+- **Description:** Start the preview of the given scene
+- **Parameters:**
   - `msg`
   - `id`: Id of the scene to preview
 
-**remove**
+`remove`
 
-- **Description**: Remove a given scene
-- **Parameters**:
+- **Description:** Remove a given scene
+- **Parameters:**
   - `msg`
   - `id`: Id of the scene to remove
 
-**update-scene**
+`update-scene`
 
-- **Description**: make changes on a field of the given scene
-- **Parameters**:
+- **Description:** make changes on a field of the given scene
+- **Parameters:**
   - `msg`:
   - `scene`: [tbc] scene object?
   - `field`: [tbc] field to change. One of `start`, `end`, `skip`.
 
-**get-data**
+`get-data`
 
-- **Description**:
-- **Parameters**:
-- **Response**: The response becomes, through `App.vue`, the actual main `data` object used in the UX (and passed to the child views as property).
+- **Description:**
+- **Parameters:**
+- **Response:** The response becomes, through `App.vue`, the actual main `data` object used in the UX (and passed to the child views as property).
 
 ```
   response: {
@@ -188,28 +204,28 @@ Let's dive deeper on what each msg does:
   }
 ```
 
-**update-settings**
+`update-settings`
 
-- **Description**:
-- **Parameters**:
+- **Description:**
+- **Parameters:**
   - `msg`
   - `settings`: The new settings objects to replace
-- **Response**: [tbc] `true` if successfully saved the settings.
+- **Response:** [tbc] `true` if successfully saved the settings.
 
-**play-pause**
+`play-pause`
 
-- **Description**: Toggles play/pause on the current movie
-- **Parameters**:
+- **Description:** Toggles play/pause on the current movie
+- **Parameters:**
 
-**pause**
+`pause`
 
-- **Description**: Presses "pause" on the current movie
-- **Parameters**:
+- **Description:** Presses "pause" on the current movie
+- **Parameters:**
 
-**play**
+`play`
 
-- **Description**: Presses "play" on the current movie
-- **Parameters**:
+- **Description:** Presses "play" on the current movie
+- **Parameters:**
 
 ```js
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {}
