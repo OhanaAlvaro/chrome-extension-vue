@@ -1,4 +1,4 @@
-var tags = [
+var content = [
   {
     value: 'Sex/Nudity',
     title: 'Sex/Nudity',
@@ -30,7 +30,7 @@ var tags = [
         description: 'Very erotic or graphic scene, eg: sex, foreplay, moaning...'
       }
     ],
-    context: [
+    types: [
       {
         value: 'No consent',
         title: 'No consent',
@@ -84,7 +84,7 @@ var tags = [
         description: 'Very gore or graphic scene, eg: blood splattered, open wounds, guts...'
       }
     ],
-    context: [
+    types: [
       {
         value: 'Discrimination',
         title: 'Discrimination',
@@ -108,135 +108,14 @@ var tags = [
     ]
   },
   {
-    value: 'Profanity',
-    title: 'Profanity',
+    value: 'Other',
+    title: 'Other',
     description: '',
     color: 'blue',
     severity_title: '',
     types_title: 'Which of the following does it contain?',
-    severity: [
-      {
-        value: 'Moderate',
-        title: 'Moderate',
-        description: 'Blah blah'
-      },
-      {
-        value: 'Mild',
-        title: 'Mild',
-        description: 'Blah blah'
-      },
-      {
-        value: 'Severe',
-        title: 'Severe',
-        description: 'Blah blah'
-      }
-    ],
-    context: [
-      {
-        value: 'Mild profanity',
-        title: 'Mild profanity',
-        description: 'Mild language, eg: h*ll, d*mn...'
-      },
-      {
-        value: 'Strong profanity',
-        title: 'Strong profanity',
-        description: 'Swear words'
-      },
-      {
-        value: 'Blasphemy',
-        title: 'Blasphemy',
-        description: 'Speaking sacrilegiously about God or sacred things'
-      },
-      {
-        value: 'Legal drugs',
-        title: 'Legal drugs',
-        description: 'Consumption of legal drugs, eg: alcohol, tobacco...'
-      },
-      {
-        value: 'Illegal drugs',
-        title: 'Illegal drugs',
-        description: 'Consumption or dealing of illegal drugs, eg: weed, cocaine...'
-      }
-    ]
-  },
-
-  {
-    value: 'Alcohol/Drugs/Smoking',
-    title: 'Alcohol/Drugs/Smoking',
-    description: '',
-    color: 'blue',
-    severity_title: '',
-    types_title: 'Which of the following does it contain?',
-    severity: [
-      {
-        value: 'Moderate',
-        title: 'Moderate',
-        description: 'Blah blah'
-      },
-      {
-        value: 'Mild',
-        title: 'Mild',
-        description: 'Blah blah'
-      },
-      {
-        value: 'Severe',
-        title: 'Severe',
-        description: 'Blah blah'
-      }
-    ],
-    context: [
-      {
-        value: 'Mild profanity',
-        title: 'Mild profanity',
-        description: 'Mild language, eg: h*ll, d*mn...'
-      },
-      {
-        value: 'Strong profanity',
-        title: 'Strong profanity',
-        description: 'Swear words'
-      },
-      {
-        value: 'Blasphemy',
-        title: 'Blasphemy',
-        description: 'Speaking sacrilegiously about God or sacred things'
-      },
-      {
-        value: 'Legal drugs',
-        title: 'Legal drugs',
-        description: 'Consumption of legal drugs, eg: alcohol, tobacco...'
-      },
-      {
-        value: 'Illegal drugs',
-        title: 'Illegal drugs',
-        description: 'Consumption or dealing of illegal drugs, eg: weed, cocaine...'
-      }
-    ]
-  },
-  {
-    value: 'Frightening/Intense Scenes',
-    title: 'Frightening/Intense Scenes',
-    description: '',
-    color: 'blue',
-    severity_title: '',
-    types_title: 'Which of the following does it contain?',
-    severity: [
-      {
-        value: 'Moderate',
-        title: 'Moderate',
-        description: 'Blah blah'
-      },
-      {
-        value: 'Mild',
-        title: 'Mild',
-        description: 'Blah blah'
-      },
-      {
-        value: 'Severe',
-        title: 'Severe',
-        description: 'Blah blah'
-      }
-    ],
-    context: [
+    severity: [],
+    types: [
       {
         value: 'Mild profanity',
         title: 'Mild profanity',
@@ -289,7 +168,14 @@ var actions = {
   ]
 }
 
+var categories = content.map(x => x.value)
+var severities = content.map(x => x.severity.map(y => y.value))
+var context = content.map(x => x.types.map(y => y.value))
+
 module.exports = {
-  tags,
-  actions
+  content,
+  actions,
+  categories,
+  severities,
+  context
 }

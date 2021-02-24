@@ -39,7 +39,7 @@ export default {
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log('[listen-App.vue] Received request: ', request)
         if (request.msg == 'new-data') this.getData()
-        sendResponse({ success: true, source: this.$route.name })
+        //sendResponse({ success: true, source: this.$route.name })  //TODO: [Alex]: I don't understand why this is here for, but it seems that this.data gets overwriten with the content of this response...
       })
     },
     inIframe() {
