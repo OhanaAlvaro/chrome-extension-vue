@@ -217,9 +217,7 @@
 import ShieldVue from '../components/Shield.vue'*/
 import fclib from '../js/fclib'
 
-var raw = require('../js/raw_tags.js')
-
-var raw2 = require('../js/tags_v2.js')
+var raw = require('../js/raw_tags')
 export default {
   name: 'Home',
 
@@ -418,10 +416,10 @@ export default {
     }
   },
   created() {
-    this.tags = raw2.content
-    this.categories = raw2.categories
-    this.severities = raw2.severities
-    this.context = raw2.context
+    this.tags = raw.content
+    this.categories = raw.categories
+    this.severities = raw.severities
+    this.context = raw.context
 
     //this.loadTagsFromSettings()  // -> this is better triggered when data changes
   }
