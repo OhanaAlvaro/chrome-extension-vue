@@ -130,6 +130,7 @@ It listens to the following messages (`msg`) from the extension (runtime):
 
 ```
 - mark-current-time
+- get-time
 - show-sidebar
 - preview
 - remove
@@ -156,6 +157,13 @@ Let's dive deeper on what each msg does:
 
 - **Description:** [tbc] Used when creating a new scene: first time called it markes current time as start-time, second time it's end-time and returns the new scene [tbc].
 - **Parameters:**
+
+`get-time`
+
+- **Description:** Return the current time from the player.
+- **Parameters:**
+  - `msg`
+- **Response:** `{ success: true, time: player.getTime() }`
 
 `show-sidebar`
 
