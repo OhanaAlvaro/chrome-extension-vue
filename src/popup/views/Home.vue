@@ -151,19 +151,9 @@
           >
         </v-col>
         <v-col>
-          <v-btn
-            color="primary"
-            block
-            dense
-            depressed
-            tile
-            @click="
-              snackbarText = `You are awesome! Sadly we don't yet have a way to accept donations, but please try again soon.`
-              snackbarColor = 'info'
-              snackbar = true
-            "
-            >Donate</v-btn
-          >
+          <v-btn color="primary" href="https://www.patreon.com/ohanafilters" target="_blank">
+            Donate
+          </v-btn>
         </v-col>
       </v-row>
 

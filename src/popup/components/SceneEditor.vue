@@ -159,7 +159,7 @@ export default {
     scene: {
       type: Object,
       default() {
-        return { category: '' }
+        return { category: '', severity: '' }
       }
     }
   },
@@ -182,28 +182,34 @@ export default {
     }
   },
 
+  watch: {
+    scene() {
+      this.categoryUpdated()
+    }
+  },
+
   methods: {
     cancel() {
       this.$emit('hide')
     },
     save() {
-      this.sendMessage({ msg: 'update-scene', scene: this.cleanScene(this.scene) })
+      fclib.sendMessage({ msg: 'update-scene', scene: this.cleanScene(this.scene) })
       this.$emit('hide')
     },
     getTime(edge) {
-      this.sendMessage({ msg: 'get-time' }, response => {
+      fclib.sendMessage({ msg: 'get-time' }, response => {
         if (response && response.time) this.scene[edge] = response.time
       })
     },
     removeScene() {
-      this.sendMessage({ msg: 'remove', id: this.scene.id })
+      fclib.sendMessage({ msg: 'remove', id: this.scene.id })
       this.$emit('hide')
     },
     seekForward(diff) {
-      this.sendMessage({ msg: 'seek-diff', diff: diff })
+      fclib.sendMessage({ msg: 'seek-diff', diff: diff })
     },
     seekFrame(time) {
-      this.sendMessage({ msg: 'seek-frame', time: time })
+      fclib.sendMessage({ msg: 'seek-frame', time: time })
     },
     blur() {
       fclib.sendMessage({ msg: 'blur', blur_level: this.blur_level })
@@ -222,6 +228,7 @@ export default {
       return scene
     },
     categoryUpdated() {
+      if (!this.scene.category) return
       var i = raw_tags.categories.indexOf(this.scene.category)
       this.severities = raw_tags.severities[i]
       this.content = raw_tags.content[i]
@@ -243,5 +250,4 @@ export default {
 .no-uppercase {
   text-transform: none;
 }
-
 </style>

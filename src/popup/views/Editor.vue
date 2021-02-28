@@ -47,7 +47,7 @@
         <tbody>
           <tr v-for="scene in scenes_list" :key="scene.id" @click="editScene(scene)">
             <!-- Start Time -->
-            <td>{{ Math.round(scene.start / 100) / 10 }}</td>
+            <td>{{ prettyTime(scene.start)}}</td>
             <!-- Duration -->
             <td>{{ Math.round((scene.end - scene.start) / 100) / 10 }}</td>
             <!-- Severity -->
@@ -174,8 +174,8 @@ export default {
   },
 
   methods: {
-    hideSidebar(){
-      this.sendMessage({ msg: 'show-sidebar', show: false });
+    hideSidebar() {
+      this.sendMessage({ msg: 'show-sidebar', show: false })
     },
     go2Login() {
       if (this.$route.name == 'Login') {
@@ -183,6 +183,11 @@ export default {
       } else {
         this.$router.push('/login')
       }
+    },
+    prettyTime(time) {
+      var mins = Math.floor(time / 1000 / 60)
+      var secs = Math.round(time / 1000 - mins * 60 )
+      return '' + mins + ':' + secs
     },
     getTagColor(value) {
       var color_value = 'gray' //default
