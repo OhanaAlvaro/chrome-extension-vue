@@ -26,7 +26,6 @@ var fc = {
     password: '',
     blur_level: 40,
     skip_tags: [],
-    autosave_after: 2500,
     ignore_default_settings: true,
     pause_after_adding_scene: false,
     playbackRate_on_mark: 1.5,
@@ -37,7 +36,6 @@ var fc = {
   settings: false,
   scenes: false,
   metadata: false,
-  next_share: Infinity,
   marking_started: false,
   preview_skip: false,
   skipping: false,
@@ -109,7 +107,6 @@ var fc = {
 
   unload: function() {
     console.log('[unload] Clearing any previous content')
-    if (fc.next_share != Infinity) server.setMovie()
     fc.scenes = null
     fc.metadata = null
     fc.tagged = {}
@@ -151,7 +148,7 @@ var fc = {
   onContentEdit: function(edit) {
     // Propagate edit to server
     if (edit != 'server' && edit != 'skip' && edit != 'settings') {
-      fc.next_share = Date.now() + fc.settings.autosave_after
+      server.setMovie()
     }
 
     if (edit != 'start' && edit != 'end') {
@@ -176,11 +173,6 @@ var fc = {
     // Check we have the right metadata
     if (!fc.metadata || fc.metadata.url != window.location.href) {
       server.getMovie()
-    }
-
-    // Save data when needed
-    if (Date.now() > fc.next_share) {
-      server.setMovie()
     }
 
     // Check video player controller is working
@@ -524,7 +516,6 @@ var server = {
       password: fc.settings.password,
       data: JSON.stringify(data)
     })
-    fc.next_share = Infinity
   },
 
   getMovie: function() {

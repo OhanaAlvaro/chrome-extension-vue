@@ -68,6 +68,7 @@
 </template>
 
 <script>
+import fclib from '../js/fclib'
 export default {
   props: {
     username: {
@@ -117,7 +118,7 @@ export default {
 
       var payload = { msg: 'login', username: this.username_copy, password: this.password_copy }
 
-      this.sendMessage(payload, response => {
+      fclib.sendMessage(payload, response => {
         console.log('login', response)
         if (response.success) {
           this.$emit('success', data, response) //let parent know
@@ -149,7 +150,7 @@ export default {
         email: this.email_copy
       }
 
-      this.sendMessage(payload, response => {
+      fclib.sendMessage(payload, response => {
         console.log('newuser', response)
         if (response.success) {
           this.$emit('success', data, response) //let parent know
@@ -160,16 +161,6 @@ export default {
           this.$refs.usernameField.focus()
           this.$emit('error', data, response) //let parent know
         }
-      })
-    },
-
-    //Generic methods:
-    sendMessage(msg, callback) {
-      console.log('[sendMessage-Login]: ', msg)
-      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-        chrome.tabs.sendMessage(tabs[0].id, msg, function(response) {
-          if (callback) callback(response)
-        })
       })
     }
   }
