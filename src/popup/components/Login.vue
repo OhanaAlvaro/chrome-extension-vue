@@ -5,11 +5,12 @@
 -->
 
   <div class="bordered">
-    <h1 v-if="page == 'login'" style="font-size:120%">1. Login</h1>
-    <h1 v-if="page == 'register'" style="font-size:120%">1. Register</h1>
-    <h1 v-if="page == 'logout'" style="font-size:120%" append-icon="mdi-account-check">
-      1. Logged in as {{ username }}
-    </h1>
+    <h3 v-if="page == 'login'" style="font-size:120%">Login</h3>
+    <h3 v-if="page == 'register'" style="font-size:120%">Register</h3>
+    <h3 v-if="page == 'logout'" style="font-size:120%" append-icon="mdi-account-check">
+      Logged in as {{ data.settings.username }}
+    </h3>
+
     <v-text-field
       v-if="page != 'logout'"
       append-icon="mdi-account"
@@ -32,13 +33,8 @@
       @click:append="show_password = !show_password"
       ref="passwordField"
       @focus="$event.target.select()"
-      @keydown.enter="
-        if (page == 'login') {
-          checkLogin()
-        } else {
-          $refs.emailField.focus()
-        }
-      "
+      @keydown.enter="page == 'login' ? checkLogin() : $refs.emailField.focus()"
+      @keydown.tab.prevent="page == 'login' ? checkLogin() : $refs.emailField.focus()"
       class="mt-0"
     ></v-text-field>
 
@@ -50,7 +46,7 @@
       ref="emailField"
       @focus="$event.target.select()"
       @keydown.enter="newUser()"
-      :class="['mt-0',isEmailValid()]"
+      :class="['mt-0', isEmailValid()]"
     ></v-text-field>
 
     <span v-if="page == 'login'">
@@ -71,24 +67,31 @@
 import fclib from '../js/fclib'
 export default {
   props: {
-    username: {
-      type: String,
-      default: ''
-    },
-    password: {
-      type: String,
-      dafault: ''
+    data: {
+      type: Object,
+      default() {
+        return { username: '', password: '' }
+      }
     }
   },
 
   watch: {
-    username(newValue) {
-      console.log('username watched in login', newValue)
-      this.username_copy = newValue
-      this.page = this.username_copy ? 'logout' : 'register'
-    },
-    password(newValue) {
-      this.password_copy = newValue
+    data: {
+      deep: true,
+      handler: function(newValue, oldValue) {
+        console.warn('Watched data login>login')
+        console.warn('new value', newValue)
+        console.warn('old value', oldValue)
+
+        if (newValue.settings.username) {
+          console.log('username watched in login', newValue)
+          this.username_copy = newValue.settings.username
+          this.page = this.username_copy ? 'logout' : 'register'
+        }
+        if (newValue.settings.password) {
+          this.password_copy = newValue.settings.password
+        }
+      }
     }
   },
 
@@ -106,7 +109,11 @@ export default {
     isEmailValid() {
       console.log(this.email_copy)
       var reg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/
-      return this.email_copy == '' ? '' : reg.test(this.email_copy) ? 'has-success' : 'has-error, error--text'
+      return this.email_copy == ''
+        ? ''
+        : reg.test(this.email_copy)
+        ? 'has-success'
+        : 'has-error, error--text'
     },
     achus(event) {
       console.log(event)
@@ -176,5 +183,4 @@ export default {
 .mt-0 {
   padding-top: 0px;
 }
-
 </style>

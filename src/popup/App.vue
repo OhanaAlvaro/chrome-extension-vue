@@ -19,6 +19,11 @@ export default {
       data: { msg: '', scenes: [], settings: [], shield: 'unkown', hasFilm: false, state: {} } //default values, to avoid missing keys
     }
   },
+  watch: {
+    $route(to, from) {
+      this.getData() //Alex: before, if you switched from home to login, and back to home, data was not populated properly :/ | Ideally we should just use Vuex...
+    }
+  },
   methods: {
     go2Login() {
       if (this.$route.name == 'Login') {

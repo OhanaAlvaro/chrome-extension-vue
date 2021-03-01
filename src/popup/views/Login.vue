@@ -1,38 +1,44 @@
 <template>
   <div class="size-wrapper">
     <div>
-      <h1 v-if="data.settings.username">{{ data.settings.username }} @ {{ extensionName }}</h1>
-      <h1 v-else>Welcome to {{ extensionName }}!</h1>
+      <h2 v-if="data.settings.username">{{ data.settings.username }} @ {{ extensionName }}</h2>
+      <h2 v-else>Welcome to {{ extensionName }}!</h2>
       <span class="menu">
-        <span @click="cancelSettings">
-          <v-icon small>mdi-account</v-icon>
-        </span>
+        <v-btn color="grey" fab x-small dark depressed @click="cancelSettings">
+          <v-icon>mdi-home</v-icon>
+        </v-btn>
       </span>
     </div>
 
-    <v-snackbar top right v-model="snackbar" :timeout="snackbarTimeout" :color="snackbarColor">{{
-      snackbarText
-    }}</v-snackbar>
-
-    <br />
+    <v-snackbar
+      app
+      width="20px"
+      v-model="snackbar"
+      :timeout="snackbarTimeout"
+      :color="snackbarColor"
+    >
+      {{ snackbarText }}
+      <template v-slot:action="{ attrs }">
+        <v-btn color="white" icon v-bind="attrs" @click="snackbar = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
     <v-row>
-      <v-col cols="4" class="mt-2">
-        <login
-          :username="data.settings.username"
-          :password="data.settings.password"
-          @success="loginSuccess"
-          @error="logginError"
-        ></login>
+      <v-col>
+        <login :data="data" @success="loginSuccess" @error="logginError"></login>
       </v-col>
+    </v-row>
 
-      <v-col cols="8">
-        <b style="font-size:120%">3. Enjoy!</b><br />
+    <v-row>
+      <v-col>
+        <!-- <b style="font-size:120%">Enjoy!</b><br />-->
 
         Enjoy movies as usual. Ohana will be working for you in the background, seamlessly skipping
         any unwanted content.<br /><br />
 
-        If you spot any unwanted content, press "Alt+N" or "New filter" to flag it and help other
-        users like you.<br /><br />
+        If you spot any unwanted content, press "Alt+N" or "Improve sfilter" to flag it and help
+        other users like you.<br /><br />
 
         <span v-if="data.settings.username">
           You can see all flagged scenes on the <a @click="$router.push('/')">film view.</a>
@@ -55,12 +61,11 @@ export default {
 
   data() {
     return {
-      settings: { skip_tags: [] },
-      settings_backup: {},
-      skip_tags_backup: [],
+      //settings: { skip_tags: [] },  //now using prop data
+      //settings_backup: {},
+      //skip_tags_backup: [],
 
       dialog: false,
-
 
       //other settings
       show_password: false,
@@ -95,7 +100,7 @@ export default {
       console.log('loginSuccess')
       this.data.settings.username = data.username
       this.data.settings.password = data.password
-      this.showSnackbar(serverResponse.data, 'info')
+      this.showSnackbar(serverResponse.data, 'success')
       this.saveSettings()
     },
     logginError(data, serverResponse) {
@@ -112,7 +117,6 @@ export default {
     //Intereact with content-script (get/push data and messages)
     saveSettings() {
       console.log('saving settings...')
-
       fclib.sendMessage({ msg: 'update-settings', settings: this.data.settings }, response => {
         console.log('save settings response', response)
       })
@@ -135,6 +139,6 @@ export default {
 }
 
 .size-wrapper {
-  min-width: 500px;
+  min-width: 300px;
 }
 </style>

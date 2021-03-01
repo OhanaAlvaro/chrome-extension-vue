@@ -7,16 +7,9 @@ This file implements 4 objects:
 */
 
 /*
-<<<<<<< HEAD
  
  Main Ohana object
   
-=======
- Main Ohana object, implements
-  + previewScene
-  + updae
-
->>>>>>> alex1
 */
 'use strict'
 

@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "homepage_url": "https://familycinema.netlify.app/",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Decide what you watch",
   "default_locale": "en",
   "permissions": ["storage", "https://arrietaeguren.es/movies/api/*"],
@@ -54,9 +54,7 @@
       "js": ["js/content-script.js"]
     }
   ],
-      "web_accessible_resources": [
-        "popup.html"
-    ],
+  "web_accessible_resources": ["popup.html"],
   "browser_action": {
     "default_popup": "popup.html",
     "default_title": "__MSG_extName__",

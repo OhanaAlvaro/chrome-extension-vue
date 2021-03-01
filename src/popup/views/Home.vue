@@ -24,7 +24,7 @@
 
       <v-spacer></v-spacer>
       <span class="menu">
-        <v-btn @click="go2Login()" color="grey" fab x-small dark depressed outlined>
+        <v-btn @click="go2Login()" color="grey" fab x-small dark depressed>
           <v-icon>mdi-account</v-icon>
         </v-btn>
 
@@ -149,7 +149,16 @@
           >
         </v-col>
         <v-col>
-          <v-btn color="primary" href="https://www.patreon.com/ohanafilters" target="_blank">
+          <v-btn
+            dark
+            block
+            dense
+            depressed
+            tile
+            color="primary"
+            href="https://www.patreon.com/ohanafilters"
+            target="_blank"
+          >
             Donate
           </v-btn>
         </v-col>
@@ -189,7 +198,6 @@
       v-model="snackbar"
       :timeout="snackbarTimeout"
       :color="snackbarColor"
-      multi-line
       >{{ snackbarText }}
       <template v-slot:action="{ attrs }">
         <v-btn color="white" icon v-bind="attrs" @click="snackbar = false">
