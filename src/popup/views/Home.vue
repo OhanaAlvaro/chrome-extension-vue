@@ -56,31 +56,35 @@
 
     <div id="alex-dropdowns">
       <div v-for="(cat, index) in categories" :key="index">
-        <v-select
-          dense
-          :label="cat"
-          :items="severities[index]"
-          multiple
-          v-model="selectedTags[index]"
-          @change="selectRedundandtTags()"
-          style="margin-bottom: 0px; font-size: 40%"
-        >
-          <template
-            v-slot:item="{
-              parent,
-              item
-            }"
-          >
-            {{ item }}
-            <v-spacer></v-spacer>
-            <!-- <span style="font-size: 9px; color: gray">{{
+        <v-row>
+          <v-col cols="8">
+            <v-select
+              dense
+              hide-details
+              :label="cat"
+              :items="severities[index]"
+              multiple
+              v-model="selectedTags[index]"
+              @change="selectRedundandtTags()"
+              style="margin-bottom: 0px; font-size: 40%"
+            >
+              <template
+                v-slot:item="{
+                  parent,
+                  item
+                }"
+              >
+                {{ item }}
+                <v-spacer></v-spacer>
+                <!-- <span style="font-size: 9px; color: gray">{{
               '(' + Math.floor(Math.random() * 11) + ' filters)'
             }}</span> -->
-            <span style="font-size: 9px; color: gray">
-              {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }} filters
-            </span>
 
-            <!--
+                <span style="font-size: 9px; color: gray">
+                  {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }} filters
+                </span>
+
+                <!--
             <v-spacer></v-spacer>
 
             <fc-tooltip position="right" :text="'We are good to go'">
@@ -93,30 +97,24 @@
               <v-icon small v-else color="orange">mdi-help-box</v-icon>
             </fc-tooltip>
             -->
-          </template>
+              </template>
 
-          <!--
+              <!--
           <template v-slot:message="{ message, key }">
             <span style="color: green; font-size: 10px"
               >All good, we will skip {{ Math.round(Math.random(0, 10), 2) * 100 }} scenes!</span
             >
           </template>-->
-
-          <template v-slot:append-outer>
-            <div>
-              <!--<v-chip x-small dark color="green">
-                {{ Math.floor(Math.random() * 11) }} filters
-              </v-chip>-->
-              <v-chip x-small dark color="grey">
-                {{
-                  scenesCountByCategory[index].selected + '/' + scenesCountByCategory[index].total
-                }}
-                filters
-                <!--<v-icon x-small>mdi-check</v-icon>-->
-              </v-chip>
-            </div>
-          </template>
-        </v-select>
+            </v-select></v-col
+          >
+          <v-col
+            ><v-chip x-small dark color="grey">
+              {{ scenesCountByCategory[index].selected + '/' + scenesCountByCategory[index].total }}
+              selected
+              <!--<v-icon x-small>mdi-check</v-icon>-->
+            </v-chip></v-col
+          >
+        </v-row>
       </div>
     </div>
 
