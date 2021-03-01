@@ -37,8 +37,8 @@
         Enjoy movies as usual. Ohana will be working for you in the background, seamlessly skipping
         any unwanted content.<br /><br />
 
-        If you spot any unwanted content, press "Alt+N" or "Improve sfilter" to flag it and help
-        other users like you.<br /><br />
+        If you spot any unwanted content, press <b>"Alt+N"</b> or <b>"Improve filters"</b> to flag
+        it and help other users like you.<br /><br />
 
         <span v-if="data.settings.username">
           You can see all flagged scenes on the <a @click="$router.push('/')">film view.</a>

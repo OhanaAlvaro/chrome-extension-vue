@@ -5,6 +5,7 @@ import WrongSite from '../views/WrongSite.vue'
 import Editor from '../views/Editor.vue'
 import Login from '../views/Login.vue'
 import Options from '../views/Options.vue'
+import PopupScenesList from '../views/PopupScenesList.vue'
 
 Vue.use(VueRouter)
 
@@ -33,6 +34,12 @@ const routes = [
     path: '/options',
     name: 'Options',
     component: Options
+  },
+  {
+    path: '/scenes/:categoryIndex',
+    name: 'PopupScenesList',
+    component: PopupScenesList,
+    props: true
   }
 ]
 

@@ -47,7 +47,7 @@
         <tbody>
           <tr v-for="scene in scenes_list" :key="scene.id" @click="editScene(scene)">
             <!-- Start Time -->
-            <td>{{ prettyTime(scene.start)}}</td>
+            <td>{{ prettyTime(scene.start) }}</td>
             <!-- Duration -->
             <td>{{ Math.round((scene.end - scene.start) / 100) / 10 }}</td>
             <!-- Severity -->
@@ -186,7 +186,9 @@ export default {
     },
     prettyTime(time) {
       var mins = Math.floor(time / 1000 / 60)
-      var secs = Math.round(time / 1000 - mins * 60 )
+      if (mins < 10) mins = '0' + mins
+      var secs = Math.round(time / 1000 - mins * 60)
+      if (secs < 10) secs = '0' + secs
       return '' + mins + ':' + secs
     },
     getTagColor(value) {

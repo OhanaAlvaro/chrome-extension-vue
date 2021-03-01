@@ -7,6 +7,7 @@
         What do you want to skip?
       </h2>
 
+      <!-- Just to debug: -->
       <!--
       <i>{{ mouseoverSample }}</i>
 
@@ -27,27 +28,6 @@
         <v-btn @click="go2Login()" color="grey" fab x-small dark depressed>
           <v-icon>mdi-account</v-icon>
         </v-btn>
-
-        <!--
-        <span @click="go2Login()">
-          <v-icon>mdi-account-circle</v-icon>
-          <br />
-          {{ this.data.settings.username ? this.data.settings.username : 'Log in' }}
-        </span>
-        -->
-
-        <!--ADD  window.close(); to close popup (beware you will have to make the windows object accessible to within vue)-->
-        <!--
-        <span @click="sendMessage({ msg: 'show-sidebar' })">
-          <v-icon small>mdi-pencil</v-icon>
-        </span>
-        -->
-
-        <!--
-        <span>
-          <v-icon small @click="$router.push('/login')">mdi-cog</v-icon>
-        </span>
-        -->
       </span>
     </div>
     <br />
@@ -60,29 +40,99 @@
           <v-col cols="8">
             <v-select
               dense
+              :no-data-text="`No data available for '` + cat + `'`"
               hide-details
               :label="cat"
               :items="severities[index]"
               multiple
-              v-model="selectedTags[index]"
-              @change="selectRedundandtTags()"
+              :value="selectedTags[index]"
               style="margin-bottom: 0px; font-size: 40%"
             >
-              <template
-                v-slot:item="{
-                  parent,
-                  item
-                }"
-              >
+              <!-- Selection SLOT options -->
+              <!-- A) min seveirty and a + - ->
+              <template v-slot:selection="{ item, index }">
+                <span class="caption" v-if="index === 0">{{ item }} </span>
+                <span class="caption" v-if="index === 1"> +</span>
+              </template>
+              <!- - -->
+
+              <!-- B) use small chips -->
+              <template v-slot:selection="{ item }">
+                <v-chip x-small class="pa-1 ma-0 mr-1">{{ item }}</v-chip>
+              </template>
+              <!-- -->
+
+              <!-- SLOT PREPEND ITEM -->
+              <template v-slot:prepend-item>
+                <v-list-item dense>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      <h3>{{ cat }}</h3>
+                    </v-list-item-title>
+
+                    <v-list-item-subtitle>Select what to skip!</v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-action
+                    @mouseenter="shieldText()"
+                    @mouseleave="hoverDescription = ''"
+                  >
+                    <v-btn icon>
+                      <v-icon color="success" v-if="data.shield == 'done'">mdi-shield-check</v-icon>
+                      <v-icon color="orange" v-else-if="data.shield == 'unkown'"
+                        >mdi-shield-half-full</v-icon
+                      >
+                      <v-icon color="red" v-else>mdi-shield-alert</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+                <v-divider></v-divider>
+              </template>
+
+              <!-- SLOT APPEND-ITEM -->
+              <template v-slot:append-item>
+                <v-divider class="mb-2"></v-divider>
+
+                <v-container class="ma-0 py-0 px-3">
+                  <span
+                    style="font-size:95%; color:grey;"
+                    v-html="hoverDescription"
+                    v-if="hoverDescription"
+                  ></span>
+                  <span v-else>Hover an element to see here some details</span>
+                </v-container>
+              </template>
+
+              <!-- CUSTOM ITEM WITH V-LIST -->
+              <template v-slot:item="{ active, item, attrs, on }">
+                <v-list-item
+                  v-on="on"
+                  v-bind="attrs"
+                  @mouseenter="updateHoverDescription(index, item)"
+                  @mouseleave="hoverDescription = ''"
+                  @click="clickedItem(index, item)"
+                >
+                  <v-list-item-content>
+                    <!--<v-list-item-title>
+                      {{ item }}
+                    </v-list-item-title>-->
+                    <v-list-item-subtitle>{{ item }} </v-list-item-subtitle>
+                  </v-list-item-content>
+
+                  <v-list-item-action>
+                    <span style="font-size: 9px; color: gray">
+                      {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }} filters
+                    </span>
+                  </v-list-item-action>
+                </v-list-item>
+
+                <!-- 
                 {{ item }}
                 <v-spacer></v-spacer>
-                <!-- <span style="font-size: 9px; color: gray">{{
-              '(' + Math.floor(Math.random() * 11) + ' filters)'
-            }}</span> -->
-
                 <span style="font-size: 9px; color: gray">
                   {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }} filters
                 </span>
+
+                -->
 
                 <!--
             <v-spacer></v-spacer>
@@ -108,7 +158,7 @@
             </v-select></v-col
           >
           <v-col
-            ><v-chip x-small dark color="grey">
+            ><v-chip x-small dark color="grey" :to="'/scenes/' + index">
               {{ scenesCountByCategory[index].selected + '/' + scenesCountByCategory[index].total }}
               selected
               <!--<v-icon x-small>mdi-check</v-icon>-->
@@ -120,23 +170,39 @@
 
     <!-- 3. SUMMARY TEXT -->
 
-    <div align="left" justify="center" style="width:300px">
+    <!--
+    <v-alert type="success" icon="mdi-shield-check" outlined>
+      <b>Grab some popcorn and enjoy!</b> We will skip all
+      {{ scenesCountByCategory.reduce((x, a) => x + a.selected, 0) }} unwanted scenes.
+    </v-alert>
+    -->
+
+    <div
+      align="center"
+      justify="center"
+      style="width:300px; padding:10px; border: 1px solid grey; margin: auto"
+    >
       <span v-if="!data.success">
         <b style="color: red">No movie!</b>
         Open a specific movie/show to start using Ohana. If you've already opened a movie, try
         refreshing the page.
       </span>
 
-      <span v-else-if="data.shield == `done`">
-        <b style="color: #00b359">Grab some popcorn and enjoy!</b> We will skip all
-        {{ scenesCountByCategory.reduce((x, a) => x + a.selected, 0) }} unwanted scenes
+      <span v-else-if="data.shield == `done`" style="color: #00b359">
+        <v-icon small color="green" class="mb-1">mdi-shield-check</v-icon>
+        <b>Grab some popcorn and enjoy!</b> <br />
+        We will skip all {{ scenesCountByCategory.reduce((x, a) => x + a.selected, 0) }} unwanted
+        scene(s).
       </span>
-      <span v-else-if="data.shield == `unkown`">
-        <b style="color: orangered">Careful!</b> We might not be able to skip all unwanted scenes.
+      <span v-else-if="data.shield == `unkown`" style="color: orange">
+        <v-icon small color="orange" class="mb-1">mdi-shield-half-full</v-icon>
+        <b>Warning!</b> <br />
+        We might not be able to skip all unwanted scenes.
       </span>
-      <span v-else>
-        <b style="color: red">Careful!</b> Users reported there are scenes not yet filtered, so we
-        can't skip all your unwanted content.
+      <span v-else style="color: red">
+        <v-icon small color="red" class="mb-1">mdi-shield-alert</v-icon><b>Careful!</b> <br />
+        Users reported there are scenes not yet filtered, so we can't skip all your unwanted
+        content.
       </span>
     </div>
 
@@ -245,6 +311,7 @@ export default {
       return xx
     },
     finalSelectedTags() {
+      //convert the array of arrays into one single array with all the tags, as that's what the backend understands
       var xx = []
       this.selectedTags.forEach(category => {
         category.forEach(tag => {
@@ -254,6 +321,7 @@ export default {
       return xx
     },
     scenesCountByTag() {
+      //Number of scenes that the movie has per tag
       var xx = {}
       this.data.scenes.forEach(scene => {
         scene.tags.forEach(tag => {
@@ -270,6 +338,7 @@ export default {
 
   data() {
     return {
+      hoverDescription: '',
       mouseoverSample: '',
 
       snackbarText: '',
@@ -297,26 +366,63 @@ export default {
     data() {
       this.loadTagsFromSettings()
     }
-    /*,
-    finalSelectedTags(newValue, oldValue) {
-      //trigger save  only if there are new tags.
-      var xx = false
-      //if a new tag was added to the preferences...
-      newValue.forEach(tag => {
-        if (!oldValue.includes(tag)) xx = true
-      })
-      //if a tag was removed from the preferences...
-      oldValue.forEach(tag => {
-        if (!newValue.includes(tag)) xx = true
-      })
-
-      if (xx) {
-        this.saveSkipTagsSettings(false)
-      }
-    }*/
   },
 
   methods: {
+    shieldText() {
+      if (this.data.shield == 'done') {
+        this.hoverDescription = '<b>Enjoy safely!</b> We will skip the scenes selected.'
+      } else if (this.data.shield == 'unknown') {
+        this.hoverDescription = "<b>Warning!</b> We don't have enough information about this movie."
+      } else {
+        this.hoverDescription =
+          "<b>Careful!</b> Users reported there is content you wouldn't want to watch, but we can't help since it's not yet filtered."
+      }
+    },
+    clickedItem(cat_index, severity) {
+      //V2 of the select-redundant-tags
+
+      var xx = [] //new version of this category severities
+
+      var ii = this.severities[cat_index].indexOf(severity)
+
+      if (this.selectedTags[cat_index].includes(severity)) {
+        //first tag
+        if (
+          ii == this.severities[cat_index].length - 1 &&
+          this.selectedTags[cat_index].length == 1
+        ) {
+          ii++
+        }
+
+        //last tag
+      }
+
+      for (var i = 0; i < this.severities[cat_index].length; i++) {
+        if (i >= ii) {
+          xx.push(this.severities[cat_index][i])
+        }
+      }
+
+      //Recreate the full selectedTags object (only updating one part does not propagate properly)
+      var zz = []
+      for (let j = 0; j < this.severities.length; j++) {
+        if (j == cat_index) {
+          zz.push(xx)
+        } else {
+          zz.push(this.selectedTags[j])
+        }
+      }
+
+      this.selectedTags = zz
+      this.saveSkipTagsSettings(false)
+    },
+    updateHoverDescription(cat_index, severity) {
+      var xx = raw.content[cat_index]
+      console.log(xx)
+      this.hoverDescription =
+        '<b>' + severity + '</b>: ' + xx.severity.find(x => x.value == severity).description
+    },
     selectRedundandtTags() {
       //Ugly version but at least prevents users from non selecting the redundant tags
       //TODO: Make this more smooth. Probably we need to replace the v-select with a dialog/menu with a list inside, and make it much more customized (example: add severity descriptions)
