@@ -25,12 +25,17 @@
 
       <v-spacer></v-spacer>
       <span class="menu">
-        <v-btn @click="go2Login()" color="grey" fab x-small dark depressed>
+        <!-- 
+          <v-btn @click="go2Login()" color="grey" fab x-small dark depressed>
           <v-icon>mdi-account</v-icon>
         </v-btn>
+        -->
+        <a @click="go2Login()">
+          <v-icon class="pb-1" small>mdi-account</v-icon>
+          <b>{{ data.settings.username }}</b>
+        </a>
       </span>
     </div>
-    <br />
 
     <!-- 2. CATEGORIES/SEVERITY SELECTION -->
 
@@ -210,7 +215,7 @@
     <div>
       <v-row>
         <v-col>
-          <v-btn color="black" dark block dense depressed tile @click="showSidebar(true)"
+          <v-btn color="dark" dark block dense depressed tile @click="showSidebar(true)"
             >Improve filters</v-btn
           >
         </v-col>

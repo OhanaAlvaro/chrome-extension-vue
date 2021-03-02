@@ -4,9 +4,16 @@
       <h2 v-if="data.settings.username">{{ data.settings.username }} @ {{ extensionName }}</h2>
       <h2 v-else>Welcome to {{ extensionName }}!</h2>
       <span class="menu">
+        <!--
         <v-btn color="grey" fab x-small dark depressed @click="cancelSettings">
           <v-icon>mdi-home</v-icon>
         </v-btn>
+        -->
+
+        <a @click="cancelSettings()" v-if="data.settings.username">
+          <v-icon class="pb-1" small>mdi-home</v-icon>
+          <b>Film view</b>
+        </a>
       </span>
     </div>
 
@@ -48,6 +55,12 @@
         </span>
       </v-col>
     </v-row>
+
+    <v-row>
+      <v-col>
+        <v-switch label="Test Dark Mode" hide-details v-model="darkMode" class="mt-0"></v-switch>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
@@ -64,6 +77,8 @@ export default {
       //settings: { skip_tags: [] },  //now using prop data
       //settings_backup: {},
       //skip_tags_backup: [],
+
+      darkMode: false,
 
       dialog: false,
 
@@ -82,6 +97,11 @@ export default {
     data: Object
   },
 
+  watch: {
+    darkMode(newValue, oldValue) {
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark
+    }
+  },
   computed: {
     extensionName() {
       return browser.i18n.getMessage('extName')

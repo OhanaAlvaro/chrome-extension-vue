@@ -23,10 +23,10 @@
 
     <!-- -->
 
-    <v-list dense style="max-height: 250px" class="overflow-y-auto">
+    <v-list dense style="max-height: 250px" class="overflow-y-auto px-0 py-0">
       <v-list-item-group>
         <v-list-item
-          class="px-0 mx-0 pb-5"
+          class="px-2 mx-0 pb-5"
           three-line
           v-for="(scene, index) in scenes"
           :key="index"
@@ -71,7 +71,9 @@
         </div>
         <div v-if="showSpoiler || !sceneToDescribe.spoiler">
           <b>Description: </b
-          >{{ sceneToDescribe.comments ? sceneToDescribe.comments : 'No description' }}
+          >{{
+            sceneToDescribe.comments ? sceneToDescribe.comments : 'No description for this scene'
+          }}
         </div>
       </div>
     </div>
