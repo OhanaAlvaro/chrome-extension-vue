@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "__MSG_extName__",
-  "homepage_url": "https://familycinema.netlify.app/",
+  "homepage_url": "https://www.ohanamovies.org/",
   "version": "1.4.1",
   "description": "Decide what you watch",
   "default_locale": "en",

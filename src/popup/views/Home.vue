@@ -227,7 +227,7 @@
             depressed
             tile
             color="primary"
-            href="https://www.patreon.com/ohanafilters"
+            href="https://www.patreon.com/ohanamovies"
             target="_blank"
           >
             Donate

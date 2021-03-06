@@ -11,7 +11,7 @@
       <!-- Pending Amazon Prime Video -->
     </p>
     <p>
-      Visit <a href="https://familycinema.netlify.app/" target="_blank">Ohana Website</a> to find
+      Visit <a href="https://www.ohanamovies.org/" target="_blank">Ohana Website</a> to find
       out more about skipping content.
     </p>
   </div>
