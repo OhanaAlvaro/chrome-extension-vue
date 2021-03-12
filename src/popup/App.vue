@@ -42,8 +42,10 @@ export default {
     },
     listenToMessages() {
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        console.log('[listen-App.vue] Received request: ', request)
-        if (request.msg == 'new-data') this.getData()
+        if (request.msg == 'new-data'){
+          console.log('[listen-App.vue] Received request: ', request)
+          this.getData()
+        }
         //sendResponse({ success: true, source: this.$route.name })  //TODO: [Alex]: I don't understand why this is here for, but it seems that this.data gets overwriten with the content of this response...
       })
     },
@@ -81,10 +83,14 @@ export default {
         // Make data globally accesible
         this.data = response
 
-        // If we are on an iframe (i.e. on the sidebar), open de editor
+        // If we are on an iframe (i.e. on the sidebar), open de login/editor
         if (this.inIframe()) {
-          if (!response.settings.username) return this.$router.push('/login')
-          return this.$router.push('/editor')
+          if (!response.settings.username){
+            this.$router.push('/login')
+          } else if (!['Editor'].includes(this.$route.name)){
+            this.$router.push('/editor')
+          }
+          return
         }
 
         // Scape WrongSite and NoMovie pages if data was updated

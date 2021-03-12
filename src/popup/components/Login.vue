@@ -127,14 +127,14 @@ export default {
 
       fclib.sendMessage(payload, response => {
         console.log('login', response)
-        if (response.success) {
-          this.$emit('success', data, response) //let parent know
+        if (response.statusCode < 300) {
+          this.$emit('success', data, response.body) //let parent know
           this.page = 'logout'
         } else {
           //this.username_copy = '' //not reflecting to parent...
           this.password_copy = ''
           this.$refs.usernameField.focus()
-          this.$emit('error', data, response) //let parent know
+          this.$emit('error', data, response.body) //let parent know
         }
       })
     },
@@ -159,14 +159,14 @@ export default {
 
       fclib.sendMessage(payload, response => {
         console.log('newuser', response)
-        if (response.success) {
-          this.$emit('success', data, response) //let parent know
+        if (response.statusCode < 300) {
+          this.$emit('success', data, response.body) //let parent know
           this.page = 'logout'
         } else {
           //this.username_copy = '' //not reflecting to parent...
           this.password_copy = ''
           this.$refs.usernameField.focus()
-          this.$emit('error', data, response) //let parent know
+          this.$emit('error', data, response.body) //let parent know
         }
       })
     }

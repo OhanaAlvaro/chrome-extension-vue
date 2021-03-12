@@ -28,7 +28,7 @@
     ></scene-editor>
 
     <!-- List/table of scenes -->
-    <div v-if="data.scenes.length == 0" align="center" justify="center" style="width:100%">
+    <div v-if="data.scenes.length == 0" class='scene-table' align="center" justify="center" style="width:100%">
       <br />
       No filters for this film. Be the first one to add one!
       <br />
@@ -245,6 +245,14 @@ export default {
 </script>
 
 <style scoped>
+
+.scene-table {
+  max-height: 65vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+
 .size-wrapper {
   height: 96vh;
   width: 100vw -20px;

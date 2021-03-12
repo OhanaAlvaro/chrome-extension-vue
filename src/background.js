@@ -1,5 +1,5 @@
 chrome.commands.onCommand.addListener(function(command) {
-  console.log('Command:', command)
+  console.log('background.js: ', command)
 
   if (command == 'mark-current-time-sex') {
     sendMessage({ msg: 'mark-current-time', tags: ['Sex'] })
@@ -14,7 +14,7 @@ chrome.commands.onCommand.addListener(function(command) {
 
 chrome.runtime.onMessage.addListener(function(data, sender, sendResponse) {
   if (typeof data !== 'object') return
-  console.log(data.msg)
+  console.log('background.js: ',data.msg)
   if (data.msg === 'update-badge') {
     chrome.browserAction.setBadgeText({ text: '' + data.numDisplayedScenes, tabId: sender.tab.id })
     chrome.browserAction.setBadgeBackgroundColor({ color: '#2b2b2b' })

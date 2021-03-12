@@ -120,14 +120,14 @@ export default {
       console.log('loginSuccess')
       this.data.settings.username = data.username
       this.data.settings.password = data.password
-      this.showSnackbar(serverResponse.data, 'success')
+      this.showSnackbar(serverResponse, 'success')
       this.saveSettings()
     },
     logginError(data, serverResponse) {
       console.log('logginError')
       this.data.settings.username = ''
       this.data.settings.password = ''
-      this.showSnackbar(serverResponse.data, 'error')
+      this.showSnackbar(serverResponse, 'error')
       this.saveSettings()
     },
     cancelSettings() {

@@ -6,12 +6,14 @@ This file implements 4 objects:
   + fc: main Ohana object, it keeps everything running, serving as main data hub for the other objects
 */
 
+var what2watch = require('./what2watch')
+
 /*
  
  Main Ohana object
   
 */
-'use strict'
+;('use strict')
 
 var fc = {
   default_settings: {
@@ -45,36 +47,39 @@ var fc = {
   },
 
   updateScene: function(scene, field) {
-    var i = utils.idToIndex(scene.id)
-    console.log('[updateScene]: Updating ', scene, field)
-    if (field == 'start') {
-      player.seek(scene.start, 'frame')
-    } else if (field == 'end') {
-      player.seek(scene.end, 'frame')
-    } else if (field == 'skip') {
+    console.log('Updating scene: ', scene)
+    // Share data with server
+    server.setData('updateScene', scene)
+
+    if (field == 'skip') {
       fc.skip_ids[scene.id] = scene.skip
     }
-
+    // Add scene
+    var i = utils.idToIndex(scene.id)
     fc.scenes[i] = scene
+    // Propagate change and return
     fc.onContentEdit(field)
     return true
   },
 
   removeScene: function(id) {
-    console.log('Removing scene: ', id)
     var i = utils.idToIndex(id)
+    // Share remove with server
+    server.setData('removeScene', fc.scenes[i])
+    // Remove scene
     fc.scenes.splice(i, 1)
+    // Propagate change and return
     fc.onContentEdit('remove')
     return true
   },
 
   // Add new scene to the list of scenes
   addScene: function(scene) {
-    // Decide if new scenes requires skipping
-    scene = fc.decideSkip([scene])[0]
+    // Share scene with server
+    server.setData('addScene', scene)
     // Add scene
     fc.scenes.push(scene)
-    // Trigger content edit
+    // Propagate change and return
     fc.onContentEdit('add')
     return true
   },
@@ -139,18 +144,11 @@ var fc = {
   },
 
   onContentEdit: function(edit) {
-    // Propagate edit to server
-    if (edit != 'server' && edit != 'skip' && edit != 'settings') {
-      server.setMovie()
-    }
-
     if (edit != 'start' && edit != 'end') {
       // Update skip
       fc.scenes = fc.decideSkip(fc.scenes)
-
       // Update shield
       fc.updateShield()
-
       // Update badge
       browser.updateBadge()
     }
@@ -166,6 +164,10 @@ var fc = {
     // Check we have the right metadata
     if (!fc.metadata || fc.metadata.url != window.location.href) {
       server.getMovie()
+    }
+
+    if (!fc.metadata.src) {
+      return what2watch.init(fc.settings.skip_tags, server)
     }
 
     // Check video player controller is working
@@ -370,6 +372,7 @@ var browser = {
           browser.setData('settings', fc.settings)
         } else if (request.msg == 'set-tagged') {
           fc.tagged = request.tagged
+          server.setData('setTagged', tagged)
           fc.onContentEdit('tagged')
         } else if (request.msg == 'play-pause') {
           player.togglePlay()
@@ -485,25 +488,18 @@ var browser = {
 
 */
 var server = {
-  setMovie: function() {
-    if (!fc.scenes || !fc.metadata || !fc.metadata.src) {
-      return console.log('[setData] Unable to upload scenes')
+  setData: function(action, data) {
+    if (!fc.metadata || !fc.metadata.src) {
+      return console.log('[removeScene] Missing metadata, unable to upload data...')
     }
 
-    // Server
-    var data = {
-      metadata: {
-        pid: fc.metadata.pid,
-        src: fc.metadata.src,
-        provider: fc.metadata.provider,
-        duration: fc.metadata.duration
-      },
-      scenes: fc.scenes.filter(scene => !scene.tags.includes('Local')),
-      tagged: fc.tagged
+    if (action == 'updateScene' && data.tags.includes('Local')) {
+      return
+      //action == 'removeScene'
     }
 
     server.send({
-      action: 'setData',
+      action: action,
       id: fc.metadata.src,
       username: fc.settings.username,
       password: fc.settings.password,
@@ -531,23 +527,31 @@ var server = {
 
     // Get servers data
     server.send({ action: 'getData', id: fc.metadata.src }, function(result) {
-      if (result.status != 200 || !result.data || !result.data.scenes) {
+      if (!result || !result.body || !result.body.scenes) {
+        console.log(result)
         return console.error('[getData] Something is wrong with the server...')
       }
-      fc.scenes = utils.merge(result.data.scenes, fc.scenes)
-      fc.tagged = Object.assign({}, result.data.tagged)
+      fc.scenes = utils.merge(result.body.scenes, fc.scenes)
+      fc.tagged = Object.assign({}, result.body.tagged)
       fc.onContentEdit('server')
     })
   },
 
+  request_tagged(missing, callback) {
+    server.send({ action: 'getTagged', ids: missing }, function(response) {
+      callback(response)
+    })
+  },
+
   send: function(query, callback) {
-    console.log('[send] ', query)
     var url = server.buildURL(query)
-    fetch(url)
-      .then(r => r.text())
-      .then(data => {
-        if (callback) callback(utils.parseJSON(data))
+    fetch(url).then(response => {
+      response.json().then(body => {
+        let res = { statusCode: response.status, body: body }
+        console.log('[server.send] Url:', url, '. Query: ', query, '. Response: ', res)
+        if (callback) callback(res)
       })
+    })
   },
 
   // Helper function to build the url/end point for the given query
@@ -565,8 +569,7 @@ var server = {
         out.push(key + '=' + encodeURIComponent(query[key]))
       }
     }
-    var url = 'https://www.arrietaeguren.es/movies/api?' + out.join('&')
-    console.log('[buildURL]', url)
+    var url = 'https://nips2bzbad.execute-api.eu-west-1.amazonaws.com/default/api?' + out.join('&')
     return url
   }
 }
@@ -741,10 +744,6 @@ browser.addListeners()
 
 setInterval(fc.periodicCheck, 100)
 
-document.addEventListener('unload', function() {
-  fc.unload()
-})
-
 browser.getData('settings', function(settings) {
   fc.loadSettings(settings)
 })
@@ -757,7 +756,7 @@ function show_sidebar(show) {
   // Add fc-active class (this will show the sidebar)
   document.body.classList.add('fc-active')
 
-  // Inject iframe and css (if it is not already there)
+  // Inject iframe (if it is not already there)
   if (!document.getElementById('fc-iframe')) {
     console.log('injecting iframe')
     var iframe = document.createElement('iframe')
@@ -765,28 +764,5 @@ function show_sidebar(show) {
     iframe.id = 'fc-iframe'
     iframe.style = 'display: none;'
     document.body.appendChild(iframe)
-
-    var style = document.createElement('style')
-    style.innerHTML = `
-    .fc-active #app_body_content:not(:fullscreen) #hudson-wrapper, /* disneyplus */
-    .fc-active .sizing-wrapper,
-    .fc-active .app-container > div,
-    .fc-active ytd-masthead /* youtube header */
-    {
-      right: 320px !important;
-      width: calc(100% - 320px) !important;
-    }
-
-    .fc-active #fc-iframe {
-      position:fixed;
-      top:0;
-      right:0;
-      display:block !important;
-      width:320px;
-      height:100%;
-      z-index:1000;
-    }
-    `
-    document.head.appendChild(style)
   }
 }

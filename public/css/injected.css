@@ -1,0 +1,42 @@
+.missing img {
+	/*filter: blur(5px) grayscale(100%);*/
+	display: none;
+}
+
+.unknown img {
+	filter: grayscale(100%);
+}
+
+.ohana-shield {
+	width: 30px;
+	position: absolute;
+	filter: none !important;
+	display: block !important;
+	bottom: 5px;
+	right: 5px;
+}
+
+/***************************/
+/*       Side bar          */
+/***************************/
+
+/* Push page to the left side */
+.fc-active #app_body_content:not(:fullscreen) #hudson-wrapper, /* disneyplus */
+.fc-active .sizing-wrapper,
+.fc-active .app-container > div,
+.fc-active ytd-masthead /* youtube header */
+{
+	right: 320px !important;
+	width: calc(100% - 320px) !important;
+}
+
+/* Style iframe */
+.fc-active #fc-iframe {
+	position: fixed;
+	top: 0;
+	right: 0;
+	display: block !important;
+	width: 320px;
+	height: 100%;
+	z-index: 1000;
+}
