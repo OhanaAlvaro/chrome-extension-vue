@@ -83,7 +83,7 @@
                   >
                     <v-btn icon>
                       <v-icon color="success" v-if="data.shield == 'done'">mdi-shield-check</v-icon>
-                      <v-icon color="orange" v-else-if="data.shield == 'unkown'"
+                      <v-icon color="orange" v-else-if="data.shield == 'unknown'"
                         >mdi-shield-half-full</v-icon
                       >
                       <v-icon color="red" v-else>mdi-shield-alert</v-icon>
@@ -199,7 +199,7 @@
         We will skip all {{ scenesCountByCategory.reduce((x, a) => x + a.selected, 0) }} unwanted
         scene(s).
       </span>
-      <span v-else-if="data.shield == `unkown`" style="color: orange">
+      <span v-else-if="data.shield == `unknown`" style="color: orange">
         <v-icon small color="orange" class="mb-1">mdi-shield-half-full</v-icon>
         <b>Warning!</b> <br />
         We might not be able to skip all unwanted scenes.

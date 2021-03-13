@@ -23,7 +23,7 @@
                 <div @click="nextStatus(tag_sex)" style="cursor: pointer;">
                   <v-icon v-if="status(tag_sex) == `missing`" color="red">mdi-shield-alert</v-icon>
                   <v-icon v-if="status(tag_sex) == `done`" color="#00b359">mdi-shield-check</v-icon>
-                  <v-icon v-if="status(tag_sex) == `unkown`">mdi-shield-half-full</v-icon>
+                  <v-icon v-if="status(tag_sex) == `unknown`">mdi-shield-half-full</v-icon>
                   <b style="min-width: 100px">{{ tag_sex.title }} </b> - {{ tag_sex.description }}
                 </div>
               </div>
@@ -35,7 +35,7 @@
                 <div @click="nextStatus(tag_vio)" style="cursor: pointer;">
                   <v-icon v-if="status(tag_vio) == `missing`" color="red">mdi-shield-alert</v-icon>
                   <v-icon v-if="status(tag_vio) == `done`" color="#00b359">mdi-shield-check</v-icon>
-                  <v-icon v-if="status(tag_vio) == `unkown`">mdi-shield-half-full</v-icon>
+                  <v-icon v-if="status(tag_vio) == `unknown`">mdi-shield-half-full</v-icon>
                   <b style="min-width: 100px">{{ tag_vio.title }} </b> - {{ tag_vio.description }}
                 </div>
               </div>
@@ -48,9 +48,9 @@
             <fc-tooltip text="The movie contains scenes of this type that are not yet listed">
               <v-icon color="red">mdi-shield-alert</v-icon> Missing
             </fc-tooltip>
-            <!-- Unkown shield -->
+            <!-- unknown shield -->
             <fc-tooltip text="The movie might contain scenes of this type which are not yet listed">
-              <v-icon>mdi-shield-half-full</v-icon> Unkown
+              <v-icon>mdi-shield-half-full</v-icon> unknown
             </fc-tooltip>
             <!-- Done shield -->
             <fc-tooltip text="All scenes of this type have been listed with the right times">
@@ -116,7 +116,7 @@ export default {
     },
 
     status(tag) {
-      if (!this.tagged[tag.value]) return 'unkown'
+      if (!this.tagged[tag.value]) return 'unknown'
       return this.tagged[tag.value].status
     },
 
@@ -127,7 +127,7 @@ export default {
       if (current == 'done') {
         this.tagged[tag.value].status = 'missing'
       } else if (current == 'missing') {
-        this.tagged[tag.value].status = 'unkown'
+        this.tagged[tag.value].status = 'unknown'
       } else {
         this.tagged[tag.value].status = 'done'
       }

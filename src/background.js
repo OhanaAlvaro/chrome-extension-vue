@@ -24,7 +24,7 @@ chrome.runtime.onMessage.addListener(function(data, sender, sendResponse) {
     } else if (data.status == 'done') {
       chrome.browserAction.setIcon({ path: 'icons/done.png', tabId: sender.tab.id })
     } else {
-      chrome.browserAction.setIcon({ path: 'icons/unkown.png', tabId: sender.tab.id })
+      chrome.browserAction.setIcon({ path: 'icons/unknown.png', tabId: sender.tab.id })
     }
   }
 })

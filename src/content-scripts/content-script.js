@@ -90,12 +90,12 @@ var fc = {
     var skip_tags = fc.settings.skip_tags
     for (var i = 0; i < skip_tags.length; i++) {
       if (!fc.tagged[skip_tags[i]]) {
-        shield = 'unkown'
+        shield = 'unknown'
       } else if (fc.tagged[skip_tags[i]].status == 'missing') {
         shield = 'missing'
         break
-      } else if (fc.tagged[skip_tags[i]].status == 'unkown') {
-        shield = 'unkown'
+      } else if (fc.tagged[skip_tags[i]].status == 'unknown') {
+        shield = 'unknown'
       }
     }
     fc.shield = shield
@@ -429,7 +429,7 @@ var browser = {
           )
           return true
         } else {
-          console.log('Unkown request: ', request)
+          console.log('unknown request: ', request)
         }
         console.log('sending default response')
         sendResponse({ success: true })
@@ -538,7 +538,8 @@ var server = {
   },
 
   request_tagged(missing, callback) {
-    server.send({ action: 'getTagged', ids: missing }, function(response) {
+    if (missing.length == 0 ) return
+    server.send({ action: 'getTagged', ids: JSON.stringify(missing) }, function(response) {
       callback(response)
     })
   },
@@ -569,7 +570,7 @@ var server = {
         out.push(key + '=' + encodeURIComponent(query[key]))
       }
     }
-    var url = 'https://nips2bzbad.execute-api.eu-west-1.amazonaws.com/default/api?' + out.join('&')
+    var url = 'https://api.ohanamovies.org/dev?' + out.join('&')
     return url
   }
 }
@@ -629,19 +630,16 @@ var player = {
         new CustomEvent('netflix-video-controller', { detail: { pause: true } })
       )
     } else {
-      console.log('pausing video')
       player.video.pause()
     }
   },
 
   play: function() {
-    console.log('play')
     if (fc.metadata.provider == 'netflix') {
       document.dispatchEvent(
         new CustomEvent('netflix-video-controller', { detail: { play: true } })
       )
     } else {
-      console.log('playing video')
       player.video.play()
     }
   },
@@ -752,6 +750,9 @@ function show_sidebar(show) {
   console.log('[show-sidebar] ', show)
   // Remove fc-active class (this will hide the sidebar)
   if (!show) return document.body.classList.remove('fc-active')
+
+  // Do not show sidebar if there is no movie
+  if (!fc.metadata.src) return console.error('[show_sidebar] No point to show sidebar when there is no movie')
 
   // Add fc-active class (this will show the sidebar)
   document.body.classList.add('fc-active')

@@ -1,8 +1,10 @@
+var provider = require('./provider')
+
 var w2w = {
+  tagged: {},
   init: function function_name(skip_tags, api) {
-    w2w.api = api
+    if(!w2w.api) w2w.api = api
     w2w.skip_tags = skip_tags
-    w2w.tagged = {}
     w2w.add_shields()
   },
 
@@ -12,68 +14,68 @@ var w2w = {
     return str ? str[1] : ''
   },
 
-  add_shields: function(tagged) {
-    var host = window.location.hostname
-    if (host.includes('netflix')) {
-      var links = document.querySelectorAll('[href^="/watch/"]')
-    } else if (host.includes('disney') || host.includes('hbo') ) {
-      var movies = document.querySelectorAll('[href*="/movies/"]')
-      var series = document.querySelectorAll('[href*="/series/"]')
-      var links = [...series, ...movies]
-    } else {
-      return
-    }
-
+  add_shields: function(force) {
+    let links = provider.getLinks()
 
     // Avoid going over every single item if we have already done so
-    var shields = document.getElementsByClassName('ohana-shield')
-    if (shields.length == links.length) return
-    console.log('recomputing',shields.length,links.length)
-    //w2w.num_items = links.length
+    if (!force && w2w.num_links == links.length) {
+      return
+      /*var shields = document.getElementsByClassName('ohana-shield')
+      if (shields.length == links.length) return
+      if (shields.length > links.length) return console.error('[w2w] more shilds than links...?')
+      console.log('recomputing', shields.length, links.length)*/
+    }
+    w2w.num_links = links.length
 
-    //https://www.netflix.com/watch/80241181?tctx=1%2C0%2C%2C%2C%2C
+    // Add shields
     var missing_id = []
     for (var i = 0; i < links.length; i++) {
-      if (links[i].getElementsByClassName('ohana-shield').length) continue
-      var id = w2w.match(/watch\/([0-9]+)/, links[i].href)
-
+      var id = provider.getID(links[i].href).id
       if (!w2w.tagged[id]) {
         missing_id.push(id)
+        w2w.tagged[id] = { done: [], missing: [] } // This stops item from being added again as missing
       }
-      w2w.add_shield(links[i], {})// w2w.tagged[id])
+      w2w.add_shield(links[i], w2w.tagged[id])
     }
 
-    w2w.api.request_tagged(missing_id, function(tagged) {
+    if (missing_id.length == 0) return
+    w2w.api.request_tagged(missing_id, function(response) {
+      if (response.statusCode >= 300) return console.log('[w2w] unable to retrieve data')
       // Update tagged data/cache
-      for (var key in tagged) w2w.tagged[key] = tagged[key]
+      for (var key in response.body) w2w.tagged['' + key] = response.body[key]
       // Add shields to the interface
-      w2w.add_shields()
+      w2w.add_shields(true)
     })
   },
 
   add_shield: function(elem, tagged) {
-    var img = document.createElement('img')
-    if (!tagged) {
-      img.src = 'https://familycinema.netlify.app/fc/unknown.png'
-      elem.classList.add('unknown')
-    } else if (w2w.needs_skip(tagged.missing)) {
-      img.src = 'https://familycinema.netlify.app/fc/missing.png'
-      elem.classList.add('missing')
-    } else if (w2w.needs_skip(tagged.unknown)) {
-      img.src = 'https://familycinema.netlify.app/fc/unknown.png'
-      elem.classList.add('unknown')
-    } else {
-      img.src = 'https://familycinema.netlify.app/fc/protected.png'
-      elem.classList.add('done')
+    // If EVERY skip_tag is included in tagged.done
+    if (w2w.skip_tags.every(x => tagged.done.includes(x))) {
+      return w2w.update_shield(elem, 'done', 'done')
     }
-    img.classList.add('ohana-shield')
-    elem.appendChild(img)
+
+    // If ANY skip_tag is included in tagged.missing
+    if (w2w.skip_tags.some(x => tagged.missing.includes(x))) {
+      return w2w.update_shield(elem, 'missing', 'missing')
+    }
+
+    // Otherwise
+    w2w.update_shield(elem, 'unknown', 'unknown')
   },
 
-  needs_skip: function(a) {
-    return Math.random() < 0.5
-    var b = w2w.skip_tags
-    return a.filter(x => b.includes(x)).length
+  update_shield: function(elem, icon, cls) {
+    var img = elem.getElementsByClassName('ohana-shield')[0]
+    if (!img) {
+      console.log('adding new shield')
+      img = document.createElement('img')
+      img.classList.add('ohana-shield')
+      elem.appendChild(img)
+    }
+    if (!elem.classList.contains(cls)) {
+      elem.classList.remove(['done', 'missing', 'unknown'])
+      elem.classList.add(cls)
+      img.src = chrome.runtime.getURL('icons/' + icon + '.png')
+    }
   }
 }
 

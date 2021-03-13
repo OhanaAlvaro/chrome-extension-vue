@@ -4,7 +4,7 @@
 }
 
 .unknown img {
-	filter: grayscale(100%);
+	/*filter: grayscale(100%);*/
 }
 
 .ohana-shield {
@@ -40,3 +40,6 @@
 	height: 100%;
 	z-index: 1000;
 }
+
+
+

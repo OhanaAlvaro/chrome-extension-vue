@@ -52,6 +52,8 @@
 
           <!-- -->
           <br />
+          <br />
+          <br />
           <div style="display: flex;">
             <h3 style="margin: auto 0;">Fine tune the times</h3>
             <v-btn text small @click="sendMessage({ msg: 'preview', scene: scene })">
@@ -94,6 +96,8 @@
 
           <br />
           <br />
+          <br />
+          <br />
 
           <h3>Editor's safety</h3>
 
@@ -120,8 +124,8 @@
               <template v-slot:thumb-label="{ value }">{{ 2.5 * value + '%' }}</template>
             </v-slider>
           </div>
+          <br />
         </v-card-text>
-        <v-spacer></v-spacer>
         <v-card-actions>
           <v-btn text small @click="removeScene()">
             Remove
@@ -130,12 +134,13 @@
           <v-btn text small @click="cancel()">
             Cancel
           </v-btn>
-          <v-btn text small @click="save()">
+          <span style="width:60px"></span>
+          <v-btn color="primary" text small @click="save()">
             Save
           </v-btn>
-          <v-btn color="primary" small text @click="save()">
+          <!--<v-btn  small text @click="save()">
             Publish
-          </v-btn>
+          </v-btn>-->
         </v-card-actions>
       </v-card>
     </v-dialog>

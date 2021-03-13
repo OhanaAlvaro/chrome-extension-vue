@@ -16,7 +16,7 @@ export default {
   name: 'PopupApp',
   data() {
     return {
-      data: { msg: '', scenes: [], settings: [], shield: 'unkown', hasFilm: false, state: {} } //default values, to avoid missing keys
+      data: { msg: '', scenes: [], settings: [], shield: 'unknown', hasFilm: false, state: {} } //default values, to avoid missing keys
     }
   },
   watch: {
