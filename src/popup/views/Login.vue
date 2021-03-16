@@ -17,6 +17,9 @@
       </span>
     </div>
 
+    <div v-if="!data.settings.username" style="text-align: center; margin: 10px;font-size: 120%;">
+      Login/register is required before creating or editing filters
+    </div>
     <v-snackbar
       app
       width="20px"
@@ -41,8 +44,7 @@
       <v-col>
         <!-- <b style="font-size:120%">Enjoy!</b><br />-->
 
-        Enjoy movies as usual. Ohana will be working for you in the background, seamlessly skipping
-        any unwanted content.<br /><br />
+        <!--Enjoy movies as usual. Ohana will be working for you in the background, seamlessly skipping any unwanted content.<br /><br />
 
         If you spot any unwanted content, press <b>"Alt+N"</b> or <b>"Improve filters"</b> to flag
         it and help other users like you.<br /><br />
@@ -52,15 +54,15 @@
         </span>
         <span v-else>
           You can see all flagged scenes on the film view (log in required).
-        </span>
+        </span>-->
       </v-col>
     </v-row>
 
-    <v-row>
+    <!--<v-row>
       <v-col>
         <v-switch label="Test Dark Mode" hide-details v-model="darkMode" class="mt-0"></v-switch>
       </v-col>
-    </v-row>
+    </v-row>-->
   </div>
 </template>
 

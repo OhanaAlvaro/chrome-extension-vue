@@ -13,7 +13,7 @@ var what2watch = require('./what2watch')
  Main Ohana object
   
 */
-;('use strict')
+'use strict'
 
 var fc = {
   default_settings: {
@@ -151,6 +151,10 @@ var fc = {
       fc.updateShield()
       // Update badge
       browser.updateBadge()
+    }
+
+    if (edit == 'settings') {
+      what2watch.init(fc.settings.skip_tags, server, true)
     }
 
     // Propagate edit to user interface/browser
@@ -570,7 +574,7 @@ var server = {
         out.push(key + '=' + encodeURIComponent(query[key]))
       }
     }
-    var url = 'https://api.ohanamovies.org/dev?' + out.join('&')
+    var url = 'https://api.ohanamovies.org/prod?' + out.join('&')
     return url
   }
 }

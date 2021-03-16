@@ -2,10 +2,11 @@ var provider = require('./provider')
 
 var w2w = {
   tagged: {},
-  init: function function_name(skip_tags, api) {
+  num_links: 0,
+  init: function function_name(skip_tags, api, force) {
     if(!w2w.api) w2w.api = api
     w2w.skip_tags = skip_tags
-    w2w.add_shields()
+    w2w.add_shields(force)
   },
 
   match: function(regex, haystack) {
@@ -26,11 +27,12 @@ var w2w = {
       console.log('recomputing', shields.length, links.length)*/
     }
     w2w.num_links = links.length
+    console.log('Adding ', links.length, ' shields. Force ', force)
 
     // Add shields
     var missing_id = []
     for (var i = 0; i < links.length; i++) {
-      var id = provider.getID(links[i].href).id
+      var id = provider.getID(links[i].href).src
       if (!w2w.tagged[id]) {
         missing_id.push(id)
         w2w.tagged[id] = { done: [], missing: [] } // This stops item from being added again as missing

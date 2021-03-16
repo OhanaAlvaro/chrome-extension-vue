@@ -1,7 +1,7 @@
 var pid = {
   match: function(regex, haystack) {
     var str = haystack.match(regex)
-    return str ? str[1] : ''
+    return str ? ''+str[1] : ''
   },
 
   getLinks: function() {

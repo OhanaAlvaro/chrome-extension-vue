@@ -53,7 +53,6 @@
           <!-- -->
           <br />
           <br />
-          <br />
           <div style="display: flex;">
             <h3 style="margin: auto 0;">Fine tune the times</h3>
             <v-btn text small @click="sendMessage({ msg: 'preview', scene: scene })">
@@ -97,7 +96,6 @@
           <br />
           <br />
           <br />
-          <br />
 
           <h3>Editor's safety</h3>
 
@@ -109,6 +107,7 @@
               :label="`Mute`"
               @change="mute"
             ></v-checkbox>
+            <span style="width: 40px;"></span>
             <!-- Blur slider: allow user to control the blur right from here -->
             <v-slider
               style="margin: auto 0px;"

@@ -216,7 +216,7 @@
       <v-row>
         <v-col>
           <v-btn color="dark" dark block dense depressed tile @click="showSidebar(true)"
-            >Improve filters</v-btn
+            >Edit filters</v-btn
           >
         </v-col>
         <v-col>
