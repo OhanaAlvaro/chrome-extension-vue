@@ -42,7 +42,7 @@ export default {
     },
     listenToMessages() {
       chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        if (request.msg == 'new-data'){
+        if (request.msg == 'new-data') {
           console.log('[listen-App.vue] Received request: ', request)
           this.getData()
         }
@@ -85,9 +85,9 @@ export default {
 
         // If we are on an iframe (i.e. on the sidebar), open de login/editor
         if (this.inIframe()) {
-          if (!response.settings.username){
+          if (!response.settings.username) {
             this.$router.push('/login')
-          } else if (!['Editor'].includes(this.$route.name)){
+          } else if (!['Editor'].includes(this.$route.name)) {
             this.$router.push('/editor')
           }
           return

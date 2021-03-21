@@ -168,9 +168,9 @@ var actions = {
   ]
 }
 
-var categories = content.map(x => x.value)
-var severities = content.map(x => x.severity.map(y => y.value))
-var context = content.map(x => x.types.map(y => y.value))
+var categories = content.map(x => x.value) //[c1, c2, c3...]
+var severities = content.map(x => x.severity.map(y => y.value)) // [[cat1-sev1, cat1-sev2,...], [cat2-sev1, cat2-sev2...]]
+var context = content.map(x => x.types.map(y => y.value)) //[[cat1-context1, cat2-context2], [cat2-context1, cat2-context2...]]
 
 module.exports = {
   content,
