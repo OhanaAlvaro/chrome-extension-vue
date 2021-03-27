@@ -32,7 +32,7 @@ var w2w = {
     // Add shields
     var missing_id = []
     for (var i = 0; i < links.length; i++) {
-      var id = provider.getID(links[i].href).src
+      var id = provider.parseURL(links[i].href).id
       if (!w2w.tagged[id]) {
         missing_id.push(id)
         w2w.tagged[id] = { done: [], missing: [] } // This stops item from being added again as missing

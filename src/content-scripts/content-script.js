@@ -7,13 +7,14 @@ This file implements 4 objects:
 */
 
 var what2watch = require('./what2watch')
+var provider = require('./provider')
 
 /*
  
  Main Ohana object
   
 */
-'use strict'
+;('use strict')
 
 var fc = {
   default_settings: {
@@ -106,7 +107,7 @@ var fc = {
   unload: function() {
     console.log('[unload] Clearing any previous content')
     fc.scenes = null
-    fc.metadata = null
+    fc.metadata = {}
     fc.tagged = {}
     fc.skip_ids = {}
     player.video = null
@@ -118,6 +119,7 @@ var fc = {
     for (var i = 0; i < scenes.length; i++) {
       scenes[i].default_skip = utils.includesAny(scenes[i].tags, fc.settings.skip_tags)
       var id = scenes[i].id
+      console.log(fc.skip_ids)
       if (fc.skip_ids[id] !== undefined) {
         scenes[i].skip = fc.skip_ids[id]
       } else {
@@ -137,7 +139,7 @@ var fc = {
       }
       fc.settings = settings
     } else {
-      console.warn('Setting default settings instead of: ', settings)
+      console.warn('Setting default settings instead of : ', settings)
       fc.settings = fc.default_settings
     }
     fc.onContentEdit('settings')
@@ -167,10 +169,10 @@ var fc = {
   periodicCheck: function() {
     // Check we have the right metadata
     if (!fc.metadata || fc.metadata.url != window.location.href) {
-      server.getMovie()
+      fc.loadNewMedia()
     }
 
-    if (!fc.metadata.src) {
+    if (!fc.metadata.id) {
       return what2watch.init(fc.settings.skip_tags, server)
     }
 
@@ -183,57 +185,19 @@ var fc = {
     fc.check_needs_skip()
   },
 
-  getVideoID: function() {
+  loadNewMedia: function() {
+    fc.unload()
+    fc.metadata.url = window.location.href
     // Extract metadata
-    var url = window.location.href
-    var host = window.location.hostname
-    var m = { provider: '', pid: 0, duration: null, url: url, src: '' }
-    var queryString = window.location.search
-    var urlParams = new URLSearchParams(queryString)
-
-    function match(regex, haystack) {
-      if (!haystack) haystack = url
-      var str = haystack.match(regex)
-      return str ? str[1] : ''
-    }
-
-    if (host.includes('netflix')) {
-      m.provider = 'netflix'
-      m.pid = match(/watch\/([0-9]+)/)
-    } else if (host.includes('amazon')) {
-      m.provider = 'amazon'
-      //m.pid = 'test'
-    } else if (host.includes('youtube')) {
-      m.provider = 'youtube'
-      m.pid = urlParams.get('v')
-    } else if (host.includes('disneyplus')) {
-      m.provider = 'disneyplus'
-      m.pid = match(/video\/([0-9abcdef\-]+)/)
-    } else if (host.includes('hbo')) {
-      m.provider = 'hbo'
-      m.pid = match(/\/([0123456789abcdef-]+)\/play/)
-    } else if (host.includes('movistarplus')) {
-      m.provider = 'movistarplus'
-      m.pid = urlParams.get('id')
-    } else if (host.includes('rakuten')) {
-      m.provider = 'rakuten'
-      var themoviedb = document.querySelectorAll('a[href^="https://www.themoviedb.org/movie"]')
-      //m.pid = 'test'
-      if (themoviedb.length == 1) {
-        m.pid = match(/\/([0123456789]+)/, themoviedb)
+    provider.getID().then(metadata => {
+      fc.metadata = metadata
+      if (!metadata.id) return
+      if (player.video && player.video.duration) {
+        fc.metadata.duration = player.video.duration * 1000
       }
-    } else {
-      m.provider = host
-      //m.pid = 'test'
-    }
-
-    if (!m.src && m.pid) m.src = m.provider + '_' + m.pid
-
-    if (player.video && player.video.duration) {
-      m.duration = player.video.duration * 1000
-    }
-    fc.metadata = m
-    console.log('[getVideoID]', fc.metadata)
+      server.getMovie()
+      console.log('[getVideoID]', fc.metadata)
+    })
   },
 
   mark_current_time: function(tags) {
@@ -454,15 +418,15 @@ var browser = {
   },
 
   setMovie: function() {
-    if (!fc.scenes || !fc.metadata || !fc.metadata.src) {
+    if (!fc.scenes || !fc.metadata || !fc.metadata.id) {
       return console.log('[browser.setMovie] Unable locally store scenes')
     }
     var localData = {
       scenes: fc.scenes.filter(scene => scene.tags.includes('Local')),
-      skip_ids: fc.skip_ids
+      skip_ids: fc.skip_ids || {}
     }
     console.log(localData)
-    browser.setData(fc.metadata.src, localData)
+    browser.setData(fc.metadata.id, localData)
   },
 
   // sets data on chrome sync storage
@@ -478,6 +442,7 @@ var browser = {
   getData: function(id, callback) {
     chrome.storage.sync.get(id, function(data) {
       console.log('[getLocalData] ', id, data)
+      if (!data[id]) return callback({})
       callback(utils.parseJSON(data[id]))
     })
   }
@@ -493,7 +458,7 @@ var browser = {
 */
 var server = {
   setData: function(action, data) {
-    if (!fc.metadata || !fc.metadata.src) {
+    if (!fc.metadata || !fc.metadata.id) {
       return console.log('[removeScene] Missing metadata, unable to upload data...')
     }
 
@@ -504,7 +469,7 @@ var server = {
 
     server.send({
       action: action,
-      id: fc.metadata.src,
+      id: fc.metadata.id,
       username: fc.settings.username,
       password: fc.settings.password,
       data: JSON.stringify(data)
@@ -512,28 +477,33 @@ var server = {
   },
 
   getMovie: function() {
-    fc.unload()
-    fc.getVideoID()
-    if (!fc.metadata || !fc.metadata.src) {
+    if (!fc.metadata || !fc.metadata.id) {
       console.warn('[getMovie] Invalid metadata ', fc.metadata)
       browser.sendMessage({ msg: 'update-badge', numDisplayedScenes: '' })
       return
     }
-    console.log('[getMovie] Getting details for ', fc.metadata.src)
+    console.log('[getMovie] Getting details for ', fc.metadata.id)
 
     // Get local data
-    browser.getData(fc.metadata.src, function(localData) {
+    browser.getData(fc.metadata.id, function(localData) {
       if (!localData) return console.log('No local data for this movie')
-      fc.skip_ids = localData.skip_ids
+      fc.skip_ids = localData.skip_ids || {}
       fc.scenes = utils.merge(fc.scenes, localData.scenes)
       fc.onContentEdit('server')
     })
 
     // Get servers data
-    server.send({ action: 'getData', id: fc.metadata.src }, function(result) {
+    var query = {
+      action: 'getMovie',
+      id: fc.metadata.id,
+      season: fc.metadata.season,
+      episode: fc.metadata.episode,
+      title: fc.metadata.title
+    }
+    server.send(query, function(result) {
       if (!result || !result.body || !result.body.scenes) {
         console.log(result)
-        return console.error('[getData] Something is wrong with the server...')
+        return console.error('[getMovie] Something is wrong with the server...')
       }
       fc.scenes = utils.merge(result.body.scenes, fc.scenes)
       fc.tagged = Object.assign({}, result.body.tagged)
@@ -542,7 +512,7 @@ var server = {
   },
 
   request_tagged(missing, callback) {
-    if (missing.length == 0 ) return
+    if (missing.length == 0) return
     server.send({ action: 'getTagged', ids: JSON.stringify(missing) }, function(response) {
       callback(response)
     })
@@ -553,7 +523,7 @@ var server = {
     fetch(url).then(response => {
       response.json().then(body => {
         let res = { statusCode: response.status, body: body }
-        console.log('[server.send] Url:', url, '. Query: ', query, '. Response: ', res)
+        console.warn('[server.send] Url:', url, '. Query: ', query, '. Response: ', res)
         if (callback) callback(res)
       })
     })
@@ -574,7 +544,7 @@ var server = {
         out.push(key + '=' + encodeURIComponent(query[key]))
       }
     }
-    var url = 'https://api.ohanamovies.org/prod?' + out.join('&')
+    var url = 'https://api.ohanamovies.org/dev?' + out.join('&')
     return url
   }
 }
@@ -756,7 +726,8 @@ function show_sidebar(show) {
   if (!show) return document.body.classList.remove('fc-active')
 
   // Do not show sidebar if there is no movie
-  if (!fc.metadata.src) return console.error('[show_sidebar] No point to show sidebar when there is no movie')
+  if (!fc.metadata.id)
+    return console.error('[show_sidebar] No point to show sidebar when there is no movie')
 
   // Add fc-active class (this will show the sidebar)
   document.body.classList.add('fc-active')
