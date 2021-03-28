@@ -18,6 +18,16 @@ Netflix
 + Search: https://www.netflix.com/search?q=rambo
 
 
+PrimeVideo
+==========
+https://app.primevideo.com/detail?gti=amzn1.dv.gti.a6abf5b7-d0f1-8109-2390-94e030d1190b\u0026ie=UTF8\u0026linkCode=xm2\u0026tag=just0a7-21
+https://app.primevideo.com/watch?gti=amzn1.dv.gti.a6abf5b7-d0f1-8109-2390-94e030d1190b\u0026ie=UTF8\u0026linkCode=xm2\u0026tag=just0a7-21
+
+
+Itunes
+======
+https://itunes.apple.com/es/movie/shooter/id388888352?l=en\u0026uo=4\u0026at=1000l3V2
+
 */
 
 
@@ -27,7 +37,18 @@ var provider = {
     return str ? ''+str[1] : ''
   },
 
-  buildLink: function (meta) {
+  getURL: function (meta) {
+    // In case we were giving the id instead of the metadata
+    if (typeof meta !== 'string' ){
+      var p = params.id.split('_');
+      meta = {
+        [p[0]]: p[1],
+        provider: p[0],
+        id: meta
+      };
+    }  
+
+
     for (let provider in meta){
       if (provider == 'netflix' ) {
         return 'https://www.netflix.com/title/'+meta.netflix
@@ -39,6 +60,8 @@ var provider = {
         }
       } else if (provider == 'disneyplus' ) {
         return 'https://www.disneyplus.com/'
+      } else if ( provider == 'primevideo') {
+        return 'https://app.primevideo.com/detail?gti='+meta.primevideo
       }
     }
     // body...
@@ -86,10 +109,17 @@ var provider = {
       meta.provider = 'hboespana'
       meta.pid = provider.match(/\/([0123456789abcdef-]+)$/, path)
       meta.title = provider.match(/series\/(.+)\//,path)
+      if (meta.title) {
+        meta.season = provider.match(/season-([^\/]+)/,path)
+        meta.episode = provider.match(/episode-([^\/]+)/,path)
+        meta.type = 'show'
+      } else {
+        meta.title = provider.match(/movies\/(.+)\//,path)  
+        meta.type = 'movie'
+      }
     } else if (host.includes('movistarplus')) {
       meta.provider = 'movistarplus'
       meta.pid = urlParams.get('id')
-      console.log(meta.provider, meta.pid)
     } else if (host.includes('rakuten')) {
       meta.provider = 'rakuten'
     } else if (host.includes('primevideo')) {
@@ -99,6 +129,7 @@ var provider = {
       meta.provider = 'filmin'
     } else if (host.includes('itunes')) {
       meta.provider = 'itunes'
+      meta.pid = path
     } else if (host.includes('play.google')) {
       meta.provider = 'googleplay'
     } else if (host.includes('microsoft')) {
@@ -147,4 +178,4 @@ var provider = {
 
 module.exports.getID = provider.getID
 module.exports.parseURL = provider.parseURL
-module.exports.getLinks = provider.getLinks
+module.exports.getURL = provider.getURL
