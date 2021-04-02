@@ -42,6 +42,7 @@
     <div id="alex-dropdowns">
       <div v-for="(cat, index) in categories" :key="index">
         <v-row>
+          <!-- col:1 -> the v-select with some customizations using slots -->
           <v-col cols="8">
             <v-select
               :menu-props="{ auto: false, maxHeight: '400px' }"
@@ -49,12 +50,12 @@
               :no-data-text="`No data available for '` + cat + `'`"
               hide-details
               :label="cat"
-              :items="severities[index]"
+              :items="cat == 'Other' ? context[index] : severities[index]"
               multiple
               :value="selectedTags[index]"
               style="margin-bottom: 0px; font-size: 40%"
             >
-              <!-- B) use small chips -->
+              <!-- 1) use small chips for selected items -->
               <template v-slot:selection="{ item }">
                 <v-chip x-small class="pa-1 ma-0 mr-1 mb-1">
                   {{ item }}
@@ -62,7 +63,7 @@
               </template>
               <!-- -->
 
-              <!-- SLOT PREPEND ITEM -->
+              <!-- 2) Within the list, before items, show the category title, shield, and intro (slot: PREPEND ITEM) -->
               <template v-slot:prepend-item>
                 <v-list-item dense>
                   <v-list-item-content>
@@ -90,7 +91,7 @@
                 <v-divider></v-divider>
               </template>
 
-              <!-- SLOT APPEND-ITEM -->
+              <!-- 3) After the items, we keep a space to put the descriptions on hover. (slot: APPEND-ITEM) -->
               <template v-slot:append-item>
                 <v-divider class="mb-2"></v-divider>
 
@@ -106,7 +107,7 @@
                 </v-container>
               </template>
 
-              <!-- CUSTOM ITEM WITH V-LIST -->
+              <!-- 4) We override the item with a custom item, to get more flexibility (using v-list-item) -->
               <template v-slot:item="{ active, item, attrs, on }">
                 <v-list-item
                   v-on="on"
@@ -116,9 +117,6 @@
                   @click="clickedItem(index, item)"
                 >
                   <v-list-item-content>
-                    <!--<v-list-item-title>
-                      {{ item }}
-                    </v-list-item-title>-->
                     <v-list-item-subtitle>{{ item }} </v-list-item-subtitle>
                     <v-list-item-subtitle style="font-size: 9px">
                       {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }}
@@ -133,43 +131,15 @@
                     </span>
                   </v-list-item-action>
                 </v-list-item>
-
-                <!-- 
-                {{ item }}
-                <v-spacer></v-spacer>
-                <span style="font-size: 9px; color: gray">
-                  {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }} filters
-                </span>
-
-                -->
-
-                <!--
-            <v-spacer></v-spacer>
-
-            <fc-tooltip position="right" :text="'We are good to go'">
-              <v-icon small color="error" v-if="Math.floor(Math.random() * 11) < 1"
-                >mdi-alert-box</v-icon
-              >
-              <v-icon small color="success" v-else-if="Math.floor(Math.random() * 11) < 8"
-                >mdi-checkbox-marked</v-icon
-              >
-              <v-icon small v-else color="orange">mdi-help-box</v-icon>
-            </fc-tooltip>
-            -->
               </template>
+            </v-select>
+          </v-col>
 
-              <!--
-          <template v-slot:message="{ message, key }">
-            <span style="color: green; font-size: 10px"
-              >All good, we will skip {{ Math.round(Math.random(0, 10), 2) * 100 }} scenes!</span
-            >
-          </template>-->
-            </v-select></v-col
-          >
+          <!-- col:2 -> the number of filters, in a clickable way which takes users to the list of scenes (different route) -->
           <v-col
             ><v-chip x-small dark color="grey" :to="'/scenes/' + index">
               {{ scenesCountByCategory[index].selected + '/' + scenesCountByCategory[index].total }}
-              selected
+              filters
               <!--<v-icon x-small>mdi-check</v-icon>-->
             </v-chip></v-col
           >
@@ -179,18 +149,12 @@
 
     <!-- 3. SUMMARY TEXT -->
 
-    <!--
-    <v-alert type="success" icon="mdi-shield-check" outlined>
-      <b>Grab some popcorn and enjoy!</b> We will skip all
-      {{ scenesCountByCategory.reduce((x, a) => x + a.selected, 0) }} unwanted scenes.
-    </v-alert>
-    -->
-
     <div
       align="center"
       justify="center"
       style="width:300px; padding:10px; border: 1px solid grey; margin: auto"
     >
+      <!-- TODO: BUG here, unknown option is not appearing, still "done" appears :/ ... -->
       <span v-if="!data.success">
         <b style="color: red">No movie!</b>
         Open a specific movie/show to start using Ohana. If you've already opened a movie, try
@@ -203,15 +167,16 @@
         Grab some popcorn and enjoy! We will skip all
         {{ scenesCountByCategory.reduce((x, a) => x + a.selected, 0) }} unwanted scene(s).
       </span>
-      <span v-else-if="data.shield == `unknown`" style="color: orange">
-        <v-icon small color="orange" class="mb-1">mdi-shield-half-full</v-icon>
-        <b>Warning! Unknown movie</b> <br />
-        We might not be able to skip all unwanted scenes.
-      </span>
-      <span v-else style="color: red">
+
+      <span v-else-if="data.shield == `missing`" style="color: red">
         <v-icon small color="red" class="mb-1">mdi-shield-alert</v-icon><b>Unsafe movie!</b> <br />
         Users reported there are scenes not yet filtered, so we can't skip all your unwanted
         content.
+      </span>
+      <span v-else style="color: orange">
+        <v-icon small color="orange" class="mb-1">mdi-shield-half-full</v-icon>
+        <b>Warning! Unknown movie</b> <br />
+        We might not be able to skip all unwanted scenes.
       </span>
     </div>
 
@@ -490,31 +455,7 @@ export default {
       this.hoverDescription =
         '<b>' + severity + '</b>: ' + xx.severity.find(x => x.value == severity).description
     },
-    /* //commenting method for now, but we can remove this after a while
-    selectRedundandtTags() {
-      //This prevents users from non selecting the redundant tags
-      //TODO: This works and I believe it's intutive enough for now, but
 
-      var xx = []
-      var zz = this.selectedTags
-
-      for (let i = 0; i < this.categories.length; i++) {
-        var addNext = false
-        xx.push([])
-        for (let j = 0; j < this.severities[i].length; j++) {
-          var severity = this.severities[i][j]
-          if (zz[i].includes(severity) || addNext) {
-            xx[i].push(severity)
-            addNext = true //add the next ones (as they should include it)
-          }
-        }
-      }
-
-      //if (newValue.length != xx.length) {
-      this.selectedTags = xx
-      this.saveSkipTagsSettings(false) //save them
-      //}
-    },*/
     showSidebar(close = false) {
       fclib.sendMessage({ msg: 'show-sidebar', show: true })
       if (close) window.close()
@@ -556,12 +497,6 @@ export default {
     //Generic methods:
     sendMessage(msg, callback) {
       fclib.sendMessage(msg, callback)
-      /*console.log('[sendMessage-Home]: ', msg)
-      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-        chrome.tabs.sendMessage(tabs[0].id, msg, function(response) {
-          if (callback) callback(response)
-        })
-      })*/
     },
     loadTagsFromSettings() {
       //read the skip_tags setting and update dropdowns by updating the selectedTags accordinagly [[],[],[],...]

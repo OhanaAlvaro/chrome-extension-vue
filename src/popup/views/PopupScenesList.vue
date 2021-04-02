@@ -84,7 +84,7 @@
       </v-col>
       <v-col>
         <v-btn color="dark" dark block depressed tile @click="showSidebar(true)"
-          >Improve Filters</v-btn
+          >Edit filters</v-btn
         >
       </v-col>
     </v-row>

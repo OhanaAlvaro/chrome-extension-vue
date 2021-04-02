@@ -10,24 +10,28 @@ var content = [
       {
         value: 'Non erotic',
         title: 'Non erotic',
-        description: "Nudity with no erotic purpose, eg: Michelangelo's David, human corpse..."
+        description: "Nudity with no erotic purpose, eg: Michelangelo's David, human corpse...",
+        implies: []
       },
       {
         value: 'Slightly erotic',
         title: 'Slightly erotic',
         description:
-          'Slightly erotic or graphic scene, eg: brief kiss, revealing outfit, mild sexual reference...'
+          'Slightly erotic or graphic scene, eg: brief kiss, revealing outfit, mild sexual reference...',
+        implies: ['Non erotic']
       },
       {
         value: 'Moderately erotic',
         title: 'Moderately erotic',
         description:
-          'Moderately erotic or graphic scene, eg: passionate kissing, provocative dancing, graphic sexual remarks...'
+          'Moderately erotic or graphic scene, eg: passionate kissing, provocative dancing, graphic sexual remarks...',
+        implies: ['Non erotic', 'Slightly erotic']
       },
       {
         value: 'Very erotic',
         title: 'Very erotic',
-        description: 'Very erotic or graphic scene, eg: sex, foreplay, moaning...'
+        description: 'Very erotic or graphic scene, eg: sex, foreplay, moaning...',
+        implies: ['Non erotic', 'Slightly erotic', 'Moderately erotic']
       }
     ],
     types: [
@@ -66,22 +70,26 @@ var content = [
       {
         value: 'Non gore',
         title: 'Non gore',
-        description: 'Violence is implied but nothing is shown'
+        description: 'Violence is implied but nothing is shown',
+        implies: []
       },
       {
         value: 'Slightly gore',
         title: 'Slightly gore',
-        description: 'Slightly gore or graphic scene, eg: mild verbal violence, punching'
+        description: 'Slightly gore or graphic scene, eg: mild verbal violence, punching',
+        implies: ['Non gore']
       },
       {
         value: 'Moderately gore',
         title: 'Moderately gore',
-        description: 'Moderately gore or graphic scene, eg: extensive bleeding, broken bones...'
+        description: 'Moderately gore or graphic scene, eg: extensive bleeding, broken bones...',
+        implies: ['Non gore', 'Slightly gore']
       },
       {
         value: 'Very gore',
         title: 'Very gore',
-        description: 'Very gore or graphic scene, eg: blood splattered, open wounds, guts...'
+        description: 'Very gore or graphic scene, eg: blood splattered, open wounds, guts...',
+        implies: ['Non gore', 'Slightly gore', 'Moderately gore']
       }
     ],
     types: [
@@ -119,27 +127,32 @@ var content = [
       {
         value: 'Mild profanity',
         title: 'Mild profanity',
-        description: 'Mild language, eg: h*ll, d*mn...'
+        description: 'Mild language, eg: h*ll, d*mn...',
+        implies: []
       },
       {
         value: 'Strong profanity',
         title: 'Strong profanity',
-        description: 'Swear words'
+        description: 'Swear words',
+        implies: ['Mild profanity']
       },
       {
         value: 'Blasphemy',
         title: 'Blasphemy',
-        description: 'Speaking sacrilegiously about God or sacred things'
+        description: 'Speaking sacrilegiously about God or sacred things',
+        implies: []
       },
       {
         value: 'Legal drugs',
         title: 'Legal drugs',
-        description: 'Consumption of legal drugs, eg: alcohol, tobacco...'
+        description: 'Consumption of legal drugs, eg: alcohol, tobacco...',
+        implies: ['Illegal drugs']
       },
       {
         value: 'Illegal drugs',
         title: 'Illegal drugs',
-        description: 'Consumption or dealing of illegal drugs, eg: weed, cocaine...'
+        description: 'Consumption or dealing of illegal drugs, eg: weed, cocaine...',
+        implies: []
       }
     ]
   }
