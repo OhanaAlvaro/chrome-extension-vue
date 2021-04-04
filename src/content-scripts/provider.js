@@ -1,5 +1,3 @@
-
-
 /* Some useful info
 
 HBO
@@ -30,38 +28,36 @@ https://itunes.apple.com/es/movie/shooter/id388888352?l=en\u0026uo=4\u0026at=100
 
 */
 
-
 var provider = {
   match: function(regex, haystack) {
     var str = haystack.match(regex)
-    return str ? ''+str[1] : ''
+    return str ? '' + str[1] : ''
   },
 
-  getURL: function (meta) {
+  getURL: function(meta) {
     // In case we were giving the id instead of the metadata
-    if (typeof meta !== 'string' ){
-      var p = params.id.split('_');
+    if (typeof meta !== 'string') {
+      var p = params.id.split('_')
       meta = {
         [p[0]]: p[1],
         provider: p[0],
         id: meta
-      };
-    }  
+      }
+    }
 
-
-    for (let provider in meta){
-      if (provider == 'netflix' ) {
-        return 'https://www.netflix.com/title/'+meta.netflix
-      } else if (provider == 'hboespana' ) {
+    for (let provider in meta) {
+      if (provider == 'netflix') {
+        return 'https://www.netflix.com/title/' + meta.netflix
+      } else if (provider == 'hboespana') {
         if (meta.type == 'show') {
           return 'https://es.hboespana.com'
         } else {
           return 'https://es.hboespana.com'
         }
-      } else if (provider == 'disneyplus' ) {
+      } else if (provider == 'disneyplus') {
         return 'https://www.disneyplus.com/'
-      } else if ( provider == 'primevideo') {
-        return 'https://app.primevideo.com/detail?gti='+meta.primevideo
+      } else if (provider == 'primevideo') {
+        return 'https://app.primevideo.com/detail?gti=' + meta.primevideo
       }
     }
     // body...
@@ -80,14 +76,14 @@ var provider = {
     return links
   },
 
-  parseURL: function (url) {
+  parseURL: function(url) {
     let url_elems = new URL(url)
     let host = url_elems.hostname
     let path = url_elems.pathname
     let search = url_elems.search
     let urlParams = new URLSearchParams(search)
 
-    let meta = { 
+    let meta = {
       url: url,
       provider: host,
       pid: path + search
@@ -103,18 +99,18 @@ var provider = {
     } else if (host.includes('disneyplus')) {
       meta.provider = 'disneyplus'
       meta.title = provider.match(/movies\/(.+)\//, path)
-      if(!meta.title) meta.title = provider.match(/series\/(.+)\//, path)
+      if (!meta.title) meta.title = provider.match(/series\/(.+)\//, path)
       meta.pid = provider.match(/([0-9a-zA-Z]+)$/, path)
     } else if (host.includes('hboespana')) {
       meta.provider = 'hboespana'
       meta.pid = provider.match(/\/([0123456789abcdef-]+)$/, path)
-      meta.title = provider.match(/series\/(.+)\//,path)
+      meta.title = provider.match(/series\/(.+)\//, path)
       if (meta.title) {
-        meta.season = provider.match(/season-([^\/]+)/,path)
-        meta.episode = provider.match(/episode-([^\/]+)/,path)
+        meta.season = provider.match(/season-([^\/]+)/, path)
+        meta.episode = provider.match(/episode-([^\/]+)/, path)
         meta.type = 'show'
       } else {
-        meta.title = provider.match(/movies\/(.+)\//,path)  
+        meta.title = provider.match(/movies\/(.+)\//, path)
         meta.type = 'movie'
       }
     } else if (host.includes('movistarplus')) {
@@ -145,10 +141,9 @@ var provider = {
   getID: async function() {
     let url = window.location.href
     let meta = provider.parseURL(url)
-    
+
     // If we are on netflix, and we have a movie opened (we have pid)
     if (meta.provider == 'netflix' && meta.pid) {
-
       // Return empty meta if title isn't loaded yet
       var elem = document.getElementsByClassName('video-title')[0]
       if (!elem) return {}
@@ -179,3 +174,4 @@ var provider = {
 module.exports.getID = provider.getID
 module.exports.parseURL = provider.parseURL
 module.exports.getURL = provider.getURL
+module.exports.getLinks = provider.getLinks
