@@ -23,10 +23,28 @@
             <template v-slot:selection="{ item }">
               {{ item.value }}
             </template>
-            <template v-slot:item="{ item }">
-              <fc-tooltip :text="item.description">
+            <template
+              v-slot:item="{ item }"
+              @mouseenter="hoverDescription = '<b>' + item.value + ': </b>' + item.description"
+            >
+              <span @mouseleave="hoverDescription = ''" style="width: 100%; height: 100%">
                 {{ item.value }}
-              </fc-tooltip>
+              </span>
+            </template>
+            <!-- SLOT APPEND-ITEM -->
+            <template v-slot:append-item>
+              <v-divider class="mb-2"></v-divider>
+
+              <v-container class="ma-0 py-0 px-3 ">
+                <span
+                  style="font-size:95%; color:grey;"
+                  v-html="hoverDescription"
+                  v-if="hoverDescription"
+                ></span>
+                <span style="font-size:95%; color:grey; " v-else
+                  >Hover an element to see here some details about it</span
+                >
+              </v-container>
             </template>
           </v-select>
 
@@ -176,7 +194,8 @@ export default {
       context: [],
       content: {},
       blur_level: 0,
-      mute_status: false
+      mute_status: false,
+      hoverDescription: ''
     }
   },
 
