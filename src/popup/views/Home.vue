@@ -4,7 +4,7 @@
     <!-- 1. HEADER -->
     <div>
       <h2 @mouseover="mouseoverSample = 'Select the categories'" @mouseleave="mouseoverSample = ''">
-        What do you want to skip?
+        Welcome to Ohana!
       </h2>
 
       <!-- Just to debug: -->
@@ -39,156 +39,79 @@
 
     <!-- 2. CATEGORIES/SEVERITY SELECTION -->
 
-    <div id="alex-dropdowns">
-      <div v-for="(cat, index) in categories" :key="index">
-        <v-row>
-          <!-- col:1 -> the v-select with some customizations using slots -->
-          <v-col cols="8">
-            <v-select
-              :menu-props="{ auto: false, maxHeight: '400px' }"
-              dense
-              :no-data-text="`No data available for '` + cat + `'`"
-              hide-details
-              :label="cat"
-              :items="cat == 'Other' ? context[index] : severities[index]"
-              multiple
-              :value="selectedTags[index]"
-              style="margin-bottom: 0px; font-size: 40%"
-            >
-              <!-- 1) use small chips for selected items -->
-              <template v-slot:selection="{ item }">
-                <v-chip x-small class="pa-1 ma-0 mr-1 mb-1">
-                  {{ item }}
-                </v-chip>
-              </template>
-              <!-- -->
+    <!--<v-btn color="success" @click="test = !test">text</v-btn>-->
 
-              <!-- 2) Within the list, before items, show the category title, shield, and intro (slot: PREPEND ITEM) -->
-              <template v-slot:prepend-item>
-                <v-list-item dense>
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      <h3>{{ cat }}</h3>
-                    </v-list-item-title>
+    <v-tabs v-model="tab" fixed-tabs>
+      <v-tab>preferences</v-tab>
+      <v-tab>movie</v-tab>
+      <v-tab>dev</v-tab>
+    </v-tabs>
 
-                    <v-list-item-subtitle>Select what to skip!</v-list-item-subtitle>
-                  </v-list-item-content>
-                  <v-list-item-action
-                    @mouseenter="shieldText(index)"
-                    @mouseleave="hoverDescription = ''"
-                  >
-                    <v-btn icon>
-                      <v-icon color="success" v-if="statusByCategory[index] == 'done'"
-                        >mdi-shield-check</v-icon
-                      >
-                      <v-icon color="red" v-else-if="statusByCategory[index] == 'missing'"
-                        >mdi-shield-alert</v-icon
-                      >
-                      <v-icon color="orange" v-else>mdi-shield-half-full</v-icon>
-                    </v-btn>
-                  </v-list-item-action>
-                </v-list-item>
-                <v-divider></v-divider>
-              </template>
-
-              <!-- 3) After the items, we keep a space to put the descriptions on hover. (slot: APPEND-ITEM) -->
-              <template v-slot:append-item>
-                <v-divider class="mb-2"></v-divider>
-
-                <v-container class="ma-0 py-0 px-3 ">
-                  <span
-                    style="font-size:95%; color:grey;"
-                    v-html="hoverDescription"
-                    v-if="hoverDescription"
-                  ></span>
-                  <span style="font-size:95%; color:grey; " v-else
-                    >Hover an element to see here some details about it</span
-                  >
-                </v-container>
-              </template>
-
-              <!-- 4) We override the item with a custom item, to get more flexibility (using v-list-item) -->
-              <template v-slot:item="{ active, item, attrs, on }">
-                <v-list-item
-                  v-on="on"
-                  v-bind="attrs"
-                  @mouseenter="updateHoverDescription(index, item)"
-                  @mouseleave="hoverDescription = ''"
-                  @click="clickedItem(index, item)"
-                >
-                  <v-list-item-content>
-                    <v-list-item-subtitle>{{ item }} </v-list-item-subtitle>
-                    <v-list-item-subtitle style="font-size: 9px">
-                      {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }}
-                      filters available</v-list-item-subtitle
-                    >
-                  </v-list-item-content>
-
-                  <v-list-item-action>
-                    <span :style="{ fontSize: '9px', color: getTagColor(item) }">
-                      <!-- {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }} scenes -->
-                      {{ getTagStatusTranslate(item) || 'unknown' }}
-                    </span>
-                  </v-list-item-action>
-                </v-list-item>
-              </template>
-            </v-select>
-          </v-col>
-
-          <!-- col:2 -> the number of filters, in a clickable way which takes users to the list of scenes (different route) -->
-          <v-col
-            ><v-chip x-small dark color="grey" :to="'/scenes/' + index">
-              {{ scenesCountByCategory[index].selected + '/' + scenesCountByCategory[index].total }}
-              filters
-              <!--<v-icon x-small>mdi-check</v-icon>-->
-            </v-chip></v-col
-          >
-        </v-row>
+    <div id="TAB_PREFERENCES" v-if="tab == 0">
+      <div style="margin-top: 5px; font-size: 95%">
+        You decide what <b>"safe"</b> means, by letting us know what content you want to avoid.
       </div>
-    </div>
+      <div
+        v-for="(cat, index) in categories"
+        :key="index"
+        style="border: solid 1px lightgrey; margin-bottom: 3px; margin-top: 3px; padding: 5px"
+      >
+        <v-switch
+          hide-details=""
+          :label="'Protection for ' + cat"
+          v-model="protection[index]"
+          dense
+          class="py-1 ma-0"
+        >
+          <template v-slot:label="{ value }">
+            <div>
+              <span>{{ value }}</span>
+              {{ value }}
+            </div>
+          </template>
+        </v-switch>
 
-    <!-- 3. SUMMARY TEXT -->
+        <v-expand-transition>
+          <div v-if="protection[index]">
+            <v-slider
+              v-model="protectionLevel[index]"
+              :tick-labels="sliderLabelsFromSev(index)"
+              :disabled="!protection[index]"
+              track-fill-color="green"
+              track-color="black"
+              color="green"
+              dense
+              :max="3"
+              step="1"
+              ticks="always"
+              tick-size="5"
+            >
+            </v-slider>
+            <span style="font-size: 95%">
+              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ipsa, maxime quos corrupti
+              modi cupiditate quo quaerat.
+            </span>
+          </div>
+        </v-expand-transition>
+      </div>
 
-    <div
-      align="center"
-      justify="center"
-      style="width:300px; padding:10px; border: 1px solid grey; margin: auto"
-    >
-      <!-- TODO: BUG here, unknown option is not appearing, still "done" appears :/ ... -->
-      <span v-if="!data.success">
-        <b style="color: red">No movie!</b>
-        Open a specific movie/show to start using Ohana. If you've already opened a movie, try
-        refreshing the page.
-      </span>
-
-      <span v-else-if="data.shield == `done`" style="color: #00b359">
-        <v-icon small color="green" class="mb-1">mdi-shield-check</v-icon>
-        <b>Safe movie!</b> <br />
-        Grab some popcorn and enjoy! We will skip all
-        {{ scenesCountByCategory.reduce((x, a) => x + a.selected, 0) }} unwanted scene(s).
-      </span>
-
-      <span v-else-if="data.shield == `missing`" style="color: red">
-        <v-icon small color="red" class="mb-1">mdi-shield-alert</v-icon><b>Unsafe movie!</b> <br />
-        Users reported there are scenes not yet filtered, so we can't skip all your unwanted
+      <div style="margin-top: 5px; font-size: 95%">
+        This preferences will apply to all content you watch. For each movie, we will let you know
+        if it is:
+        <br />
+        <v-icon color="green">mdi-shield-check</v-icon><b>Safe:</b> We can and will skip the above
         content.
-      </span>
-      <span v-else style="color: orange">
-        <v-icon small color="orange" class="mb-1">mdi-shield-half-full</v-icon>
-        <b>Warning! Unknown movie</b> <br />
-        We might not be able to skip all unwanted scenes.
-      </span>
-    </div>
+        <br />
+        <v-icon color="orange">mdi-shield-half-full</v-icon><b>Unknown:</b> We can't protect you, as
+        we don't yet have information about that specific movie/show.
+        <br />
+        <v-icon color="red">mdi-shield-alert</v-icon><b>Unsafe:</b> We can't protect you.
+        Furthermore, users reported tehre is "unsafe" content, but no one has yet created the
+        filters though.
+      </div>
 
-    <!-- 4. ACTION BUTTONS-->
-    <div>
       <v-row>
-        <v-col>
-          <v-btn color="dark" dark block dense depressed tile @click="showSidebar(true)"
-            >Edit filters</v-btn
-          >
-        </v-col>
-        <v-col>
+        <v-col class="pb-0 pt-1">
           <v-btn
             dark
             block
@@ -202,34 +125,377 @@
             Donate
           </v-btn>
         </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col style="padding-top: 0px; padding-bottom: 0px">
-          <v-btn color="success" block dense depressed tile @click="saveSkipTagsSettings(true)"
-            >Watch now</v-btn
+        <v-col class="pb-0 pt-1">
+          <v-btn color="success" block dense depressed tile @click="saveSkipTagsSettings(false)"
+            >Save</v-btn
           >
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col class="py-0">
-          <v-checkbox
-            class="my-0"
-            dense
-            hide-details
-            v-model="save_preferences"
-            readonly
-            @click="
-              snackbarText = `You can't change that as of now`
-              snackbarColor = 'error'
-              snackbar = true
-            "
-            label="Apply these preferences to future movies"
-          ></v-checkbox>
         </v-col>
       </v-row>
     </div>
 
+    <div id="TAB_MOVIE" v-if="tab != 0">
+      <div
+        id="alex-test-custom-expansion-blocks"
+        style="margin-bottom: 10px; margin-top: 5px; "
+        v-if="tab == 1"
+      >
+        <div
+          v-for="(cat, index) in categories"
+          :key="index"
+          style="border: solid 1px lightgrey; margin-bottom: 3px"
+        >
+          <div
+            style="position:relative; height: 35px; cursor: pointer; background-color: #F6F6F6;  padding: 7px; "
+            @click="test = test == index ? -1 : index"
+          >
+            <div style="position: absolute; left: 5px;  ">
+              <h3>{{ cat }}</h3>
+            </div>
+
+            <div style="position: absolute; right: 0px; top: 0px">
+              <v-btn icon>
+                <v-btn icon>
+                  <v-icon color="green" v-if="statusByCategory[index] == 'done'"
+                    >mdi-content-cut</v-icon
+                  >
+                  <v-icon color="red" v-else-if="statusByCategory[index] == 'missing'"
+                    >mdi-flag-variant</v-icon
+                  >
+                  <v-icon color="gray" v-else>mdi-help-circle</v-icon>
+                </v-btn>
+              </v-btn>
+            </div>
+          </div>
+          <v-expand-transition>
+            <div v-if="test == index" style="padding: 5px">
+              <v-slider
+                v-if="false"
+                v-model="protectionLevel[index]"
+                :tick-labels="sliderLabelsFromSev(index)"
+                :disabled="!protection[index]"
+                track-fill-color="green"
+                track-color="black"
+                color="green"
+                dense
+                :max="3"
+                step="1"
+                ticks="always"
+                tick-size="5"
+              >
+              </v-slider>
+
+              <div>
+                <ul>
+                  <li
+                    v-for="(sev, i2) in sliderLabelsFromSev(index)"
+                    :key="i2"
+                    :style="{ color: selectedTags[index].includes(sev) ? 'black' : 'gray' }"
+                    @mouseenter="updateHoverDescription(index, sev)"
+                    @mouseleave="hoverDescription = ''"
+                  >
+                    {{ sev }}:
+
+                    <v-icon color="green" x-small v-if="getTagStatusTranslate(sev) == 'safe'"
+                      >mdi-content-cut</v-icon
+                    >
+                    <v-icon color="red" x-small v-if="getTagStatusTranslate(sev) == 'unsafe'"
+                      >mdi-flag-variant</v-icon
+                    >
+                    <v-icon color="gray" x-small v-if="getTagStatusTranslate(sev) == 'unknown'"
+                      >mdi-help-circle</v-icon
+                    >
+
+                    ({{
+                      getTagStatusTranslate(sev) == 'safe'
+                        ? 'will skip ' +
+                          (scenesCountByTag[sev] ? scenesCountByTag[sev] : '?') +
+                          ' scenes'
+                        : getTagStatusTranslate(sev) == 'unsafe'
+                        ? 'content flagged, but not cut yet'
+                        : 'not reviewed yet'
+                    }})
+                  </li>
+                </ul>
+              </div>
+
+              <table hidden>
+                <thead>
+                  <th>severity</th>
+                  <th>scenes</th>
+                  <th>status</th>
+                  <th>duration</th>
+                </thead>
+                <tr
+                  v-for="(sev, i2) in severities[index]"
+                  :key="i2"
+                  @mouseenter="updateHoverDescription(index, sev)"
+                  @mouseleave="hoverDescription = ''"
+                >
+                  <td>{{ sev }}</td>
+
+                  <td style="cursor: pointer">
+                    {{ scenesCountByTag[sev] ? scenesCountByTag[sev] : '?' }} filters
+                  </td>
+                  <td :style="{ color: getTagColor(sev) }">
+                    {{ getTagStatusTranslate(sev) || 'unknown' }}
+                  </td>
+                  <td style="text-align: right">0:03:12</td>
+                </tr>
+              </table>
+
+              <v-list v-if="false">
+                <v-list-item
+                  v-for="(sev, i2) in severities[index]"
+                  @mouseenter="updateHoverDescription(index, sev)"
+                  @mouseleave="hoverDescription = ''"
+                  :key="i2"
+                >
+                  <v-list-item-content>
+                    <v-list-item-subtitle>{{ sev }} </v-list-item-subtitle>
+                    <v-list-item-subtitle style="font-size: 9px">
+                      {{ scenesCountByTag[sev] ? scenesCountByTag[sev] : 0 }}
+                      filters available</v-list-item-subtitle
+                    >
+                  </v-list-item-content>
+
+                  <v-list-item-action>
+                    <span :style="{ fontSize: '9px', color: getTagColor(sev) }">
+                      <!-- {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }} scenes -->
+                      {{ getTagStatusTranslate(sev) || 'unknown' }}
+                    </span>
+                  </v-list-item-action>
+                </v-list-item>
+              </v-list>
+              <hr />
+              <span v-html="hoverDescription" style="font-size: 90%; color: gray"></span>
+
+              <div style="padding:5px" hidden>
+                <a @click="test = test == index ? -1 : index">{{
+                  test == index ? 'See less' : 'See more'
+                }}</a>
+              </div>
+
+              <div style=" padding: 7px;" hidden>
+                <div>
+                  <b>Severities</b>
+                  <ol>
+                    <li v-for="(sev, i2) in severities[index]" :key="i2">{{ sev }}</li>
+                  </ol>
+                  <div>
+                    <b>Context</b>
+                    <ol>
+                      <li v-for="(cont, i2) in context[index]" :key="i2">{{ cont }}</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </v-expand-transition>
+        </div>
+      </div>
+
+      <div id="alex-dropdowns" v-if="tab == 2">
+        <div v-for="(cat, index) in categories" :key="index">
+          <v-row>
+            <!-- col:1 -> the v-select with some customizations using slots -->
+            <v-col cols="8">
+              <v-select
+                :menu-props="{ auto: false, maxHeight: '400px' }"
+                dense
+                :no-data-text="`No data available for '` + cat + `'`"
+                hide-details
+                :label="cat"
+                :items="cat == 'Other' ? context[index] : severities[index]"
+                multiple
+                :value="selectedTags[index]"
+                style="margin-bottom: 0px; font-size: 40%"
+              >
+                <!-- 1) use small chips for selected items -->
+                <template v-slot:selection="{ item }">
+                  <v-chip x-small class="pa-1 ma-0 mr-1 mb-1">
+                    {{ item }}
+                  </v-chip>
+                </template>
+                <!-- -->
+
+                <!-- 2) Within the list, before items, show the category title, shield, and intro (slot: PREPEND ITEM) -->
+                <template v-slot:prepend-item>
+                  <v-list-item dense>
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        <h3>{{ cat }}</h3>
+                      </v-list-item-title>
+
+                      <v-list-item-subtitle>Select what to skip!</v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-list-item-action
+                      @mouseenter="shieldText(index)"
+                      @mouseleave="hoverDescription = ''"
+                    >
+                      <v-btn icon>
+                        <v-icon color="success" v-if="statusByCategory[index] == 'done'"
+                          >mdi-shield-check</v-icon
+                        >
+                        <v-icon color="red" v-else-if="statusByCategory[index] == 'missing'"
+                          >mdi-shield-alert</v-icon
+                        >
+                        <v-icon color="orange" v-else>mdi-shield-half-full</v-icon>
+                      </v-btn>
+                    </v-list-item-action>
+                  </v-list-item>
+                  <v-divider></v-divider>
+                </template>
+
+                <!-- 3) After the items, we keep a space to put the descriptions on hover. (slot: APPEND-ITEM) -->
+                <template v-slot:append-item>
+                  <v-divider class="mb-2"></v-divider>
+
+                  <v-container class="ma-0 py-0 px-3 ">
+                    <span
+                      style="font-size:95%; color:grey;"
+                      v-html="hoverDescription"
+                      v-if="hoverDescription"
+                    ></span>
+                    <span style="font-size:95%; color:grey; " v-else
+                      >Hover an element to see here some details about it</span
+                    >
+                  </v-container>
+                </template>
+
+                <!-- 4) We override the item with a custom item, to get more flexibility (using v-list-item) -->
+                <template v-slot:item="{ active, item, attrs, on }">
+                  <v-list-item
+                    v-on="on"
+                    v-bind="attrs"
+                    @mouseenter="updateHoverDescription(index, item)"
+                    @mouseleave="hoverDescription = ''"
+                    @click="clickedItem(index, item)"
+                  >
+                    <v-list-item-content>
+                      <v-list-item-subtitle>{{ item }} </v-list-item-subtitle>
+                      <v-list-item-subtitle style="font-size: 9px">
+                        {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }}
+                        filters available</v-list-item-subtitle
+                      >
+                    </v-list-item-content>
+
+                    <v-list-item-action>
+                      <span :style="{ fontSize: '9px', color: getTagColor(item) }">
+                        <!-- {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }} scenes -->
+                        {{ getTagStatusTranslate(item) || 'unknown' }}
+                      </span>
+                    </v-list-item-action>
+                  </v-list-item>
+                </template>
+              </v-select>
+            </v-col>
+
+            <!-- col:2 -> the number of filters, in a clickable way which takes users to the list of scenes (different route) -->
+            <v-col
+              ><v-chip x-small dark color="grey" :to="'/scenes/' + index">
+                {{
+                  scenesCountByCategory[index].selected + '/' + scenesCountByCategory[index].total
+                }}
+                filters
+                <!--<v-icon x-small>mdi-check</v-icon>-->
+              </v-chip></v-col
+            >
+          </v-row>
+        </div>
+      </div>
+
+      <!-- 3. SUMMARY TEXT -->
+
+      <div
+        align="center"
+        justify="center"
+        style="padding:10px; border: 1px solid grey; margin: auto; "
+      >
+        <!-- TODO: BUG here, unknown option is not appearing, still "done" appears :/ ... -->
+        <span v-if="!data.success">
+          <b style="color: red">No movie!</b>
+          Open a specific movie/show to start using Ohana. If you've already opened a movie, try
+          refreshing the page.
+        </span>
+
+        <span v-else-if="data.shield == `done`" style="color: #00b359">
+          <v-icon small color="green" class="mb-1">mdi-shield-check</v-icon>
+          <b>Safe movie!</b> <br />
+          Grab some popcorn and enjoy! We will skip all
+          {{ scenesCountByCategory.reduce((x, a) => x + a.selected, 0) }} unwanted scene(s).
+        </span>
+
+        <span v-else-if="data.shield == `missing`" style="color: red">
+          <v-icon small color="red" class="mb-1">mdi-shield-alert</v-icon><b>Unsafe movie!</b>
+          <br />
+          Users reported there are scenes not yet filtered, so we can't skip all your unwanted
+          content.
+        </span>
+        <span v-else style="color: orange">
+          <v-icon small color="orange" class="mb-1">mdi-shield-half-full</v-icon>
+          <b>Warning! Unknown movie</b> <br />
+          We might not be able to skip all unwanted scenes.
+        </span>
+      </div>
+
+      <div style="font-size: 90%; margin-top: 5px;">
+        "Safe" is defined based on your preferences. Review your preferences
+        <a href="#" @click="tab = 0">here</a>.
+      </div>
+
+      <!-- 4. ACTION BUTTONS-->
+      <div>
+        <v-row>
+          <v-col>
+            <v-btn color="dark" dark block dense depressed tile @click="showSidebar(true)"
+              >Edit filters</v-btn
+            >
+          </v-col>
+          <v-col>
+            <v-btn
+              dark
+              block
+              dense
+              depressed
+              tile
+              color="primary"
+              href="https://www.patreon.com/ohanamovies"
+              target="_blank"
+            >
+              Donate
+            </v-btn>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col style="padding-top: 0px; padding-bottom: 0px">
+            <v-btn color="success" block dense depressed tile @click="saveSkipTagsSettings(true)"
+              >Watch now</v-btn
+            >
+          </v-col>
+        </v-row>
+        <!-- Hiding this now, as preferences are now clearly separated
+        <v-row>
+          <v-col class="py-0">
+            <v-checkbox
+              class="my-0"
+              dense
+              hide-details
+              v-model="save_preferences"
+              readonly
+              @click="
+                snackbarText = `You can't change that as of now`
+                snackbarColor = 'error'
+                snackbar = true
+              "
+              label="Apply these preferences to future movies"
+            ></v-checkbox>
+          </v-col>
+        </v-row>
+        -->
+      </div>
+    </div>
+    <!-- end movie div -->
     <!-- 5. SNACKBAR -->
 
     <v-snackbar
@@ -336,6 +602,11 @@ export default {
 
   data() {
     return {
+      protection: [false, false, false],
+      protectionLevel: [0, 0, 0],
+      test: -1,
+      tab: 1,
+
       hoverDescription: '',
       mouseoverSample: '',
 
@@ -367,6 +638,13 @@ export default {
   },
 
   methods: {
+    sliderLabelsFromSev(index) {
+      let x = []
+      for (let i = this.severities[index].length - 1; i >= 0; i--) {
+        x.push(this.severities[index][i])
+      }
+      return x
+    },
     getTagStatusTranslate(item) {
       let status = this.data.tagged[item]?.status || 'unknown'
       let dict = {
@@ -532,6 +810,13 @@ export default {
 </script>
 
 <style>
+td {
+  text-align: left !important;
+  padding: 5px !important;
+}
+.v-slider__tick-label {
+  font-size: 63% !important;
+}
 .menu {
   position: absolute;
   text-align: center;
