@@ -69,26 +69,26 @@ var content = [
     severity: [
       {
         value: 'Non gore',
-        title: 'Non gore',
+        title: 'Non gory',
         description: 'Violence is implied but nothing is shown',
         implies: []
       },
       {
         value: 'Slightly gore',
-        title: 'Slightly gore',
-        description: 'Slightly gore or graphic scene, eg: mild verbal violence, punching',
+        title: 'Slightly gory',
+        description: 'Slightly gory or graphic scene, eg: mild verbal violence, punching',
         implies: ['Non gore']
       },
       {
         value: 'Moderately gore',
-        title: 'Moderately gore',
-        description: 'Moderately gore or graphic scene, eg: extensive bleeding, broken bones...',
+        title: 'Moderately gory',
+        description: 'Moderately gory or graphic scene, eg: extensive bleeding, broken bones...',
         implies: ['Non gore', 'Slightly gore']
       },
       {
         value: 'Very gore',
-        title: 'Very gore',
-        description: 'Very gore or graphic scene, eg: blood splattered, open wounds, guts...',
+        title: 'Very gory',
+        description: 'Very gory or graphic scene, eg: blood splattered, open wounds, guts...',
         implies: ['Non gore', 'Slightly gore', 'Moderately gore']
       }
     ],
@@ -183,6 +183,11 @@ var actions = {
 
 var categories = content.map(x => x.value) //[c1, c2, c3...]
 var severities = content.map(x => x.severity.map(y => y.value)) // [[cat1-sev1, cat1-sev2,...], [cat2-sev1, cat2-sev2...]]
+var descriptions = content.map(x => x.severity.map(y => y.description)) // [[cat1-sev1, cat1-sev2,...], [cat2-sev1, cat2-sev2...]]
+
+var severitiesR = content.map(x => [...x.severity].reverse().map(y => y.value)) // [[cat1-sev1, cat1-sev2,...], [cat2-sev1, cat2-sev2...]]
+var descriptionsR = content.map(x => [...x.severity].reverse().map(y => y.description)) // [[cat1-sev1, cat1-sev2,...], [cat2-sev1, cat2-sev2...]]
+
 var context = content.map(x => x.types.map(y => y.value)) //[[cat1-context1, cat2-context2], [cat2-context1, cat2-context2...]]
 
 module.exports = {
@@ -190,5 +195,10 @@ module.exports = {
   actions,
   categories,
   severities,
+  descriptions,
+
+  severitiesR,
+  descriptionsR,
+
   context
 }
