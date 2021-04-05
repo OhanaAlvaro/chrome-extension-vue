@@ -8,9 +8,10 @@
         </slot>
       </span>
     </template>
-    <span style="font-size: 11px;">
+    <span v-if="!html" :style="{ fontSize: fontSize + 'px' }">
       {{ text }}
     </span>
+    <span v-else v-html="text" :style="{ fontSize: fontSize + 'px' }"></span>
   </v-tooltip>
 </template>
 
@@ -24,6 +25,14 @@ export default {
     position: {
       type: String,
       default: 'top'
+    },
+    html: {
+      type: Boolean,
+      default: false
+    },
+    fontSize: {
+      type: Number,
+      default: 11
     }
   },
   computed: {
@@ -43,4 +52,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+span {
+  line-height: normal !important; //tried, but I don't think this is working
+}
+</style>

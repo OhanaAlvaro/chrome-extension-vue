@@ -6,6 +6,7 @@ import Editor from '../views/Editor.vue'
 import Login from '../views/Login.vue'
 import Options from '../views/Options.vue'
 import PopupScenesList from '../views/PopupScenesList.vue'
+import FilterPreferences from '../views/FilterPreferences.vue'
 
 Vue.use(VueRouter)
 
@@ -14,6 +15,11 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/preferences',
+    name: 'FilterPreferences',
+    component: FilterPreferences
   },
   {
     path: '/wrongsite',
@@ -36,7 +42,7 @@ const routes = [
     component: Options
   },
   {
-    path: '/scenes/:categoryIndex',
+    path: '/scenes/:tag',
     name: 'PopupScenesList',
     component: PopupScenesList,
     props: true

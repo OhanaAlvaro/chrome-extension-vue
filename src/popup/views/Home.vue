@@ -2,13 +2,14 @@
   <div style="min-width: 300px;">
     <!-- TODO: I think we could have a different view to show list of scenes when user clicks on the chip with the scenes count-->
     <!-- 1. HEADER -->
+
     <div>
       <h2 @mouseover="mouseoverSample = 'Select the categories'" @mouseleave="mouseoverSample = ''">
         Welcome to Ohana!
       </h2>
 
       <!-- Just to debug: -->
-      <!--
+      <!-- 
       <i>{{ mouseoverSample }}</i>
 
       {{ categories }}
@@ -41,109 +42,23 @@
 
     <!--<v-btn color="success" @click="test = !test">text</v-btn>-->
 
+    <!--
     <v-tabs v-model="tab" fixed-tabs>
       <v-tab>preferences</v-tab>
       <v-tab>movie</v-tab>
       <v-tab>dev</v-tab>
     </v-tabs>
-
-    <div id="TAB_PREFERENCES" v-if="tab == 0">
-      <div style="margin-top: 5px; font-size: 95%">
-        You decide what <b>"safe"</b> means, by letting us know what content you want to avoid.
-      </div>
-      <div
-        v-for="(cat, index) in categories"
-        :key="index"
-        style="border: solid 1px lightgrey; margin-bottom: 3px; margin-top: 3px; padding: 5px"
-      >
-        <v-switch
-          hide-details=""
-          :label="'Protection for ' + cat"
-          v-model="protection[index]"
-          dense
-          class="py-1 ma-0"
-        >
-          <template v-slot:label="{ value }">
-            <div>
-              <span>{{ value }}</span>
-              {{ value }}
-            </div>
-          </template>
-        </v-switch>
-
-        <v-expand-transition>
-          <div v-if="protection[index]">
-            <v-slider
-              v-model="protectionLevel[index]"
-              :tick-labels="sliderLabelsFromSev(index)"
-              :disabled="!protection[index]"
-              track-fill-color="green"
-              track-color="black"
-              color="green"
-              dense
-              :max="3"
-              step="1"
-              ticks="always"
-              tick-size="5"
-            >
-            </v-slider>
-            <span style="font-size: 95%">
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ipsa, maxime quos corrupti
-              modi cupiditate quo quaerat.
-            </span>
-          </div>
-        </v-expand-transition>
-      </div>
-
-      <div style="margin-top: 5px; font-size: 95%">
-        This preferences will apply to all content you watch. For each movie, we will let you know
-        if it is:
-        <br />
-        <v-icon color="green">mdi-shield-check</v-icon><b>Safe:</b> We can and will skip the above
-        content.
-        <br />
-        <v-icon color="orange">mdi-shield-half-full</v-icon><b>Unknown:</b> We can't protect you, as
-        we don't yet have information about that specific movie/show.
-        <br />
-        <v-icon color="red">mdi-shield-alert</v-icon><b>Unsafe:</b> We can't protect you.
-        Furthermore, users reported tehre is "unsafe" content, but no one has yet created the
-        filters though.
-      </div>
-
-      <v-row>
-        <v-col class="pb-0 pt-1">
-          <v-btn
-            dark
-            block
-            dense
-            depressed
-            tile
-            color="primary"
-            href="https://www.patreon.com/ohanamovies"
-            target="_blank"
-          >
-            Donate
-          </v-btn>
-        </v-col>
-        <v-col class="pb-0 pt-1">
-          <v-btn color="success" block dense depressed tile @click="saveSkipTagsSettings(false)"
-            >Save</v-btn
-          >
-        </v-col>
-      </v-row>
-    </div>
+    -->
 
     <div id="TAB_MOVIE" v-if="tab != 0">
-      <div
-        id="alex-test-custom-expansion-blocks"
-        style="margin-bottom: 10px; margin-top: 5px; "
-        v-if="tab == 1"
-      >
+      <div id="EXPANSION-BLOCKS" style="margin-bottom: 10px; margin-top: 5px; " v-if="tab == 1">
+        <!-- Expansion blocks -->
         <div
           v-for="(cat, index) in categories"
           :key="index"
           style="border: solid 1px lightgrey; margin-bottom: 3px"
         >
+          <!-- Cat Header -->
           <div
             style="position:relative; height: 35px; cursor: pointer; background-color: #F6F6F6;  padding: 7px; "
             @click="test = test == index ? -1 : index"
@@ -153,121 +68,75 @@
             </div>
 
             <div style="position: absolute; right: 0px; top: 0px">
-              <v-btn icon>
-                <v-btn icon>
-                  <v-icon color="green" v-if="statusByCategory[index] == 'done'"
-                    >mdi-content-cut</v-icon
-                  >
-                  <v-icon color="red" v-else-if="statusByCategory[index] == 'missing'"
-                    >mdi-flag-variant</v-icon
-                  >
-                  <v-icon color="gray" v-else>mdi-help-circle</v-icon>
+              <div v-for="(sev, i2) in severities[index]" :key="i2" style="display:inline">
+                <v-btn icon v-if="selectedTags[index].includes(sev)">
+                  <v-icon :color="getTagColor(sev)">
+                    {{ getTagIcon(sev) }}
+                  </v-icon>
                 </v-btn>
-              </v-btn>
+              </div>
             </div>
           </div>
+
+          <!-- Cat Content -->
           <v-expand-transition>
-            <div v-if="test == index" style="padding: 5px">
-              <v-slider
-                v-if="false"
-                v-model="protectionLevel[index]"
-                :tick-labels="sliderLabelsFromSev(index)"
-                :disabled="!protection[index]"
-                track-fill-color="green"
-                track-color="black"
-                color="green"
-                dense
-                :max="3"
-                step="1"
-                ticks="always"
-                tick-size="5"
-              >
-              </v-slider>
-
+            <div v-if="test == index" style="padding: 0px">
               <div>
-                <ul>
-                  <li
-                    v-for="(sev, i2) in sliderLabelsFromSev(index)"
-                    :key="i2"
-                    :style="{ color: selectedTags[index].includes(sev) ? 'black' : 'gray' }"
-                    @mouseenter="updateHoverDescription(index, sev)"
-                    @mouseleave="hoverDescription = ''"
-                  >
-                    {{ sev }}:
+                <v-list dense class="py-0 pl-0 pr-0" style="border-top: solid 1px lightgrey">
+                  <v-list-item-group>
+                    <v-list-item
+                      v-for="(sev, i2) in severities[index]"
+                      :key="i2"
+                      class="py-0 px-2"
+                      style="height: 50px"
+                      :to="'/scenes/' + sev"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title
+                          :style="{
+                            fontWeight: finalSelectedTags.includes(sev) ? 700 : 500,
+                            color: finalSelectedTags.includes(sev) ? 'black' : 'gray'
+                          }"
+                          >{{ sev }}:
+                          <v-icon :color="getTagColor(sev)" small>{{ getTagIcon(sev) }}</v-icon>
+                          <span
+                            :style="{
+                              fontSize: '85% !important',
+                              color: finalSelectedTags.includes(sev) ? '#00A0B6' : '#A5E1E8',
+                              fontWeight: 400
+                            }"
+                          >
+                            | {{ scenesCountByTag[sev] || 0 }}
+                            {{ scenesCountByTag[sev] == 1 ? 'filter' : 'filters'
+                            }}{{ getTagStatus(sev) == 'done' ? '' : ' so far' }}</span
+                          >
+                        </v-list-item-title>
+                        <v-list-item-subtitle
+                          :style="{
+                            fontWeight: finalSelectedTags.includes(sev) ? 400 : 300,
+                            color: finalSelectedTags.includes(sev) ? 'black' : 'gray'
+                          }"
+                          v-html="severitySummaryText(sev)"
+                        >
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
+                      <v-list-item-action
+                        class="mt-1"
+                        @mouseenter="updateHoverDescription(index, sev)"
+                        @mouseleave="hoverDescription = ''"
+                      >
+                        <!--<v-list-item-action-text v-text="'5 min'"></v-list-item-action-text>-->
 
-                    <v-icon color="green" x-small v-if="getTagStatusTranslate(sev) == 'safe'"
-                      >mdi-content-cut</v-icon
-                    >
-                    <v-icon color="red" x-small v-if="getTagStatusTranslate(sev) == 'unsafe'"
-                      >mdi-flag-variant</v-icon
-                    >
-                    <v-icon color="gray" x-small v-if="getTagStatusTranslate(sev) == 'unknown'"
-                      >mdi-help-circle</v-icon
-                    >
-
-                    ({{
-                      getTagStatusTranslate(sev) == 'safe'
-                        ? 'will skip ' +
-                          (scenesCountByTag[sev] ? scenesCountByTag[sev] : '?') +
-                          ' scenes'
-                        : getTagStatusTranslate(sev) == 'unsafe'
-                        ? 'content flagged, but not cut yet'
-                        : 'not reviewed yet'
-                    }})
-                  </li>
-                </ul>
+                        <fc-tooltip :text="hoverDescription" :html="false" position="top">
+                          <v-btn icon>
+                            <v-icon color="grey lighten-1" small>mdi-information</v-icon>
+                          </v-btn>
+                        </fc-tooltip>
+                      </v-list-item-action>
+                    </v-list-item>
+                  </v-list-item-group>
+                </v-list>
               </div>
-
-              <table hidden>
-                <thead>
-                  <th>severity</th>
-                  <th>scenes</th>
-                  <th>status</th>
-                  <th>duration</th>
-                </thead>
-                <tr
-                  v-for="(sev, i2) in severities[index]"
-                  :key="i2"
-                  @mouseenter="updateHoverDescription(index, sev)"
-                  @mouseleave="hoverDescription = ''"
-                >
-                  <td>{{ sev }}</td>
-
-                  <td style="cursor: pointer">
-                    {{ scenesCountByTag[sev] ? scenesCountByTag[sev] : '?' }} filters
-                  </td>
-                  <td :style="{ color: getTagColor(sev) }">
-                    {{ getTagStatusTranslate(sev) || 'unknown' }}
-                  </td>
-                  <td style="text-align: right">0:03:12</td>
-                </tr>
-              </table>
-
-              <v-list v-if="false">
-                <v-list-item
-                  v-for="(sev, i2) in severities[index]"
-                  @mouseenter="updateHoverDescription(index, sev)"
-                  @mouseleave="hoverDescription = ''"
-                  :key="i2"
-                >
-                  <v-list-item-content>
-                    <v-list-item-subtitle>{{ sev }} </v-list-item-subtitle>
-                    <v-list-item-subtitle style="font-size: 9px">
-                      {{ scenesCountByTag[sev] ? scenesCountByTag[sev] : 0 }}
-                      filters available</v-list-item-subtitle
-                    >
-                  </v-list-item-content>
-
-                  <v-list-item-action>
-                    <span :style="{ fontSize: '9px', color: getTagColor(sev) }">
-                      <!-- {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }} scenes -->
-                      {{ getTagStatusTranslate(sev) || 'unknown' }}
-                    </span>
-                  </v-list-item-action>
-                </v-list-item>
-              </v-list>
-              <hr />
-              <span v-html="hoverDescription" style="font-size: 90%; color: gray"></span>
 
               <div style="padding:5px" hidden>
                 <a @click="test = test == index ? -1 : index">{{
@@ -294,7 +163,9 @@
         </div>
       </div>
 
-      <div id="alex-dropdowns" v-if="tab == 2">
+      <div id="ALEX_DROPDOWNS" v-if="tab == 2">
+        {{ selectedTags }}
+
         <div v-for="(cat, index) in categories" :key="index">
           <v-row>
             <!-- col:1 -> the v-select with some customizations using slots -->
@@ -382,7 +253,7 @@
                     <v-list-item-action>
                       <span :style="{ fontSize: '9px', color: getTagColor(item) }">
                         <!-- {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }} scenes -->
-                        {{ getTagStatusTranslate(item) || 'unknown' }}
+                        {{ getTagStatus(item) || 'unknown' }}
                       </span>
                     </v-list-item-action>
                   </v-list-item>
@@ -405,8 +276,8 @@
       </div>
 
       <!-- 3. SUMMARY TEXT -->
-
       <div
+        id="SUMMARY_TEXT"
         align="center"
         justify="center"
         style="padding:10px; border: 1px solid grey; margin: auto; "
@@ -418,33 +289,48 @@
           refreshing the page.
         </span>
 
-        <span v-else-if="data.shield == `done`" style="color: #00b359">
-          <v-icon small color="green" class="mb-1">mdi-shield-check</v-icon>
-          <b>Safe movie!</b> <br />
-          Grab some popcorn and enjoy! We will skip all
-          {{ scenesCountByCategory.reduce((x, a) => x + a.selected, 0) }} unwanted scene(s).
+        <!-- Clean -->
+        <span v-else-if="data.shield == `done` && skipScenesCount == 0" style="color: #00b359">
+          <v-icon small color="green" class="mb-1">mdi-emoticon-happy</v-icon>
+          <b>Clean movie!</b> <br />
+          Rejoy! This movie is, and was originally, safe for you. We won't need to skip anything.
         </span>
 
-        <span v-else-if="data.shield == `missing`" style="color: red">
-          <v-icon small color="red" class="mb-1">mdi-shield-alert</v-icon><b>Unsafe movie!</b>
-          <br />
-          Users reported there are scenes not yet filtered, so we can't skip all your unwanted
-          content.
+        <!-- Cut -->
+        <span v-else-if="data.shield == `done`" style="color: #00b359">
+          <v-icon small color="green" class="mb-1">mdi-content-cut</v-icon>
+          <b>Safe Movie!</b> <br />
+          Grab some popcorn and enjoy! We will skip {{ skipScenesCount == 1 ? 'the' : 'all' }}
+          {{ skipScenesCount }} unwanted {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}.
         </span>
-        <span v-else style="color: orange">
-          <v-icon small color="orange" class="mb-1">mdi-shield-half-full</v-icon>
-          <b>Warning! Unknown movie</b> <br />
-          We might not be able to skip all unwanted scenes.
+
+        <!-- Unsafe / flagged -->
+        <span v-else-if="data.shield == `missing`" style="color: red">
+          <v-icon small color="red" class="mb-1">mdi-flag-variant</v-icon><b>Unsafe Movie!</b>
+          <br />
+          Users reported there are scenes not yet filtered. We will skip
+          {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but there are
+          probably more.
+          <!-- <br />You can <a href="#" @click="showSidebar(false)">create the filters yourself.</a>-->
+        </span>
+
+        <!-- Unknown-->
+        <span v-else style="color: #DC6F08">
+          <v-icon small color="gray" class="mb-1">mdi-help-rhombus</v-icon>
+          <b>Warning! Unknown content</b> <br />
+          We will skip
+          {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but there are
+          probably more
         </span>
       </div>
 
-      <div style="font-size: 90%; margin-top: 5px;">
-        "Safe" is defined based on your preferences. Review your preferences
-        <a href="#" @click="tab = 0">here</a>.
+      <div id="SAFE_DEFINITION" style="font-size: 100%; margin-top: 5px;">
+        "Safe" is defined based on your preferences. Review your preferences anytime
+        <router-link to="/preferences">here</router-link>.
       </div>
 
       <!-- 4. ACTION BUTTONS-->
-      <div>
+      <div id="ACTION_BUTTONS">
         <v-row>
           <v-col>
             <v-btn color="dark" dark block dense depressed tile @click="showSidebar(true)"
@@ -528,6 +414,16 @@ export default {
   },
 
   computed: {
+    skipScenesCount() {
+      //This should work, not sure why it returns [object Object]10 instead of 1+1+0
+      // return this.scenesCountByCategory.reduce((v, a) => v + a.selected)
+      console.log('Alex', this.scenesCountByCategory)
+      let xx = 0
+      this.scenesCountByCategory.forEach(c => {
+        xx = xx + c.selected
+      })
+      return xx
+    },
     statusByCategory() {
       //returns: [c1_status, c2_status, ...]
       let output = []
@@ -572,6 +468,7 @@ export default {
           })
         }
       }
+
       return xx
     },
     finalSelectedTags() {
@@ -587,12 +484,16 @@ export default {
     scenesCountByTag() {
       //Number of scenes that the movie has per tag
       var xx = {}
-      this.data.scenes.forEach(scene => {
-        scene.tags.forEach(tag => {
-          if (!xx[tag]) xx[tag] = 0
-          xx[tag] = xx[tag] + 1
+      if (this.data.scenes) {
+        //avoid errors
+        this.data.scenes.forEach(scene => {
+          scene.tags.forEach(tag => {
+            if (!xx[tag]) xx[tag] = 0
+            xx[tag] = xx[tag] + 1
+          })
         })
-      })
+      }
+
       return xx
     },
     extensionName() {
@@ -632,47 +533,84 @@ export default {
   },
 
   watch: {
-    data() {
+    data(newValue) {
       this.loadTagsFromSettings()
+
+      if (newValue.hasFilm == false) {
+        this.goTo('/preferences')
+      }
     }
   },
 
   methods: {
-    sliderLabelsFromSev(index) {
-      let x = []
-      for (let i = this.severities[index].length - 1; i >= 0; i--) {
-        x.push(this.severities[index][i])
+    severitySummaryText(sev) {
+      let xx
+      if (this.getTagStatus(sev) == 'done' && this.scenesCountByTag[sev] > 0) {
+        xx = this.finalSelectedTags.includes(sev)
+          ? 'Ready to go. Will skip all ' + this.scenesCountByTag[sev] + ' scene(s)'
+          : this.scenesCountByTag[sev] + ' filter(s) available'
+      } else if (this.getTagStatus(sev) == 'done') {
+        xx = this.finalSelectedTags.includes(sev)
+          ? 'Original was clean. No need to do skips'
+          : "Original doesn't have this kind of content"
+      } else if (this.getTagStatus(sev) == 'missing') {
+        xx = this.finalSelectedTags.includes(sev)
+          ? '<span style="color: red">Careful!</span> content flagged, but not cut yet'
+          : 'Content flagged, but not cut yet'
+      } else {
+        xx = this.finalSelectedTags.includes(sev)
+          ? '<span style="color: red">Careful!</span> Content not reviewed yet'
+          : 'Content not reviewed yet'
       }
-      return x
+
+      return xx
     },
-    getTagStatusTranslate(item) {
-      let status = this.data.tagged[item]?.status || 'unknown'
-      let dict = {
-        done: 'safe',
-        unknown: 'unknown',
-        unkown: 'unknown',
-        missing: 'unsafe'
-      }
-      return dict[status]
+    goTo(route) {
+      this.$router.push(route)
+    },
+
+    getTagStatus(sev) {
+      //expected values: done, missing, unknown
+      let status = this.data.tagged[sev]?.status || 'unknown'
+      if (status == 'unkown') status = 'unknown'
+      return status
     },
     getTagIcon(tag) {
-      let status = this.data.tagged[tag]?.status || 'unknown'
-      if (status == 'done') {
-        return 'mdi-check'
-      } else if (status == 'missing') {
-        return 'mdi-alert'
+      let status
+      if (this.data.tagged) {
+        //doing if to prevent error while tagged is still undefined... (not sure how to make it work in 1 line)
+        status = this.data.tagged[tag]?.status || 'unknown'
       } else {
-        return 'mdi-help'
+        status = 'unknown'
+      }
+
+      let scenesCount = this.scenesCountByTag[tag] || 0
+
+      if (status == 'done' && scenesCount == 0) {
+        return 'mdi-emoticon-happy'
+      } else if (status == 'done') {
+        return 'mdi-content-cut'
+      } else if (status == 'missing') {
+        return 'mdi-flag-variant'
+      } else {
+        return 'mdi-help-rhombus'
       }
     },
     getTagColor(tag) {
-      let status = this.data.tagged[tag]?.status || 'unknown'
+      let status
+      if (this.data.tagged) {
+        //doing if to prevent error while tagged is still undefined... (not sure how to make it work in 1 line)
+        status = this.data.tagged[tag]?.status || 'unknown'
+      } else {
+        status = 'unknown'
+      }
+
       if (status == 'done') {
         return 'green'
       } else if (status == 'missing') {
         return 'red'
       } else {
-        return 'orange'
+        return 'gray'
       }
     },
     shieldText(catIndex) {
@@ -730,8 +668,7 @@ export default {
     updateHoverDescription(cat_index, severity) {
       var xx = raw.content[cat_index]
       console.log(xx)
-      this.hoverDescription =
-        '<b>' + severity + '</b>: ' + xx.severity.find(x => x.value == severity).description
+      this.hoverDescription = xx.severity.find(x => x.value == severity).description
     },
 
     showSidebar(close = false) {
@@ -801,7 +738,7 @@ export default {
   created() {
     this.tags = raw.content
     this.categories = raw.categories
-    this.severities = raw.severities
+    this.severities = raw.severitiesR
     this.context = raw.context
 
     //this.loadTagsFromSettings()  // -> this is better triggered when data changes

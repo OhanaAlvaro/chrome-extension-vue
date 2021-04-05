@@ -11,8 +11,8 @@
         -->
 
         <a @click="cancelSettings()" v-if="data.settings.username">
-          <v-icon class="pb-1" small>mdi-home</v-icon>
-          <b>Film view</b>
+          <v-icon class="pb-1" small>mdi-arrow-left</v-icon>
+          <b>Back</b>
         </a>
       </span>
     </div>
@@ -20,6 +20,7 @@
     <div v-if="!data.settings.username" style="text-align: center; margin: 10px;font-size: 120%;">
       Login/register is required before creating or editing filters
     </div>
+
     <v-snackbar
       app
       width="20px"
@@ -37,6 +38,16 @@
     <v-row>
       <v-col>
         <login :data="data" @success="loginSuccess" @error="logginError"></login>
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col>
+        <span>
+          With Ohana, you decide what you watch. Click here to review your settings or review what
+          our icons mean!
+        </span>
+        <v-btn color="success" to="/preferences" depressed block tile>review preferences</v-btn>
       </v-col>
     </v-row>
 
@@ -107,6 +118,9 @@ export default {
   computed: {
     extensionName() {
       return browser.i18n.getMessage('extName')
+    },
+    windowHistory() {
+      return window.history.length > 0
     }
   },
   methods: {
@@ -133,7 +147,8 @@ export default {
       this.saveSettings()
     },
     cancelSettings() {
-      this.$router.go(-1) //to previous page (just in case at some point we have more than Home/Settings)
+      //this.$router.go(-1) //to previous page (just in case at some point we have more than Home/Settings)
+      this.$router.back()
     },
 
     //Intereact with content-script (get/push data and messages)

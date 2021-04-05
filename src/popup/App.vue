@@ -16,7 +16,15 @@ export default {
   name: 'PopupApp',
   data() {
     return {
-      data: { msg: '', scenes: [], settings: [], shield: 'unknown', hasFilm: false, state: {} } //default values, to avoid missing keys
+      data: {
+        msg: '',
+        scenes: [],
+        settings: [],
+        shield: 'unknown',
+        hasFilm: false,
+        state: {},
+        success: false
+      } //default values, to avoid missing keys
     }
   },
   watch: {
@@ -71,13 +79,22 @@ export default {
           return this.$router.push('/no-movie')
         }*/
 
-        if (firstTime) {
+        if (firstTime && response.scenes) {
           response.scenes.sort(function(a, b) {
             //make sure default scenes are shown first, and the rest sorted by start time
             if (a.default_skip && !b.default_skip) return -1
             if (!a.default_skip && b.default_skip) return 1
             return a.start - b.start
           })
+        }
+
+        //TODO: @arrietaeguren, can you review? (you created the hasFilm key, but it seems not yet properly populated, I'm populating it here - a bit quick and dirty)
+        if (response.metadata) {
+          if (!response.metadata.pid) {
+            response.hasFilm = false
+          } else {
+            response.hasFilm = true
+          }
         }
 
         // Make data globally accesible

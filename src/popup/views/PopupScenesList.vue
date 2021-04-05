@@ -6,11 +6,13 @@
   <!-- //TODO: Think how to avoid tempting people to watch the bad scenes if offering the minute and the description... -->
 
   <div style="min-width: 300px;">
-    <h2>Scenes for {{ categories[category_index] }} ({{ scenes.length }})</h2>
+    <h2>{{ scenes.length }} scenes for '{{ tag }}'</h2>
+
+    <!-- {{ scenes }} -->
 
     <p style="color: grey; font-size: 90%">
-      Here you can take a quik look to the scenes, and better understand what we will skip based on
-      your settings from the previous page.
+      Here you can take a quik look to the available scenes, and better understand what we will skip
+      based on your settings from the previous page.
     </p>
 
     <!--
@@ -39,10 +41,10 @@
         >
           <v-list-item-content>
             <v-list-item-title style="font-size: 110%; padding-bottom: 1px; pading-top: 2px"
-              >Scene #{{ index + 1 }} - {{ getSeverity(scene).join(', ') }}</v-list-item-title
+              >Scene #{{ index + 1 }}</v-list-item-title
             >
             <v-list-item-subtitle style="font-size:95%"
-              ><b>Context: </b>{{ getContext(scene).join(' + ') }}</v-list-item-subtitle
+              ><b>Context: </b>{{ scene.context.join(', ') }}</v-list-item-subtitle
             >
             <v-list-item-subtitle style="font-size:95%"
               ><b>Duration:</b> {{ prettyTime(scene.end - scene.start) }} | <b>Start:</b>
@@ -93,7 +95,7 @@
 
 <script>
 import fclib from '../js/fclib'
-import Home from './Home.vue'
+//import Home from './Home.vue'
 
 var raw = require('../js/raw_tags')
 
@@ -102,10 +104,10 @@ export default {
     data: {
       type: Object
     },
-    categoryIndex: {
-      //category index on the raw-tags array
+    tag: {
+      //Tag being reviewed //TODO: we could make this an array and capture more than one!
       type: String,
-      default: '0'
+      default: ''
     }
   },
   data() {
@@ -121,14 +123,11 @@ export default {
   },
 
   computed: {
-    category_index() {
-      return parseInt(this.categoryIndex)
-    },
     scenes() {
       var xx = []
       if (this.data.scenes) {
         this.data.scenes.forEach(scene => {
-          if (scene.tags.includes(this.categories[this.category_index])) {
+          if (scene.tags.includes(this.tag)) {
             console.log('trueeeeee')
             xx.push(scene)
           } else {
@@ -136,7 +135,8 @@ export default {
           }
         })
       }
-      return xx
+
+      return fclib.scenesList(xx)
     }
   },
 
@@ -145,24 +145,7 @@ export default {
       fclib.sendMessage({ msg: 'show-sidebar', show: true })
       if (close) window.close()
     },
-    getSeverity(scene) {
-      var xx = [] //do it should always be just 1 value
-      scene.tags.forEach(tag => {
-        if (this.severities[this.category_index].includes(tag)) {
-          xx.push(tag)
-        }
-      })
-      return xx
-    },
-    getContext(scene) {
-      var xx = []
-      scene.tags.forEach(tag => {
-        if (this.context[this.category_index].includes(tag)) {
-          xx.push(tag)
-        }
-      })
-      return xx
-    },
+
     prettyTime(time) {
       var mins = Math.floor(time / 1000 / 60)
       if (mins < 10) mins = '0' + mins
