@@ -26,6 +26,20 @@ Itunes
 ======
 https://itunes.apple.com/es/movie/shooter/id388888352?l=en\u0026uo=4\u0026at=1000l3V2
 
+
+DisneyPlus
+==========
+
++ Series: https://www.disneyplus.com/en-gb/video/088faf85-12fc-4caf-9913-b66aac296cb6
++ Movie:  https://www.disneyplus.com/en-gb/video/aa2c93d5-6e09-4e2b-84ae-9f0773cc0238 
+
+https://www.disneyplus.com/en-gb/movies/steamboat-willie/1Lh1k4ammOG5
+https://www.disneyplus.com/en-gb/series/the-avengers-united-they-stand/3ZG0V87P4Xsc
+
+https://www.disneyplus.com/en-gb/series/star-wars-rebels/64MCZgAzY0Zw
+
+https://www.disneyplus.com/en-gb/video/088faf85-12fc-4caf-9913-b66aac296cb6
+
 */
 
 var provider = {
@@ -57,7 +71,7 @@ var provider = {
       } else if (provider == 'disneyplus') {
         return 'https://www.disneyplus.com/'
       } else if (provider == 'primevideo') {
-        return 'https://app.primevideo.com/detail?gti=' + meta.primevideo
+        return 'https://primevideo.com/detail?gti=' + meta.primevideo
       }
     }
     // body...
@@ -101,6 +115,7 @@ var provider = {
       meta.title = provider.match(/movies\/(.+)\//, path)
       if (!meta.title) meta.title = provider.match(/series\/(.+)\//, path)
       meta.pid = provider.match(/([0-9a-zA-Z]+)$/, path)
+      meta.title = provider.cleanTitle(meta.title)
     } else if (host.includes('hboespana')) {
       meta.provider = 'hboespana'
       meta.pid = provider.match(/\/([0123456789abcdef-]+)$/, path)
@@ -113,6 +128,7 @@ var provider = {
         meta.title = provider.match(/movies\/(.+)\//, path)
         meta.type = 'movie'
       }
+      meta.title = provider.cleanTitle(meta.title)
     } else if (host.includes('movistarplus')) {
       meta.provider = 'movistarplus'
       meta.pid = urlParams.get('id')
@@ -132,9 +148,21 @@ var provider = {
       meta.provider = 'microsoft'
       meta.pid = path // avoid the repetitive ctx=movie
     }
+    console.error(meta)
     if (!meta.id && meta.pid) meta.id = meta.provider + '_' + meta.pid
     //console.log(url,meta)
     return meta
+  },
+
+  cleanTitle: function(title) {
+    if (typeof title !== 'string') return ''
+    // Replace dividers
+    title = title
+      .replaceAll('-', ' ')
+      .replaceAll('_', ' ')
+      .replaceAll('  ', ' ')
+    // Capitalize
+    return title.charAt(0).toUpperCase() + title.slice(1)
   },
 
   // Here we are on the browser
@@ -173,5 +201,6 @@ var provider = {
 
 module.exports.getID = provider.getID
 module.exports.parseURL = provider.parseURL
+module.exports.getLinks = provider.getLinks
 module.exports.getURL = provider.getURL
 module.exports.getLinks = provider.getLinks
