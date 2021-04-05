@@ -340,7 +340,7 @@ var browser = {
           browser.setData('settings', fc.settings)
         } else if (request.msg == 'set-tagged') {
           fc.tagged = request.tagged
-          server.setData('setTagged', tagged)
+          server.setData('setTagged', request.tagged) //TODO: changed by Alex: @arrietaeguren please review! (was getting error of "tagged" alone not being defined. I guess you referred to that one :)
           fc.onContentEdit('tagged')
         } else if (request.msg == 'play-pause') {
           player.togglePlay()

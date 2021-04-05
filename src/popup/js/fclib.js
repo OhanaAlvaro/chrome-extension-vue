@@ -1,3 +1,5 @@
+const raw_tags = require('./raw_tags')
+
 function time2ms(hms) {
   // Updated on 2020-09-14 by @asopenag, now it works with hh:mm too
   // So now it expects/asumes: hh:mm:ss | hh:mm  (note: seconds may come with decimals, and that's ok)
@@ -123,6 +125,19 @@ function collapse(A) {
   return [].concat.apply([], A)
 }
 
+function scenesList(scenes) {
+  var categories = raw_tags.categories
+  var severities = collapse(raw_tags.severities)
+  var u_cat_sev = union(categories, severities) //collapse(raw_tags.context)
+
+  for (var i = 0; i < scenes.length; i++) {
+    scenes[i].category = intersect(categories, scenes[i].tags)[0]
+    scenes[i].severity = intersect(severities, scenes[i].tags)[0]
+    scenes[i].context = difference(scenes[i].tags, u_cat_sev)
+  }
+  return scenes
+}
+
 module.exports = {
   ms2time,
   pad,
@@ -137,5 +152,7 @@ module.exports = {
   intersect,
   difference,
   union,
-  collapse
+  collapse,
+
+  scenesList
 }
