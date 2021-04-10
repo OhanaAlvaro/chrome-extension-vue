@@ -45,5 +45,5 @@
   display: block !important;
   width: 320px;
   height: 100%;
-  z-index: 1000;
+  z-index: 2147483647;
 }

@@ -43,7 +43,7 @@
     <!-- 3. CATEGORY OPTIONS  -->
     <!-- 3.1 Category Header -->
     <div
-      style="max-height: 350px; overflow-y: scroll; border-bottom: solid 1px black; border-top: solid 1px black; padding: 2px"
+      style="max-height: 350px; overflow-y: auto; border-bottom: solid 1px black; border-top: solid 1px black; padding: 2px"
     >
       <div
         id="Sliders"
