@@ -4,8 +4,6 @@ var content = [
     title: 'Sex/Nudity',
     description: '',
     color: 'green',
-    severity_title: 'How graphic or erotic is it?',
-    types_title: 'Does it contain any of these?',
     severity: [
       {
         value: 'Non erotic',
@@ -34,7 +32,7 @@ var content = [
         implies: ['Non erotic', 'Slightly erotic', 'Moderately erotic']
       }
     ],
-    types: [
+    context: [
       {
         value: 'No consent',
         title: 'No consent',
@@ -64,8 +62,6 @@ var content = [
     title: 'Violence/Gore',
     description: '',
     color: 'red',
-    severity_title: 'How graphic/gore is it?',
-    types_title: 'Does it contain any of these?',
     severity: [
       {
         value: 'Non gore',
@@ -92,7 +88,7 @@ var content = [
         implies: ['Non gore', 'Slightly gore', 'Moderately gore']
       }
     ],
-    types: [
+    context: [
       {
         value: 'Discrimination',
         title: 'Discrimination',
@@ -120,10 +116,8 @@ var content = [
     title: 'Other',
     description: '',
     color: 'blue',
-    severity_title: '',
-    types_title: 'Which of the following does it contain?',
     severity: [],
-    types: [
+    context: [
       {
         value: 'Mild profanity',
         title: 'Mild profanity',
@@ -188,7 +182,7 @@ var descriptions = content.map(x => x.severity.map(y => y.description)) // [[cat
 var severitiesR = content.map(x => [...x.severity].reverse().map(y => y.value)) // [[cat1-sev1, cat1-sev2,...], [cat2-sev1, cat2-sev2...]]
 var descriptionsR = content.map(x => [...x.severity].reverse().map(y => y.description)) // [[cat1-sev1, cat1-sev2,...], [cat2-sev1, cat2-sev2...]]
 
-var context = content.map(x => x.types.map(y => y.value)) //[[cat1-context1, cat2-context2], [cat2-context1, cat2-context2...]]
+var context = content.map(x => x.context.map(y => y.value)) //[[cat1-context1, cat2-context2], [cat2-context1, cat2-context2...]]
 
 module.exports = {
   content,

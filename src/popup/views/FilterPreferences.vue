@@ -53,7 +53,7 @@
       >
         <v-switch
           hide-details
-          :label="`Avoid '` + cat + `'`"
+          :label="`Skip '` + cat + `'`"
           v-model="protection[index]"
           dense
           class="py-0 ma-0"
@@ -109,8 +109,8 @@
       <v-icon color="red" small>mdi-flag-variant</v-icon><b>Unsafe:</b> Unwanted content was
       flagged, but it's not cut yet.
       <br />
-      <v-icon color="gray" small>mdi-help-rhombus</v-icon><b>Unknown:</b> We can't help as we don't
-      have information yet.
+      <v-icon color="gray" small>mdi-progress-question</v-icon><b>Unknown:</b> We can't help as we
+      don't have information yet.
     </div>
 
     <!-- ACTION BUTTONS -->
@@ -162,7 +162,13 @@ export default {
   watch: {
     data: {
       deep: true,
-      handler() {
+      handler(newValue, oldValue) {
+        //1. hasFilm might get detected late, so when detected let's go to the home view
+        if (!oldValue.hasFilm && newValue.hasFilm) {
+          this.$router.push('/')
+          return
+        }
+        //populate values to UI
         this.skipTags2ui()
       }
     },

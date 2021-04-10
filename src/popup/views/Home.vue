@@ -316,7 +316,7 @@
 
         <!-- Unknown-->
         <span v-else style="color: #DC6F08">
-          <v-icon small color="gray" class="mb-1">mdi-help-rhombus</v-icon>
+          <v-icon small color="gray" class="mb-1">mdi-progress-question</v-icon>
           <b>Warning! Unknown content</b> <br />
           We will skip
           {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but there are
@@ -516,7 +516,7 @@ export default {
       snackbarTimeout: 6000,
       snackbarColor: 'info',
 
-      selectedTags: [[]], //arrray of arrays [[sex_tags],[vio_tags], etc] (order depens on the raw-tags json file, but all view is aligned to work)
+      selectedTags: [[], [], [], []], //arrray of arrays [[sex_tags],[vio_tags], etc] (order depens on the raw-tags json file, but all view is aligned to work)
       save_preferences: true,
 
       tags: [],
@@ -593,7 +593,7 @@ export default {
       } else if (status == 'missing') {
         return 'mdi-flag-variant'
       } else {
-        return 'mdi-help-rhombus'
+        return 'mdi-progress-question'
       }
     },
     getTagColor(tag) {
@@ -736,6 +736,7 @@ export default {
     }
   },
   created() {
+    console.log('selectedTags', this.selectedTags)
     this.tags = raw.content
     this.categories = raw.categories
     this.severities = raw.severitiesR

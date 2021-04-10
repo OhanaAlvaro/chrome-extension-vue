@@ -86,6 +86,7 @@ var fc = {
   },
 
   updateShield: function() {
+    //TODO: to be safest, it'd be useful to do this in a way unexpected values result in "unknown" and not in "done"! (e.g.: happenes for legacy scenes with "unkown" instead of "unknown").
     console.log('[updateShield] updating')
     var shield = 'done'
     var skip_tags = fc.settings.skip_tags

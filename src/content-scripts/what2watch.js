@@ -4,7 +4,7 @@ var w2w = {
   tagged: {},
   num_links: 0,
   init: function function_name(skip_tags, api, force) {
-    if(!w2w.api) w2w.api = api
+    if (!w2w.api) w2w.api = api
     w2w.skip_tags = skip_tags
     w2w.add_shields(force)
   },
@@ -53,16 +53,17 @@ var w2w = {
   add_shield: function(elem, tagged) {
     // If EVERY skip_tag is included in tagged.done
     if (w2w.skip_tags.every(x => tagged.done.includes(x))) {
-      return w2w.update_shield(elem, 'done', 'done')
+      return w2w.update_shield(elem, 'done', 'done') //TODO: depending on the number of scenes (=0 or >0), use one icon (emoticon-happy) or the other (content-cut)
     }
 
     // If ANY skip_tag is included in tagged.missing
     if (w2w.skip_tags.some(x => tagged.missing.includes(x))) {
-      return w2w.update_shield(elem, 'missing', 'missing')
+      //return w2w.update_shield(elem, 'missing', 'missing')
+      return w2w.update_shield(elem, 'mdi-flag-variant', 'missing')
     }
 
     // Otherwise
-    w2w.update_shield(elem, 'unknown', 'unknown')
+    w2w.update_shield(elem, 'mdi-progress-question', 'unknown')
   },
 
   update_shield: function(elem, icon, cls) {

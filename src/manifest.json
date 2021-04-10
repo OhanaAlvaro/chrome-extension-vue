@@ -62,7 +62,12 @@
     "icons/unknown.png",
     "icons/done3.png",
     "icons/missing3.png",
-    "icons/unknown3.png"
+    "icons/unknown3.png",
+
+    "icons/mdi-emoticon-happy.png",
+    "icons/mdi-content-cut.png",
+    "icons/mdi-flag-variant.png",
+    "icons/mdi-progress-question.png"
   ],
   "browser_action": {
     "default_popup": "popup.html",

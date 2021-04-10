@@ -43,19 +43,41 @@
 
     <v-row>
       <v-col>
+        <h3>Manage your preferences</h3>
         <span>
-          With Ohana, you decide what you watch. Click here to review your settings or review what
-          our icons mean!
+          With Ohana, you decide what you watch. You can
+          <router-link to="/preferences">review or change your preferences here</router-link> at any
+          time.
         </span>
-        <v-btn color="success" to="/preferences" depressed block tile>review preferences</v-btn>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col>
-        <!-- <b style="font-size:120%">Enjoy!</b><br />-->
+        <h3>Learn more</h3>
+        <span
+          >Visit <a href="https://ohanamovies.org/" target="_blank">Ohana Website</a> to find out
+          more about skipping content.
+        </span>
+      </v-col>
+    </v-row>
 
-        <!--Enjoy movies as usual. Ohana will be working for you in the background, seamlessly skipping any unwanted content.<br /><br />
+    <v-row>
+      <v-col>
+        <h3>Contact us</h3>
+        <span
+          >If you have ideas on how we can improve, or just want to say hi, please
+          <a href="https://forms.gle/cPr7XQhdS7x1y9hx7" target="_blank">use this form</a>.
+        </span>
+      </v-col>
+    </v-row>
+
+    <!-- 
+    <v-row>
+      <v-col>
+        <!- - <b style="font-size:120%">Enjoy!</b><br />-->
+
+    <!--Enjoy movies as usual. Ohana will be working for you in the background, seamlessly skipping any unwanted content.<br /><br />
 
         If you spot any unwanted content, press <b>"Alt+N"</b> or <b>"Improve filters"</b> to flag
         it and help other users like you.<br /><br />
@@ -65,9 +87,10 @@
         </span>
         <span v-else>
           You can see all flagged scenes on the film view (log in required).
-        </span>-->
+        </span> - ->
       </v-col>
     </v-row>
+    -->
 
     <!--<v-row>
       <v-col>
