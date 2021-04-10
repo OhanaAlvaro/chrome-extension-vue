@@ -593,7 +593,7 @@ export default {
       } else if (status == 'missing') {
         return 'mdi-flag-variant'
       } else {
-        return 'mdi-help-rhombus'
+        return 'progress-question'
       }
     },
     getTagColor(tag) {

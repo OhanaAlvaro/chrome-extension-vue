@@ -33,6 +33,9 @@ DisneyPlus
 + Series: https://www.disneyplus.com/en-gb/video/088faf85-12fc-4caf-9913-b66aac296cb6
 + Movie:  https://www.disneyplus.com/en-gb/video/aa2c93d5-6e09-4e2b-84ae-9f0773cc0238 
 
+"standard_web": "https://www.disneyplus.com/movies/star-wars-a-new-hope-episode-iv/12fVeZxD2fWJ",
+"deeplink_web": "https://www.disneyplus.com/video/4c907f06-6bd1-4118-b34b-cff43a6948af"
+
 https://www.disneyplus.com/en-gb/movies/steamboat-willie/1Lh1k4ammOG5
 https://www.disneyplus.com/en-gb/series/the-avengers-united-they-stand/3ZG0V87P4Xsc
 
@@ -50,8 +53,8 @@ var provider = {
 
   getURL: function(meta) {
     // In case we were giving the id instead of the metadata
-    if (typeof meta !== 'string') {
-      var p = params.id.split('_')
+    if (typeof meta == 'string') {
+      var p = meta.split('_')
       meta = {
         [p[0]]: p[1],
         provider: p[0],
@@ -64,12 +67,12 @@ var provider = {
         return 'https://www.netflix.com/title/' + meta.netflix
       } else if (provider == 'hboespana') {
         if (meta.type == 'show') {
-          return 'https://es.hboespana.com'
+          return 'https://es.hboespana.com/search'
         } else {
-          return 'https://es.hboespana.com'
+          return 'https://es.hboespana.com/search'
         }
       } else if (provider == 'disneyplus') {
-        return 'https://www.disneyplus.com/'
+        return 'https://www.disneyplus.com/en-gb/video/'+meta.disneyplus
       } else if (provider == 'primevideo') {
         return 'https://primevideo.com/detail?gti=' + meta.primevideo
       }
@@ -107,25 +110,40 @@ var provider = {
       meta.provider = 'netflix'
       meta.pid = provider.match(/watch\/([0-9]+)/, path)
       if (!meta.pid) meta.pid = provider.match(/title\/([0-9]+)/, path)
+      // Are we playing a video or on the home view?
+      meta.onHomeView = !path.includes('/watch/')
     } else if (host.includes('youtube')) {
       meta.provider = 'youtube'
       meta.pid = urlParams.get('v')
     } else if (host.includes('disneyplus')) {
       meta.provider = 'disneyplus'
-      meta.title = provider.match(/movies\/(.+)\//, path)
-      if (!meta.title) meta.title = provider.match(/series\/(.+)\//, path)
-      meta.pid = provider.match(/([0-9a-zA-Z]+)$/, path)
+      // Are we playing a video or on the home view?
+      meta.onHomeView = !path.includes('/video/')
+      // Get pid and title
+      if (!meta.onHomeView) {
+        meta.pid = provider.match(/video\/([^\/]+)/, path)
+      } else if (path.includes('/movies/')) {
+        meta.type = 'movie'
+        meta.title = provider.match(/movies\/([^\/]+)\//, path)
+        meta.pid = provider.match(/\/([^\/]+)$/, path)
+      } else {
+        meta.type = 'show'
+        meta.title = provider.match(/series\/([^\/]+)\//, path)
+        meta.pid = provider.match(/\/([^\/]+)$/, path)
+      }
+      // Clean title
       meta.title = provider.cleanTitle(meta.title)
     } else if (host.includes('hboespana')) {
       meta.provider = 'hboespana'
-      meta.pid = provider.match(/\/([0123456789abcdef-]+)$/, path)
-      meta.title = provider.match(/series\/(.+)\//, path)
+      meta.pid = provider.match(/\/([0123456789abcdef-]+)($|\/play)/, path)
+      meta.onHomeView = !path.includes('/play')
+      meta.title = provider.match(/series\/([^\/]+)\//, path)
       if (meta.title) {
         meta.season = provider.match(/season-([^\/]+)/, path)
         meta.episode = provider.match(/episode-([^\/]+)/, path)
         meta.type = 'show'
       } else {
-        meta.title = provider.match(/movies\/(.+)\//, path)
+        meta.title = provider.match(/movies\/([^\/]+)\//, path)
         meta.type = 'movie'
       }
       meta.title = provider.cleanTitle(meta.title)
@@ -148,9 +166,8 @@ var provider = {
       meta.provider = 'microsoft'
       meta.pid = path // avoid the repetitive ctx=movie
     }
-    console.error(meta)
     if (!meta.id && meta.pid) meta.id = meta.provider + '_' + meta.pid
-    //console.log(url,meta)
+    //console.error(meta)
     return meta
   },
 
@@ -158,9 +175,9 @@ var provider = {
     if (typeof title !== 'string') return ''
     // Replace dividers
     title = title
-      .replaceAll('-', ' ')
-      .replaceAll('_', ' ')
-      .replaceAll('  ', ' ')
+      .replace(/-/g, ' ')
+      .replace(/_/g, ' ')
+      .replace(/  /g, ' ')
     // Capitalize
     return title.charAt(0).toUpperCase() + title.slice(1)
   },
@@ -174,7 +191,12 @@ var provider = {
     if (meta.provider == 'netflix' && meta.pid) {
       // Return empty meta if title isn't loaded yet
       var elem = document.getElementsByClassName('video-title')[0]
-      if (!elem) return {}
+      if (!elem) {
+        console.error('missing title...')
+        meta.id = false
+        meta.url = false
+        return meta
+      }
       // Extract title, episode...
       meta.title = elem.getElementsByTagName('h4')[0].textContent
       var span = elem.getElementsByTagName('span')
@@ -194,7 +216,10 @@ var provider = {
       }
       //console.log(meta.provider, meta.pid)
     }
-    //console.log(url,meta)
+    if (meta.onHomeView) {
+      meta.id = false
+      meta.pid = false
+    }
     return meta
   }
 }
@@ -203,4 +228,3 @@ module.exports.getID = provider.getID
 module.exports.parseURL = provider.parseURL
 module.exports.getLinks = provider.getLinks
 module.exports.getURL = provider.getURL
-module.exports.getLinks = provider.getLinks

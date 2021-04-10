@@ -4,34 +4,32 @@ var content = [
     title: 'Sex/Nudity',
     description: '',
     color: 'green',
-    severity_title: 'How graphic or erotic is it?',
-    types_title: 'Does it contain any of these?',
     severity: [
       {
-        value: 'Non erotic',
-        title: 'Non erotic',
+        value: 'Slightly erotic',
+        title: 'Slightly erotic',
         description: "Nudity with no erotic purpose, eg: Michelangelo's David, human corpse...",
         implies: []
       },
       {
-        value: 'Slightly erotic',
-        title: 'Slightly erotic',
+        value: 'Mildly erotic',
+        title: 'Mildly erotic',
         description:
-          'Slightly erotic or graphic scene, eg: brief kiss, revealing outfit, mild sexual reference...',
-        implies: ['Non erotic']
+          'Mildly erotic or graphic scene, eg: brief kiss, revealing outfit, mild sexual reference...',
+        implies: ['Slightly erotic']
       },
       {
         value: 'Moderately erotic',
         title: 'Moderately erotic',
         description:
           'Moderately erotic or graphic scene, eg: passionate kissing, provocative dancing, graphic sexual remarks...',
-        implies: ['Non erotic', 'Slightly erotic']
+        implies: ['Slightly erotic', 'Mildly erotic']
       },
       {
         value: 'Very erotic',
         title: 'Very erotic',
         description: 'Very erotic or graphic scene, eg: sex, foreplay, moaning...',
-        implies: ['Non erotic', 'Slightly erotic', 'Moderately erotic']
+        implies: ['Slightly erotic', 'Mildly erotic', 'Moderately erotic']
       }
     ],
     types: [
@@ -61,35 +59,33 @@ var content = [
   },
   {
     value: 'Violence',
-    title: 'Violence/Gore',
+    title: 'Violence/Gory',
     description: '',
     color: 'red',
-    severity_title: 'How graphic/gore is it?',
-    types_title: 'Does it contain any of these?',
     severity: [
       {
-        value: 'Non gore',
-        title: 'Non gory',
+        value: 'Slightly gory',
+        title: 'Slightly gory',
         description: 'Violence is implied but nothing is shown',
         implies: []
       },
       {
-        value: 'Slightly gore',
-        title: 'Slightly gory',
-        description: 'Slightly gory or graphic scene, eg: mild verbal violence, punching',
-        implies: ['Non gore']
+        value: 'Mildly gory',
+        title: 'Mildly gory',
+        description: 'Mildly gory or graphic scene, eg: mild verbal violence, punching',
+        implies: ['Slightly gory']
       },
       {
-        value: 'Moderately gore',
+        value: 'Moderately gory',
         title: 'Moderately gory',
         description: 'Moderately gory or graphic scene, eg: extensive bleeding, broken bones...',
-        implies: ['Non gore', 'Slightly gore']
+        implies: ['Slightly gory', 'Mildly gory']
       },
       {
-        value: 'Very gore',
+        value: 'Very gory',
         title: 'Very gory',
         description: 'Very gory or graphic scene, eg: blood splattered, open wounds, guts...',
-        implies: ['Non gore', 'Slightly gore', 'Moderately gore']
+        implies: ['Slightly gory', 'Mildly gory', 'Moderately gory']
       }
     ],
     types: [
@@ -121,7 +117,6 @@ var content = [
     description: '',
     color: 'blue',
     severity_title: '',
-    types_title: 'Which of the following does it contain?',
     severity: [],
     types: [
       {
@@ -171,7 +166,7 @@ var actions = {
     {
       value: 'Mild plot',
       title: 'Mild plot',
-      description: 'This scene is slightly important for the plot.'
+      description: 'This scene is Mildly important for the plot.'
     },
     {
       value: 'Strong plot',
