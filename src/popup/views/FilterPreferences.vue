@@ -45,53 +45,54 @@
     <div
       style="max-height: 350px; overflow-y: auto; border-bottom: solid 1px black; border-top: solid 1px black; padding: 2px"
     >
-      <div
-        id="Sliders"
-        v-for="(cat, index) in categories"
-        :key="index"
-        style="border: solid 1px lightgrey; margin-bottom: 3px; margin-top: 3px; padding: 5px; "
-      >
-        <v-switch
-          hide-details
-          :label="`Skip '` + cat + `'`"
-          v-model="protection[index]"
-          dense
-          class="py-0 ma-0"
+      <div id="Sliders" v-for="(cat, index) in categories" :key="index">
+        <!-- TODO: ugly way of removing other...-->
+        <div
+          v-if="cat != 'Other'"
+          style="border: solid 1px lightgrey; margin-bottom: 3px; margin-top: 3px; padding: 5px; "
         >
-          <template v-slot:label="{ value }">
-            <!--TODO: do we want to use this slot to make the label more custom?-->
-            <div>
-              <span>{{ value }}</span>
-              {{ value }}
-            </div>
-          </template>
-        </v-switch>
+          <v-switch
+            hide-details
+            :label="`Skip '` + cat + `'`"
+            v-model="protection[index]"
+            dense
+            class="py-0 ma-0"
+          >
+            <template v-slot:label="{ value }">
+              <!--TODO: do we want to use this slot to make the label more custom?-->
+              <div>
+                <span>{{ value }}</span>
+                {{ value }}
+              </div>
+            </template>
+          </v-switch>
 
-        <!-- 3.2 Cat expansion panel, with SLIDER -->
-        <v-expand-transition>
-          <div v-if="protection[index]">
-            <v-slider
-              class="mb-3"
-              hide-details
-              v-model="protectionLevels[index]"
-              :tick-labels="severities[index]"
-              :disabled="!protection[index]"
-              track-fill-color="green"
-              track-color="black"
-              color="green"
-              dense
-              :max="3"
-              step="1"
-              ticks="always"
-              tick-size="5"
-            >
-            </v-slider>
-            <span style="font-size: 95%">
-              <!-- <b>{{ severities[index][protectionLevels[index]] }}: </b>-->
-              {{ descriptions[index][protectionLevels[index]] }}
-            </span>
-          </div>
-        </v-expand-transition>
+          <!-- 3.2 Cat expansion panel, with SLIDER -->
+          <v-expand-transition>
+            <div v-if="protection[index]">
+              <v-slider
+                class="mb-3"
+                hide-details
+                v-model="protectionLevels[index]"
+                :tick-labels="severities[index]"
+                :disabled="!protection[index]"
+                track-fill-color="green"
+                track-color="black"
+                color="green"
+                dense
+                :max="3"
+                step="1"
+                ticks="always"
+                tick-size="5"
+              >
+              </v-slider>
+              <span style="font-size: 95%">
+                <!-- <b>{{ severities[index][protectionLevels[index]] }}: </b>-->
+                {{ descriptions[index][protectionLevels[index]] }}
+              </span>
+            </div>
+          </v-expand-transition>
+        </div>
       </div>
     </div>
 

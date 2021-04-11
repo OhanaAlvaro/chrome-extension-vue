@@ -111,6 +111,44 @@ var content = [
       }
     ]
   },
+
+  //--- PROFANITY ------------
+  {
+    value: 'Profanity',
+    title: 'Profanity',
+    description: '',
+    color: 'black',
+    severity: [
+      {
+        value: 'Slighty profane',
+        title: 'Slighty profane',
+        description: '',
+        implies: []
+      },
+      {
+        value: 'Mildly profane',
+        title: 'Mildly profane',
+        description: '',
+        implies: ['Slighty profane']
+      },
+      {
+        value: 'Moderately profane',
+        title: 'Moderately profane',
+        description: '',
+        implies: ['Slighty profane', 'Mildly profane']
+      },
+      {
+        value: 'Very profane',
+        title: 'Very profane',
+        description: '',
+        implies: ['Slighty profane', 'Mildly profane', 'Moderately profane']
+      }
+    ],
+    context: []
+  },
+
+  //-------------
+
   {
     value: 'Other',
     title: 'Other',
