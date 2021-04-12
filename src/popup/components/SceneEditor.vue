@@ -30,7 +30,7 @@
             </template>
           </v-select>
 
-          <v-select dense v-model="scene.context" :items="content.types" label="Context" multiple>
+          <v-select dense v-model="scene.context" :items="content.context" label="Context" multiple>
             <template v-slot:selection="{ item }">
               <v-chip small>{{ item.value }}</v-chip>
             </template>
@@ -126,7 +126,7 @@
           <br />
         </v-card-text>
         <v-card-actions>
-          <v-btn text small @click="removeScene()">
+          <v-btn text small color="error" @click="removeScene()">
             Remove
           </v-btn>
 

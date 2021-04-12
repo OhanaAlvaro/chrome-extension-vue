@@ -53,7 +53,21 @@ var w2w = {
   add_shield: function(elem, tagged) {
     // If EVERY skip_tag is included in tagged.done
     if (w2w.skip_tags.every(x => tagged.done.includes(x))) {
-      return w2w.update_shield(elem, 'done', 'done') //TODO: depending on the number of scenes (=0 or >0), use one icon (emoticon-happy) or the other (content-cut)
+      //now check the total number of scenes per skipTag
+      //TODO: review this is properly coded.
+      var tagsCount = 0
+      for (let i = 0; i < w2w.skip_tags.length; i++) {
+        let st = w2w.skip_tags[i]
+        if (Object.keys(tagged.tags_count).includes(st)) tagsCount += tagged.tags_count[st]
+      }
+
+      if (tagsCount > 0) {
+        return w2w.update_shield(elem, 'mdi-content-cut', 'done')
+      } else {
+        return w2w.update_shield(elem, 'mdi-emoticon-happy', 'done')
+      }
+
+      //return w2w.update_shield(elem, 'done', 'done') //TODO: depending on the number of scenes (=0 or >0), use one icon (emoticon-happy) or the other (content-cut)
     }
 
     // If ANY skip_tag is included in tagged.missing
