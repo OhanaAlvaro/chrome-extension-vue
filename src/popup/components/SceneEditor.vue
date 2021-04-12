@@ -223,7 +223,7 @@ export default {
     },
     // Prepare scene to be shared (collapse category, severity and context into tags)
     cleanScene(scene) {
-      scene.tags = fclib.intersect(scene.context, this.context) // remove invalid tags
+      if (scene.context) scene.tags = fclib.intersect(scene.context, this.context) // remove invalid tagsx
       scene.tags.push(scene.category)
       scene.tags.push(scene.severity)
       delete scene.category
