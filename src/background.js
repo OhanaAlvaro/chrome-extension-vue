@@ -14,12 +14,18 @@ chrome.commands.onCommand.addListener(function(command) {
 
 chrome.runtime.onMessage.addListener(function(data, sender, sendResponse) {
   if (typeof data !== 'object') return
-  console.log('background.js: ',data.msg)
+  console.log('background.js: ', data.msg)
   if (data.msg === 'update-badge') {
     chrome.browserAction.setBadgeText({ text: '' + data.numDisplayedScenes, tabId: sender.tab.id })
     chrome.browserAction.setBadgeBackgroundColor({ color: '#2b2b2b' })
   } else if (data.msg === 'shield-status') {
-    if (data.status == 'missing') {
+    //----
+    if (data.override == 'inactive2') {
+      chrome.browserAction.setIcon({ path: 'icons/logo-48.png', tabId: sender.tab.id })
+    } else if (data.override == 'clean') {
+      chrome.browserAction.setIcon({ path: 'icons/clean.png', tabId: sender.tab.id })
+      //---
+    } else if (data.status == 'missing') {
       chrome.browserAction.setIcon({ path: 'icons/missing.png', tabId: sender.tab.id })
     } else if (data.status == 'done') {
       chrome.browserAction.setIcon({ path: 'icons/done.png', tabId: sender.tab.id })

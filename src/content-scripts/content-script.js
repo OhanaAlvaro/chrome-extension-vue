@@ -100,9 +100,18 @@ var fc = {
         shield = 'unknown'
       }
     }
+    //------------
+    let count = 0
+    let override = ''
+    for (var i = 0; i < fc.scenes.length; i++) {
+      if (fc.scenes[i].skip) count++
+    }
+    if (shield == 'done' && count == 0) override = 'clean'
+    if (skip_tags.length == 0) override = 'inactive2' //Alex: workaournd for now, to avoid pretending it's EVERYHTING is safe (no skip_tags) | check background.js
+    //--------
     fc.shield = shield
     console.log('[updateShield] new status ', fc.shield)
-    browser.sendMessage({ msg: 'shield-status', status: fc.shield })
+    browser.sendMessage({ msg: 'shield-status', status: fc.shield, override: override })
   },
 
   unload: function() {

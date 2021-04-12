@@ -182,8 +182,19 @@
           refreshing the page.
         </span>
 
+        <!-- NO skipTags -->
+        <span v-if="finalSelectedTags.length == 0">
+          <b style="color: black">You are not using Ohana to skip content</b>
+          <br />
+          To skip some content automatically, let us know your sensitivity
+          <router-link to="/preferences">here</router-link>
+        </span>
+
         <!-- Clean -->
-        <span v-else-if="data.shield == `done` && skipScenesCount == 0" style="color: #00b359">
+        <span
+          v-else-if="(data.shield == `done` && skipScenesCount == 0) || data.shield == 'clean'"
+          style="color: #00b359"
+        >
           <v-icon small color="green" class="mb-1">mdi-emoticon-happy</v-icon>
           <b>Clean movie!</b> <br />
           Rejoy! This movie is, and was originally, safe for you. We won't need to skip anything.
