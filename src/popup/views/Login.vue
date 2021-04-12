@@ -10,7 +10,7 @@
         </v-btn>
         -->
 
-        <a @click="cancelSettings()" v-if="data.settings.username">
+        <a @click="cancelSettings()">
           <v-icon class="pb-1" small>mdi-arrow-left</v-icon>
           <b>Back</b>
         </a>
@@ -147,6 +147,9 @@ export default {
     }
   },
   methods: {
+    hideSidebar() {
+      this.sendMessage({ msg: 'show-sidebar', show: false })
+    },
     //login
     showSnackbar(textt, color) {
       this.snackbar = false //previous message
@@ -172,6 +175,7 @@ export default {
     cancelSettings() {
       //this.$router.go(-1) //to previous page (just in case at some point we have more than Home/Settings)
       this.$router.back()
+      this.hideSidebar() //TODO: ugly workaround. Good approach would be to show the "close" button only if we are in side bar.
     },
 
     //Intereact with content-script (get/push data and messages)
@@ -180,6 +184,9 @@ export default {
       fclib.sendMessage({ msg: 'update-settings', settings: this.data.settings }, response => {
         console.log('save settings response', response)
       })
+    },
+    sendMessage(msg) {
+      fclib.sendMessage(msg)
     }
   }
 }
