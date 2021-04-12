@@ -51,227 +51,120 @@
     -->
 
     <div id="TAB_MOVIE" v-if="tab != 0">
+      <!-- 1. SAFE DEFINITION -->
+      <div id="SAFE_DEFINITION" style="font-size: 100%; margin-top: 5px;">
+        "Safe" is defined based on your preferences. Review your preferences anytime
+        <router-link to="/preferences">here</router-link>.
+      </div>
+
+      <!-- 2. TAGS EXPANSION BLOCKS -->
       <div id="EXPANSION-BLOCKS" style="margin-bottom: 10px; margin-top: 5px; " v-if="tab == 1">
         <!-- Expansion blocks -->
-        <div
-          v-for="(cat, index) in categories"
-          :key="index"
-          style="border: solid 1px lightgrey; margin-bottom: 3px"
-        >
-          <!-- Cat Header -->
-          <div
-            style="position:relative; height: 35px; cursor: pointer; background-color: #F6F6F6;  padding: 7px; "
-            @click="test = test == index ? -1 : index"
-          >
-            <div style="position: absolute; left: 5px;  ">
-              <h3>{{ cat }}</h3>
-            </div>
-
-            <div style="position: absolute; right: 0px; top: 0px">
-              <div v-for="(sev, i2) in severities[index]" :key="i2" style="display:inline">
-                <v-btn icon v-if="selectedTags[index].includes(sev)">
-                  <v-icon :color="getTagColor(sev)">
-                    {{ getTagIcon(sev) }}
-                  </v-icon>
-                </v-btn>
-              </div>
-            </div>
-          </div>
-
-          <!-- Cat Content -->
-          <v-expand-transition>
-            <div v-if="test == index" style="padding: 0px">
-              <div>
-                <v-list dense class="py-0 pl-0 pr-0" style="border-top: solid 1px lightgrey">
-                  <v-list-item-group>
-                    <v-list-item
-                      v-for="(sev, i2) in severities[index]"
-                      :key="i2"
-                      class="py-0 px-2"
-                      style="height: 50px"
-                      :to="'/scenes/' + sev"
-                    >
-                      <v-list-item-content>
-                        <v-list-item-title
-                          :style="{
-                            fontWeight: finalSelectedTags.includes(sev) ? 700 : 500,
-                            color: finalSelectedTags.includes(sev) ? 'black' : 'gray'
-                          }"
-                          >{{ sev }}:
-                          <v-icon :color="getTagColor(sev)" small>{{ getTagIcon(sev) }}</v-icon>
-                          <span
-                            :style="{
-                              fontSize: '85% !important',
-                              color: finalSelectedTags.includes(sev) ? '#00A0B6' : '#A5E1E8',
-                              fontWeight: 400
-                            }"
-                          >
-                            | {{ scenesCountByTag[sev] || 0 }}
-                            {{ scenesCountByTag[sev] == 1 ? 'filter' : 'filters'
-                            }}{{ getTagStatus(sev) == 'done' ? '' : ' so far' }}</span
-                          >
-                        </v-list-item-title>
-                        <v-list-item-subtitle
-                          :style="{
-                            fontWeight: finalSelectedTags.includes(sev) ? 400 : 300,
-                            color: finalSelectedTags.includes(sev) ? 'black' : 'gray'
-                          }"
-                          v-html="severitySummaryText(sev)"
-                        >
-                        </v-list-item-subtitle>
-                      </v-list-item-content>
-                      <v-list-item-action
-                        class="mt-1"
-                        @mouseenter="updateHoverDescription(index, sev)"
-                        @mouseleave="hoverDescription = ''"
-                      >
-                        <!--<v-list-item-action-text v-text="'5 min'"></v-list-item-action-text>-->
-
-                        <fc-tooltip :text="hoverDescription" :html="false" position="top">
-                          <v-btn icon>
-                            <v-icon color="grey lighten-1" small>mdi-information</v-icon>
-                          </v-btn>
-                        </fc-tooltip>
-                      </v-list-item-action>
-                    </v-list-item>
-                  </v-list-item-group>
-                </v-list>
+        <div v-for="(cat, index) in categories" :key="index">
+          <div v-if="cat != 'Other'" style="border: solid 1px lightgrey; margin-bottom: 3px">
+            <!-- Cat Header -->
+            <div
+              style="position:relative; height: 35px; cursor: pointer; background-color: #F6F6F6;  padding: 7px; "
+              @click="test = test == index ? -1 : index"
+            >
+              <div style="position: absolute; left: 5px;  ">
+                <h3>{{ cat }}</h3>
               </div>
 
-              <div style="padding:5px" hidden>
-                <a @click="test = test == index ? -1 : index">{{
-                  test == index ? 'See less' : 'See more'
-                }}</a>
-              </div>
-
-              <div style=" padding: 7px;" hidden>
-                <div>
-                  <b>Severities</b>
-                  <ol>
-                    <li v-for="(sev, i2) in severities[index]" :key="i2">{{ sev }}</li>
-                  </ol>
-                  <div>
-                    <b>Context</b>
-                    <ol>
-                      <li v-for="(cont, i2) in context[index]" :key="i2">{{ cont }}</li>
-                    </ol>
-                  </div>
+              <div style="position: absolute; right: 0px; top: 0px">
+                <div v-for="(sev, i2) in severities[index]" :key="i2" style="display:inline">
+                  <v-btn icon v-if="selectedTags[index].includes(sev)">
+                    <v-icon :color="getTagColor(sev)">
+                      {{ getTagIcon(sev) }}
+                    </v-icon>
+                  </v-btn>
                 </div>
               </div>
             </div>
-          </v-expand-transition>
-        </div>
-      </div>
 
-      <div id="ALEX_DROPDOWNS" v-if="tab == 2">
-        {{ selectedTags }}
-
-        <div v-for="(cat, index) in categories" :key="index">
-          <v-row>
-            <!-- col:1 -> the v-select with some customizations using slots -->
-            <v-col cols="8">
-              <v-select
-                :menu-props="{ auto: false, maxHeight: '400px' }"
-                dense
-                :no-data-text="`No data available for '` + cat + `'`"
-                hide-details
-                :label="cat"
-                :items="cat == 'Other' ? context[index] : severities[index]"
-                multiple
-                :value="selectedTags[index]"
-                style="margin-bottom: 0px; font-size: 40%"
-              >
-                <!-- 1) use small chips for selected items -->
-                <template v-slot:selection="{ item }">
-                  <v-chip x-small class="pa-1 ma-0 mr-1 mb-1">
-                    {{ item }}
-                  </v-chip>
-                </template>
-                <!-- -->
-
-                <!-- 2) Within the list, before items, show the category title, shield, and intro (slot: PREPEND ITEM) -->
-                <template v-slot:prepend-item>
-                  <v-list-item dense>
-                    <v-list-item-content>
-                      <v-list-item-title>
-                        <h3>{{ cat }}</h3>
-                      </v-list-item-title>
-
-                      <v-list-item-subtitle>Select what to skip!</v-list-item-subtitle>
-                    </v-list-item-content>
-                    <v-list-item-action
-                      @mouseenter="shieldText(index)"
-                      @mouseleave="hoverDescription = ''"
-                    >
-                      <v-btn icon>
-                        <v-icon color="success" v-if="statusByCategory[index] == 'done'"
-                          >mdi-shield-check</v-icon
-                        >
-                        <v-icon color="red" v-else-if="statusByCategory[index] == 'missing'"
-                          >mdi-shield-alert</v-icon
-                        >
-                        <v-icon color="orange" v-else>mdi-shield-half-full</v-icon>
-                      </v-btn>
-                    </v-list-item-action>
-                  </v-list-item>
-                  <v-divider></v-divider>
-                </template>
-
-                <!-- 3) After the items, we keep a space to put the descriptions on hover. (slot: APPEND-ITEM) -->
-                <template v-slot:append-item>
-                  <v-divider class="mb-2"></v-divider>
-
-                  <v-container class="ma-0 py-0 px-3 ">
-                    <span
-                      style="font-size:95%; color:grey;"
-                      v-html="hoverDescription"
-                      v-if="hoverDescription"
-                    ></span>
-                    <span style="font-size:95%; color:grey; " v-else
-                      >Hover an element to see here some details about it</span
-                    >
-                  </v-container>
-                </template>
-
-                <!-- 4) We override the item with a custom item, to get more flexibility (using v-list-item) -->
-                <template v-slot:item="{ active, item, attrs, on }">
-                  <v-list-item
-                    v-on="on"
-                    v-bind="attrs"
-                    @mouseenter="updateHoverDescription(index, item)"
-                    @mouseleave="hoverDescription = ''"
-                    @click="clickedItem(index, item)"
-                  >
-                    <v-list-item-content>
-                      <v-list-item-subtitle>{{ item }} </v-list-item-subtitle>
-                      <v-list-item-subtitle style="font-size: 9px">
-                        {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }}
-                        filters available</v-list-item-subtitle
+            <!-- Cat Content -->
+            <v-expand-transition>
+              <div v-if="test == index" style="padding: 0px">
+                <div>
+                  <v-list dense class="py-0 pl-0 pr-0" style="border-top: solid 1px lightgrey">
+                    <v-list-item-group>
+                      <v-list-item
+                        v-for="(sev, i2) in severities[index]"
+                        :key="i2"
+                        class="py-0 px-2"
+                        style="height: 50px"
+                        :to="'/scenes/' + sev"
                       >
-                    </v-list-item-content>
+                        <v-list-item-content>
+                          <v-list-item-title
+                            :style="{
+                              fontWeight: finalSelectedTags.includes(sev) ? 700 : 500,
+                              color: finalSelectedTags.includes(sev) ? 'black' : 'gray'
+                            }"
+                            >{{ sev }}:
+                            <v-icon :color="getTagColor(sev)" small>{{ getTagIcon(sev) }}</v-icon>
+                            <span
+                              :style="{
+                                fontSize: '85% !important',
+                                color: finalSelectedTags.includes(sev) ? '#00A0B6' : '#A5E1E8',
+                                fontWeight: 400
+                              }"
+                            >
+                              | {{ scenesCountByTag[sev] || 0 }}
+                              {{ scenesCountByTag[sev] == 1 ? 'filter' : 'filters'
+                              }}{{ getTagStatus(sev) == 'done' ? '' : ' so far' }}</span
+                            >
+                          </v-list-item-title>
+                          <v-list-item-subtitle
+                            :style="{
+                              fontWeight: finalSelectedTags.includes(sev) ? 400 : 300,
+                              color: finalSelectedTags.includes(sev) ? 'black' : 'gray'
+                            }"
+                            v-html="severitySummaryText(sev)"
+                          >
+                          </v-list-item-subtitle>
+                        </v-list-item-content>
+                        <v-list-item-action
+                          class="mt-1"
+                          @mouseenter="updateHoverDescription(index, sev)"
+                          @mouseleave="hoverDescription = ''"
+                        >
+                          <!--<v-list-item-action-text v-text="'5 min'"></v-list-item-action-text>-->
 
-                    <v-list-item-action>
-                      <span :style="{ fontSize: '9px', color: getTagColor(item) }">
-                        <!-- {{ scenesCountByTag[item] ? scenesCountByTag[item] : 0 }} scenes -->
-                        {{ getTagStatus(item) || 'unknown' }}
-                      </span>
-                    </v-list-item-action>
-                  </v-list-item>
-                </template>
-              </v-select>
-            </v-col>
+                          <fc-tooltip :text="hoverDescription" :html="false" position="top">
+                            <v-btn icon>
+                              <v-icon color="grey lighten-1" small>mdi-information</v-icon>
+                            </v-btn>
+                          </fc-tooltip>
+                        </v-list-item-action>
+                      </v-list-item>
+                    </v-list-item-group>
+                  </v-list>
+                </div>
 
-            <!-- col:2 -> the number of filters, in a clickable way which takes users to the list of scenes (different route) -->
-            <v-col
-              ><v-chip x-small dark color="grey" :to="'/scenes/' + index">
-                {{
-                  scenesCountByCategory[index].selected + '/' + scenesCountByCategory[index].total
-                }}
-                filters
-                <!--<v-icon x-small>mdi-check</v-icon>-->
-              </v-chip></v-col
-            >
-          </v-row>
+                <div style="padding:5px" hidden>
+                  <a @click="test = test == index ? -1 : index">{{
+                    test == index ? 'See less' : 'See more'
+                  }}</a>
+                </div>
+
+                <div style=" padding: 7px;" hidden>
+                  <div>
+                    <b>Severities</b>
+                    <ol>
+                      <li v-for="(sev, i2) in severities[index]" :key="i2">{{ sev }}</li>
+                    </ol>
+                    <div>
+                      <b>Context</b>
+                      <ol>
+                        <li v-for="(cont, i2) in context[index]" :key="i2">{{ cont }}</li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </v-expand-transition>
+          </div>
         </div>
       </div>
 
@@ -322,11 +215,6 @@
           {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but there are
           probably more
         </span>
-      </div>
-
-      <div id="SAFE_DEFINITION" style="font-size: 100%; margin-top: 5px;">
-        "Safe" is defined based on your preferences. Review your preferences anytime
-        <router-link to="/preferences">here</router-link>.
       </div>
 
       <!-- 4. ACTION BUTTONS-->

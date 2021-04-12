@@ -74,7 +74,7 @@
                 class="mb-3"
                 hide-details
                 v-model="protectionLevels[index]"
-                :tick-labels="severities[index]"
+                :tick-labels="sliderTicks"
                 :disabled="!protection[index]"
                 track-fill-color="green"
                 track-color="black"
@@ -192,6 +192,8 @@ export default {
 
       selectedTags: [[]],
       skipTags: [],
+
+      sliderTicks: ['Severe', 'Moderate', 'Mild', 'Slight'],
 
       save_preferences: true,
 
