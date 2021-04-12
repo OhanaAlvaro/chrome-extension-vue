@@ -1,4 +1,5 @@
 var provider = require('./provider')
+//TODO: If no skipTags, we should remove all icons!
 
 var w2w = {
   tagged: {},
@@ -54,11 +55,13 @@ var w2w = {
     // If EVERY skip_tag is included in tagged.done
     if (w2w.skip_tags.every(x => tagged.done.includes(x))) {
       //now check the total number of scenes per skipTag
-      //TODO: review this is properly coded.
+      //TODO: review tagsCount is properly done.
       var tagsCount = 0
       for (let i = 0; i < w2w.skip_tags.length; i++) {
         let st = w2w.skip_tags[i]
-        if (Object.keys(tagged.tags_count).includes(st)) tagsCount += tagged.tags_count[st]
+        if (tagged.tags_count && Object.keys(tagged.tags_count).includes(st)) {
+          tagsCount += tagged.tags_count[st]
+        }
       }
 
       if (tagsCount > 0) {
