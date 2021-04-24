@@ -21,9 +21,11 @@
             <v-tab-item>
               <div v-for="(tag_sex, index) in sex_tags" :key="index">
                 <div @click="nextStatus(tag_sex)" style="cursor: pointer;">
-                  <v-icon v-if="status(tag_sex) == `missing`" color="red">mdi-shield-alert</v-icon>
-                  <v-icon v-if="status(tag_sex) == `done`" color="#00b359">mdi-shield-check</v-icon>
-                  <v-icon v-if="status(tag_sex) == `unknown`">mdi-shield-half-full</v-icon>
+                  <v-icon v-if="status(tag_sex) == `missing`" color="red">mdi-flag-variant</v-icon>
+                  <v-icon v-if="status(tag_sex) == `done`" :color="certifiedColor">mdi-emoticon-happy</v-icon>
+                  <v-icon v-if="status(tag_sex) == `unknown`" color="gray"
+                    >mdi-progress-question</v-icon
+                  >
                   <b style="min-width: 100px">{{ tag_sex.title }} </b> - {{ tag_sex.description }}
                 </div>
               </div>
@@ -33,9 +35,11 @@
             <v-tab-item>
               <div v-for="(tag_vio, index) in vio_tags" :key="index">
                 <div @click="nextStatus(tag_vio)" style="cursor: pointer;">
-                  <v-icon v-if="status(tag_vio) == `missing`" color="red">mdi-shield-alert</v-icon>
-                  <v-icon v-if="status(tag_vio) == `done`" color="#00b359">mdi-shield-check</v-icon>
-                  <v-icon v-if="status(tag_vio) == `unknown`">mdi-shield-half-full</v-icon>
+                  <v-icon v-if="status(tag_vio) == `missing`" color="red">mdi-flag-variant</v-icon>
+                  <v-icon v-if="status(tag_vio) == `done`" :color="certifiedColor">mdi-emoticon-happy</v-icon>
+                  <v-icon v-if="status(tag_vio) == `unknown`" color="gray"
+                    >mdi-progress-question</v-icon
+                  >
                   <b style="min-width: 100px">{{ tag_vio.title }} </b> - {{ tag_vio.description }}
                 </div>
               </div>
@@ -46,15 +50,15 @@
           <div style="margin-top: 20px">
             <!-- Missing shield -->
             <fc-tooltip text="The movie contains scenes of this type that are not yet listed">
-              <v-icon color="red">mdi-shield-alert</v-icon> Missing
+              <v-icon color="red">mdi-flag-variant</v-icon> Pending
             </fc-tooltip>
             <!-- unknown shield -->
             <fc-tooltip text="The movie might contain scenes of this type which are not yet listed">
-              <v-icon>mdi-shield-half-full</v-icon> unknown
+              <v-icon color="gray">mdi-progress-question</v-icon> I don't know
             </fc-tooltip>
             <!-- Done shield -->
             <fc-tooltip text="All scenes of this type have been listed with the right times">
-              <v-icon color="#00b359">mdi-shield-check</v-icon> Done
+              <v-icon :color="certifiedColor">mdi-emoticon-happy</v-icon> Clean
             </fc-tooltip>
           </div>
         </v-card-text>
@@ -87,6 +91,10 @@ export default {
       default() {
         return {}
       }
+    },
+    level:{
+      type: Number,
+      default: 0
     }
   },
   data() {
@@ -101,6 +109,10 @@ export default {
     },
     vio_tags() {
       return JSON.parse(JSON.stringify(raw.content[1].severity)).reverse()
+    },
+    certifiedColor(){
+      if (this.level >= 6) return 'blue'
+      return 'green'
     }
   },
 

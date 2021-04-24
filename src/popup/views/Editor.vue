@@ -18,6 +18,7 @@
     <shield-editor
       :visible="shield_visible"
       :tagged="data.tagged"
+      :level="data.settings.level"
       @hide="shield_visible = false"
     ></shield-editor>
 
@@ -28,7 +29,13 @@
     ></scene-editor>
 
     <!-- List/table of scenes -->
-    <div v-if="data.scenes.length == 0" class='scene-table' align="center" justify="center" style="width:100%">
+    <div
+      v-if="data.scenes.length == 0"
+      class="scene-table"
+      align="center"
+      justify="center"
+      style="width:100%"
+    >
       <br />
       No filters for this film. Be the first one to add one!
       <br />
@@ -68,11 +75,7 @@
     </div>
 
     <!-- Filter status button (show shield button) -->
-    <v-btn text small @click="shield_visible = !shield_visible">
-      <fc-tooltip text="Click to define filter status">
-        <v-icon>mdi-shield-half-full</v-icon>Filter status
-      </fc-tooltip>
-    </v-btn>
+    
 
     <!-- New scene button -->
     <fc-tooltip text="(Alt+N)">
@@ -81,6 +84,16 @@
         <div v-else><v-icon>mdi-check</v-icon>End Filter</div>
       </v-btn>
     </fc-tooltip>
+    <v-btn block dense depressed tile @click="shield_visible = !shield_visible">
+      <fc-tooltip text="Click to define filter status">
+
+        <v-icon :color="certifiedColor" small>mdi-emoticon-happy</v-icon>
+        <v-icon :color="certifiedColor" small>mdi-content-cut</v-icon>
+        <v-icon color="red" small>mdi-flag-variant</v-icon>
+        <v-icon color="gray" small>mdi-progress-question</v-icon>
+        Set Filter status
+      </fc-tooltip>
+    </v-btn>
 
     <!-- Bottom menu -->
     <div id="bottom">
@@ -166,6 +179,11 @@ export default {
         scenes[i].context = fclib.difference(scenes[i].tags, u_cat_sev)
       }
       return scenes
+    },
+
+    certifiedColor(){
+      if (this.data.settings.level >= 6) return 'blue'
+      return 'green'
     }
   },
 
@@ -245,13 +263,11 @@ export default {
 </script>
 
 <style scoped>
-
 .scene-table {
   max-height: 65vh;
   overflow-y: auto;
   overflow-x: hidden;
 }
-
 
 .size-wrapper {
   height: 96vh;

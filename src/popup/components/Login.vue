@@ -140,9 +140,9 @@ export default {
     },
 
     logOut() {
-      var data = { username: '', password: '' }
+      var data = { username: '', password: '', logOut: true }
       var response = { data: 'Successfully logged out!' }
-      this.$emit('success', data, response) //let parent know
+      this.$emit('error', data, response) //let parent know
       this.page = 'login'
     },
 

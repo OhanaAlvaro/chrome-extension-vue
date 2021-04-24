@@ -160,16 +160,18 @@ export default {
     },
     loginSuccess(data, serverResponse) {
       console.log('loginSuccess')
-      this.data.settings.username = data.username
-      this.data.settings.password = data.password
-      this.showSnackbar(serverResponse, 'success')
-      this.saveSettings()
+      this.showSnackbar(serverResponse.msg, 'success')
     },
     logginError(data, serverResponse) {
       console.log('logginError')
       this.data.settings.username = ''
       this.data.settings.password = ''
-      this.showSnackbar(serverResponse, 'error')
+      if (data.logOut) {
+        this.showSnackbar(serverResponse, 'success')
+      } else {
+        this.showSnackbar(serverResponse, 'error')  
+      }
+      
       this.saveSettings()
     },
     cancelSettings() {

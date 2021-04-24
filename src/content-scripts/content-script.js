@@ -19,13 +19,14 @@ var provider = require('./provider')
 var fc = {
   default_settings: {
     username: '',
-    password: '',
     blur_level: 40,
     skip_tags: [],
     ignore_default_settings: true,
     pause_after_adding_scene: false,
     playbackRate_on_mark: 1.5,
     mute_on_mark: true,
+    level: 0,
+    token: null,
     blur_on_frame_seek: false // if false, it uses settings.blur_level
   },
 
@@ -376,6 +377,15 @@ var browser = {
               password: request.password
             },
             function(response) {
+              console.log(response)
+              if (response.statusCode == 200) {
+                fc.settings.token = response.body.token
+                fc.settings.level = response.body.level
+                fc.settings.username = request.username
+                console.log('updating settings ',fc.settings)
+                fc.loadSettings(fc.settings)
+                browser.setData('settings', fc.settings)
+              }
               sendResponse(response)
             }
           )
@@ -481,6 +491,7 @@ var server = {
       action: action,
       id: fc.metadata.id,
       username: fc.settings.username,
+      token: fc.settings.token,
       password: fc.settings.password,
       data: JSON.stringify(data)
     })
