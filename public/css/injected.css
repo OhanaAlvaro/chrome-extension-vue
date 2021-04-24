@@ -31,10 +31,16 @@
 .fc-active #app_body_content:not(:fullscreen) #hudson-wrapper, /* disneyplus */
 .fc-active .sizing-wrapper,
 .fc-active .app-container > div,
-.fc-active ytd-masthead /* youtube header */
+.fc-active ytd-masthead, /* youtube header */
+.fc-active #object-player-multidrm /* movistarplus */
  {
   right: 320px !important;
   width: calc(100% - 320px) !important;
+}
+.fc-active #object-player-multidrm .cont-controls /* movistarplus */
+ {
+  left: 0px !important;
+  width: calc(100vw - 360px) !important;
 }
 
 /* Style iframe */

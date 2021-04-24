@@ -43,6 +43,12 @@ https://www.disneyplus.com/en-gb/series/star-wars-rebels/64MCZgAzY0Zw
 
 https://www.disneyplus.com/en-gb/video/088faf85-12fc-4caf-9913-b66aac296cb6
 
+
+
+Movistarplus
+
+https://ver.movistarplus.es/ficha?id=1857935
+
 */
 
 var provider = {
@@ -72,9 +78,11 @@ var provider = {
           return 'https://es.hboespana.com/search'
         }
       } else if (provider == 'disneyplus') {
-        return 'https://www.disneyplus.com/en-gb/video/'+meta.disneyplus
+        return 'https://www.disneyplus.com/en-gb/video/' + meta.disneyplus
       } else if (provider == 'primevideo') {
         return 'https://primevideo.com/detail?gti=' + meta.primevideo
+      } else if (provider == 'movistarplus') {
+        return 'https://ver.movistarplus.es/ficha?id=' + meta.movistarplus
       }
     }
     // body...
@@ -94,7 +102,13 @@ var provider = {
   },
 
   parseURL: function(url) {
-    let url_elems = new URL(url)
+    let url_elems
+    try {
+      url_elems = new URL(url)
+    } catch (e) {
+      console.error('Invalid url ', url)
+    }
+
     let host = url_elems.hostname
     let path = url_elems.pathname
     let search = url_elems.search
