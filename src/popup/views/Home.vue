@@ -197,7 +197,7 @@
         >
           <v-icon small color="green" class="mb-1">mdi-emoticon-happy</v-icon>
           <b>Clean movie!</b> <br />
-          Rejoy! This movie is, and was originally, safe for you. We won't need to skip anything.
+          Enjoy! This is a clean movie, there is no need to skip anything!
         </span>
 
         <!-- Cut -->
@@ -213,8 +213,8 @@
           <v-icon small color="red" class="mb-1">mdi-flag-variant</v-icon><b>Unsafe Movie!</b>
           <br />
           Users reported there are scenes not yet filtered. We will skip
-          {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but there are
-          probably more.
+          {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but there might be
+          more.
           <!-- <br />You can <a href="#" @click="showSidebar(false)">create the filters yourself.</a>-->
         </span>
 
@@ -223,8 +223,7 @@
           <v-icon small color="gray" class="mb-1">mdi-progress-question</v-icon>
           <b>Warning! Unknown content</b> <br />
           We will skip
-          {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but there are
-          probably more
+          {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but there might be more.
         </span>
       </div>
 

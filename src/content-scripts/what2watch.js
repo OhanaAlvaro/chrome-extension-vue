@@ -59,8 +59,8 @@ var w2w = {
       var tagsCount = 0
       for (let i = 0; i < w2w.skip_tags.length; i++) {
         let st = w2w.skip_tags[i]
-        if (tagged.tags_count && Object.keys(tagged.tags_count).includes(st)) {
-          tagsCount += tagged.tags_count[st]
+        if (tagged.tagged && Object.keys(tagged.tagged).includes(st)) {
+          tagsCount += tagged.tagged[st][0]
         }
       }
 

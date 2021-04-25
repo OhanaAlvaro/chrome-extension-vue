@@ -97,7 +97,9 @@ var fc = {
       } else if (fc.tagged[skip_tags[i]].status == 'missing') {
         shield = 'missing'
         break
-      } else if (fc.tagged[skip_tags[i]].status == 'unknown') {
+      } else if (fc.tagged[skip_tags[i]].status == 'done') {
+        // this is okay
+      } else {
         shield = 'unknown'
       }
     }

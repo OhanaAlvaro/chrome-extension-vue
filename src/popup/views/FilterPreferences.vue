@@ -37,8 +37,7 @@
 
     <!-- 2. INTRO TEXT-->
     <div style="margin-top: 5px; font-size: 95%">
-      You decide what <b>"safe"</b> means, by letting us know what content you want to avoid. Then
-      we will skip it by default.
+      You decide what <b>"safe"</b> means, by letting us know what content you want to avoid. We will skip any unwanted content.
     </div>
     <!-- 3. CATEGORY OPTIONS  -->
     <!-- 3.1 Category Header -->
@@ -102,13 +101,12 @@
       you know if it is:
       <br />
       <v-icon color="green" small>mdi-emoticon-happy</v-icon><b>Clean:</b> Content was originally
-      safe, it didn't need to be cut.
+      clean, no need to skip anything.
       <br />
-      <v-icon color="green" small>mdi-content-cut</v-icon><b>Cut:</b> There was unsafe content, but
+      <v-icon color="green" small>mdi-content-cut</v-icon><b>Cut:</b> There was unwanted content, but
       we will skip it all for you.
       <br />
-      <v-icon color="red" small>mdi-flag-variant</v-icon><b>Unsafe:</b> Unwanted content was
-      flagged, but it's not cut yet.
+      <v-icon color="red" small>mdi-flag-variant</v-icon><b>Unsafe:</b> There is unwanted content, but we can't skip it yet.
       <br />
       <v-icon color="gray" small>mdi-progress-question</v-icon><b>Unknown:</b> We can't help as we
       don't have information yet.
