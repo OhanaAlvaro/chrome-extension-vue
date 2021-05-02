@@ -7,6 +7,11 @@ var w2w = {
   init: function function_name(skip_tags, api, force) {
     if (!w2w.api) w2w.api = api
     w2w.skip_tags = skip_tags
+    if (skip_tags.length) {
+      document.body.classList.remove('hide-shields')
+    } else{
+      document.body.classList.add('hide-shields')
+    }
     w2w.add_shields(force)
   },
 
@@ -28,7 +33,7 @@ var w2w = {
       console.log('recomputing', shields.length, links.length)*/
     }
     w2w.num_links = links.length
-    console.log('Adding ', links.length, ' shields. Force ', force)
+    console.log('Adding ', links.length, ' shields. Force ', force, w2w.skip_tags)
 
     // Add shields
     var missing_id = []
@@ -36,7 +41,7 @@ var w2w = {
       var id = provider.parseURL(links[i].href).id
       if (!w2w.tagged[id]) {
         missing_id.push(id)
-        w2w.tagged[id] = { done: [], missing: [] } // This stops item from being added again as missing
+        w2w.tagged[id] = { done: [], missing: [] } // This stops items from being added again as missing
       }
       w2w.add_shield(links[i], w2w.tagged[id])
     }
@@ -57,9 +62,8 @@ var w2w = {
       //now check the total number of scenes per skipTag
       //TODO: review tagsCount is properly done.
       var tagsCount = 0
-      for (let i = 0; i < w2w.skip_tags.length; i++) {
-        let st = w2w.skip_tags[i]
-        if (tagged.tagged && Object.keys(tagged.tagged).includes(st)) {
+      for (let st in w2w.skip_tags) {
+        if (tagged.tagged && tagged.tagged[st]) {
           tagsCount += tagged.tagged[st][0]
         }
       }
@@ -69,8 +73,6 @@ var w2w = {
       } else {
         return w2w.update_shield(elem, 'mdi-emoticon-happy', 'done')
       }
-
-      //return w2w.update_shield(elem, 'done', 'done') //TODO: depending on the number of scenes (=0 or >0), use one icon (emoticon-happy) or the other (content-cut)
     }
 
     // If ANY skip_tag is included in tagged.missing
@@ -92,7 +94,7 @@ var w2w = {
       elem.appendChild(img)
     }
     if (!elem.classList.contains(cls)) {
-      elem.classList.remove(['done', 'missing', 'unknown'])
+      elem.classList.remove('done', 'missing', 'unknown')
       elem.classList.add(cls)
       img.src = chrome.runtime.getURL('icons/' + icon + '.png')
     }

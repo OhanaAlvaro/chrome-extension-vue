@@ -2,7 +2,7 @@
   <div class="size-wrapper">
     <br />
     <p>
-      To use Ohana please open a video on
+      To use Ohana please open one of our supported content providers: 
       <a href="https://www.netflix.com" target="_blank">Netflix</a>,
       <a href="https://es.hboespana.com/" target="_blank">HBO</a>,
       <a href="https://www.disneyplus.com/" target="_blank">Disney Plus</a>,

@@ -1,13 +1,18 @@
 <template>
-  <div style="min-width: 300px;">
+  <div style="min-width: 320px;">
     <!-- TODO: I think we could have a different view to show list of scenes when user clicks on the chip with the scenes count-->
     <!-- 1. HEADER -->
 
     <div>
       <h2 @mouseover="mouseoverSample = 'Select the categories'" @mouseleave="mouseoverSample = ''">
-        Welcome to Ohana!
+        <span v-if="data.metadata.title">
+          {{data.metadata.title}}
+        </span>
+        <span v-else>
+          Welcome to Ohana!
+        </span>
+        
       </h2>
-
       <!-- Just to debug: -->
       <!-- 
       <i>{{ mouseoverSample }}</i>
@@ -26,14 +31,9 @@
 
       <v-spacer></v-spacer>
       <span class="menu">
-        <!-- 
-          <v-btn @click="go2Login()" color="grey" fab x-small dark depressed>
-          <v-icon>mdi-account</v-icon>
-        </v-btn>
-        -->
         <a @click="go2Login()">
           <v-icon class="pb-1" small>mdi-account</v-icon>
-          <b>{{ data.settings.username }}</b>
+          <b style="color: #616161"> {{ data.settings.username }}</b>
         </a>
       </span>
     </div>
@@ -173,21 +173,19 @@
         id="SUMMARY_TEXT"
         align="center"
         justify="center"
-        style="padding:10px; border: 1px solid grey; margin: auto; "
+        style="padding:10px; margin: auto; "
       >
-        <!-- TODO: BUG here, unknown option is not appearing, still "done" appears :/ ... -->
         <span v-if="!data.success">
-          <b style="color: red">No movie!</b>
+          <h3 style="color: red">No movie!</h3>
           Open a specific movie/show to start using Ohana. If you've already opened a movie, try
           refreshing the page.
         </span>
 
         <!-- NO skipTags -->
         <span v-if="finalSelectedTags.length == 0">
-          <b style="color: black">You are not using Ohana to skip content</b>
-          <br />
-          To skip some content automatically, let us know your sensitivity
-          <router-link to="/preferences">here</router-link>
+          <h3 style="color: black">You are not using Ohana to skip content</h3>
+          To automagically skip unwanted scenes, let us know 
+          <router-link to="/preferences">your sensitivity</router-link>
         </span>
 
         <!-- Clean -->
@@ -195,48 +193,55 @@
           v-else-if="(data.shield == `done` && skipScenesCount == 0) || data.shield == 'clean'"
           style="color: #00b359"
         >
-          <v-icon small color="green" class="mb-1">mdi-emoticon-happy</v-icon>
-          <b>Clean movie!</b> <br />
+          <h3>Clean movie! <v-icon small color="green" class="mb-1">mdi-emoticon-happy</v-icon></h3>
           Enjoy! This is a clean movie, there is no need to skip anything!
         </span>
 
         <!-- Cut -->
         <span v-else-if="data.shield == `done`" style="color: #00b359">
-          <v-icon small color="green" class="mb-1">mdi-content-cut</v-icon>
-          <b>Safe Movie!</b> <br />
+          <h3>Safe Movie! <v-icon small color="green" class="mb-1">mdi-content-cut</v-icon></h3>
           Grab some popcorn and enjoy! We will skip {{ skipScenesCount == 1 ? 'the' : 'all' }}
           {{ skipScenesCount }} unwanted {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}.
         </span>
 
         <!-- Unsafe / flagged -->
         <span v-else-if="data.shield == `missing`" style="color: red">
-          <v-icon small color="red" class="mb-1">mdi-flag-variant</v-icon><b>Unsafe Movie!</b>
-          <br />
-          Users reported there are scenes not yet filtered. We will skip
-          {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but there might be
-          more.
-          <!-- <br />You can <a href="#" @click="showSidebar(false)">create the filters yourself.</a>-->
+          <h3>Unsafe Movie! <v-icon small color="red" class="mb-1">mdi-flag-variant</v-icon></h3>
+          This movie has unwanted scenes that we can't skip yet.
+          <span v-if="skipScenesCount != 0">
+            We will skip {{ skipScenesCount }}
+          {{ skipScenesCount == 1 ? 'scene' : 'scenes' }} , but there are more.  
+          </span>
+          Please consider
+          <a target="_blank" href="https://www.patreon.com/ohanamovies">donating</a> or <a @click="showSidebar(true)">becoming an editor</a> to support the creation of new filters.
         </span>
 
         <!-- Unknown-->
         <span v-else style="color: #DC6F08">
-          <v-icon small color="gray" class="mb-1">mdi-progress-question</v-icon>
-          <b>Warning! Unknown content</b> <br />
+          <h3>Warning! Unknown content <v-icon small color="gray" class="mb-1">mdi-progress-question</v-icon></h3>
+          This movie might contain unwanted scenes.
+          <span v-if="skipScenesCount != 0">
           We will skip
-          {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but there might be more.
+          {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but there might be
+          more.
+          </span>
+          Please consider
+          <a target="_blank" href="https://www.patreon.com/ohanamovies">donating</a> or <a @click="showSidebar(true)">becoming an editor</a> to support the creation of new filters.
         </span>
       </div>
 
       <!-- 4. ACTION BUTTONS-->
       <div id="ACTION_BUTTONS">
-        <v-row>
-          <v-col>
-            <v-btn color="dark" dark block dense depressed tile @click="showSidebar(true)"
+        <v-row no-gutters>
+          <v-col cols="4">
+            <v-btn block dense depressed tile text @click="showSidebar(true)"
               >Edit filters</v-btn
             >
           </v-col>
-          <v-col>
+          <v-col cols="4">
             <v-btn
+              text
+              plain
               dark
               block
               dense
@@ -249,12 +254,9 @@
               Donate
             </v-btn>
           </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col style="padding-top: 0px; padding-bottom: 0px">
-            <v-btn color="success" block dense depressed tile @click="saveSkipTagsSettings(true)"
-              >Watch now</v-btn
+          <v-col cols="4">
+            <v-btn color="success" block dense depressed tile text @click="saveSkipTagsSettings(true)"
+              >Watch</v-btn
             >
           </v-col>
         </v-row>

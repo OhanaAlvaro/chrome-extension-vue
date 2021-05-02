@@ -7,8 +7,11 @@
   /*filter: grayscale(100%);*/
 }
 
+.hide-shields .ohana-shield {
+  display: none !important;
+}
+
 .ohana-shield {
-  width: 30px;
   position: absolute;
   filter: none !important;
   display: block !important;

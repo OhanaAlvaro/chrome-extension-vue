@@ -2,21 +2,13 @@
   <div style="min-width: 340px;">
     <!-- 1. HEADER -->
     <div>
-      <h2>
-        Welcome to Ohana!
-        <router-link style="font-size: 70%" to="/" v-if="data.hasFilm">Back</router-link>
-      </h2>
+      <h2>What do you want to skip?</h2>
 
       <v-spacer></v-spacer>
       <span class="menu">
-        <!-- 
-          <v-btn @click="go2Login()" color="grey" fab x-small dark depressed>
-          <v-icon>mdi-account</v-icon>
-        </v-btn>
-        -->
         <a @click="go2Login()">
           <v-icon class="pb-1" small>mdi-account</v-icon>
-          <b>{{ data.settings.username }}</b>
+          <b style="color: #616161"> {{ data.settings.username }}</b>
         </a>
       </span>
     </div>
@@ -35,15 +27,13 @@
     {{ skipTags }}
     -->
 
-    <!-- 2. INTRO TEXT-->
+    <!-- 2. INTRO TEXT
     <div style="margin-top: 5px; font-size: 95%">
       You decide what <b>"safe"</b> means, by letting us know what content you want to avoid. We will skip any unwanted content.
-    </div>
+    </div>-->
     <!-- 3. CATEGORY OPTIONS  -->
     <!-- 3.1 Category Header -->
-    <div
-      style="max-height: 350px; overflow-y: auto; border-bottom: solid 1px black; border-top: solid 1px black; padding: 2px"
-    >
+    <div style="max-height: 350px; overflow-y: auto; padding: 2px">
       <div id="Sliders" v-for="(cat, index) in categories" :key="index">
         <!-- TODO: ugly way of removing other...-->
         <div
@@ -55,20 +45,21 @@
             :label="`Skip '` + cat + `'`"
             v-model="protection[index]"
             dense
+            @change="saveSkipTagsSettings()"
             class="py-0 ma-0"
           >
-            <template v-slot:label="{ value }">
-              <!--TODO: do we want to use this slot to make the label more custom?-->
+            <!--<template v-slot:label="{ value }">
+              <!- -TODO: do we want to use this slot to make the label more custom?- ->
               <div>
                 <span>{{ value }}</span>
                 {{ value }}
               </div>
-            </template>
+            </template>-->
           </v-switch>
 
           <!-- 3.2 Cat expansion panel, with SLIDER -->
           <v-expand-transition>
-            <div v-if="protection[index]">
+            <div v-show="protection[index]">
               <v-slider
                 class="mb-3"
                 hide-details
@@ -79,15 +70,16 @@
                 track-color="black"
                 color="green"
                 dense
-                :max="3"
+                max="3"
                 step="1"
                 ticks="always"
                 tick-size="5"
+                @change="saveSkipTagsSettings()"
               >
               </v-slider>
-              <span style="font-size: 95%">
+              <span style="font-size: 96%">
                 <!-- <b>{{ severities[index][protectionLevels[index]] }}: </b>-->
-                {{ descriptions[index][protectionLevels[index]] }}
+                <b>This will skip:</b> {{ descriptions[index][protectionLevels[index]] }}
               </span>
             </div>
           </v-expand-transition>
@@ -96,54 +88,39 @@
     </div>
 
     <!-- 4. ICONS EXPLANATION-->
-    <div style="margin-top: 5px; font-size: 95%">
-      These will apply to all content you watch on compatible providers. For each movie, we will let
-      you know if it is:
+    <div style="margin: 5px;">
+      You can now relax and enjoy watching movies as usual! We will automagically skip any unwanted
+      scenes.
+
       <br />
-      <v-icon color="green" small>mdi-emoticon-happy</v-icon><b>Clean:</b> Content was originally
-      clean, no need to skip anything.
+      On every movie, we will let you know if it is:
       <br />
-      <v-icon color="green" small>mdi-content-cut</v-icon><b>Cut:</b> There was unwanted content, but
-      we will skip it all for you.
+      <v-icon color="green" small>mdi-emoticon-happy</v-icon><b>Clean:</b> No need to skip anything.
       <br />
-      <v-icon color="red" small>mdi-flag-variant</v-icon><b>Unsafe:</b> There is unwanted content, but we can't skip it yet.
+      <v-icon color="green" small>mdi-content-cut</v-icon><b>Cut:</b> All unwanted scenes will be
+      skipped.
       <br />
-      <v-icon color="gray" small>mdi-progress-question</v-icon><b>Unknown:</b> We can't help as we
-      don't have information yet.
+      <v-icon color="red" small>mdi-flag-variant</v-icon><b>Unsafe:</b> Beware! We can't skip all
+      unwanted scenes yet.
+      <br />
+      <v-icon color="gray" small>mdi-progress-question</v-icon><b>Unknown:</b> Careful! Movie might
+      have unwanted scenes.
     </div>
 
     <!-- ACTION BUTTONS -->
-    <div>
-      <v-row>
-        <v-col class="pb-0">
-          <v-btn dark block dense depressed tile color="success" @click="donePressed()">
-            Save
-          </v-btn>
-        </v-col>
-      </v-row>
-    </div>
+    <div style="margin: 10px 5px 0 5px">
+      <!--<b>Help us improve</b>-->
+      <v-btn plain text href="https://forms.gle/cPr7XQhdS7x1y9hx7" target="_blank">
+        Feekback
+      </v-btn>
 
-    <v-row v-if="false">
-      <v-col class="pb-0 pt-1">
-        <v-btn
-          dark
-          block
-          dense
-          depressed
-          tile
-          color="primary"
-          href="https://www.patreon.com/ohanamovies"
-          target="_blank"
-        >
-          Donate
-        </v-btn>
-      </v-col>
-      <v-col class="pb-0 pt-1">
-        <v-btn color="success" block dense depressed tile @click="saveSkipTagsSettings(false)"
-          >Save</v-btn
-        >
-      </v-col>
-    </v-row>
+      <v-btn plain text color="primary" href="https://www.patreon.com/ohanamovies" target="_blank">
+        Donate
+      </v-btn>
+
+      <v-btn v-if="data.hasFilm" plain text color="success" to="/"> Back</v-btn>
+      <v-btn v-else plain text color="success" @click="closePopup()"> Close </v-btn>
+    </div>
   </div>
 </template>
 
@@ -171,11 +148,15 @@ export default {
         this.skipTags2ui()
       }
     },
-    protectionLevels() {
-      this.ui2skipTags()
-    },
-    protection() {
-      this.ui2skipTags()
+    protection: {
+      deep: true,
+      handler(newValue, oldValue) {
+        if (newValue != oldValue) {
+          console.log('test')
+        }
+
+        //
+      }
     }
   },
   computed: {
@@ -219,16 +200,17 @@ export default {
           }
         }
       }
-      this.selectedTags = new_selectedTags
+      //this.selectedTags = new_selectedTags
       this.skipTags = new_skipTags
     },
     skipTags2ui() {
+      console.log('[skipTags2ui]', this.data.settings.skip_tags)
       //This is triggered everytime this.data changes (watcher)
 
       let skip_tags = this.data.settings.skip_tags
 
       //settings I have skip_tags, which all the tags together. We need to map them to match the numbers in the slider.
-      //We assume tags come in the  order: severe to none.
+      //We assume tags come in the order: severe to none.
 
       let protection = []
       let protectionLevels = []
@@ -248,22 +230,7 @@ export default {
       this.protection = [...protection]
       this.protectionLevels = [...protectionLevels]
     },
-    donePressed() {
-      console.log('done pressed')
-      if (this.data.hasFilm) {
-        this.saveSkipTagsSettings(false)
-        this.goTo('/')
-      } else {
-        this.saveSkipTagsSettings(true)
-      }
-    },
-    /*sliderLabelsFromSev(index) {
-      let x = []
-      for (let i = this.severities[index].length - 1; i >= 0; i--) {
-        x.push(this.severities[index][i])
-      }
-      return x
-    },*/
+
     goTo(route) {
       if (route == -1) {
         this.$router.go(-1)
@@ -279,30 +246,20 @@ export default {
       }
     },
     closePopup() {
-      if (close) {
-        fclib.sendMessage({ msg: 'play' })
-        window.close()
-      }
+      fclib.sendMessage({ msg: 'play' })
+      window.close()
     },
-    sendMessage(msg, callback) {
-      fclib.sendMessage(msg, callback)
-    },
-    saveSkipTagsSettings(close = false) {
+
+    saveSkipTagsSettings() {
+      this.ui2skipTags()
+
       var xx = this.data.settings
       xx.skip_tags = this.skipTags
       console.log('skip tags: ', xx.skip_tags)
 
       fclib.sendMessage({ msg: 'update-settings', settings: xx }, response => {
-        if (response) {
-          console.log('Settings saved!')
-        } else {
-          console.error('Error saving settings', response)
-        }
+        if (!response) console.error('Error saving settings', response)
       })
-
-      if (close) {
-        this.closePopup()
-      }
     }
   },
 
@@ -319,4 +276,19 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+
+ .v-slider__thumb {
+    height: 20px;
+    width: 20px;
+  }
+
+  .v-slider__thumb:before {
+    display: none;
+  }
+
+  .v-slider__track-container {
+    height: 3px !important;
+  }
+
+</style>

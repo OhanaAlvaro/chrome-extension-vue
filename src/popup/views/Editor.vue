@@ -271,7 +271,7 @@ export default {
 
 .size-wrapper {
   height: 96vh;
-  width: 100vw -20px;
+  width: calc( 100vw - 20px);
 }
 
 .no-uppercase {

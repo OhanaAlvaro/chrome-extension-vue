@@ -19,7 +19,7 @@ var provider = require('./provider')
 var fc = {
   default_settings: {
     username: '',
-    blur_level: 40,
+    blur_level: 20,
     skip_tags: [],
     ignore_default_settings: true,
     pause_after_adding_scene: false,
@@ -530,6 +530,7 @@ var server = {
       }
       fc.scenes = utils.merge(result.body.scenes, fc.scenes)
       fc.tagged = Object.assign({}, result.body.tagged)
+      Object.assign(fc.metadata, result.body.metadata);
       fc.onContentEdit('server')
     })
   },

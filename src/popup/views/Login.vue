@@ -1,7 +1,7 @@
 <template>
   <div class="size-wrapper">
     <div>
-      <h2 v-if="data.settings.username">{{ data.settings.username }} @ {{ extensionName }}</h2>
+      <h2 v-if="data.settings.username">Hi {{ data.settings.username }}!</h2>
       <h2 v-else>Welcome to {{ extensionName }}!</h2>
       <span class="menu">
         <!--
@@ -12,7 +12,7 @@
 
         <a @click="cancelSettings()">
           <v-icon class="pb-1" small>mdi-arrow-left</v-icon>
-          <b>Back</b>
+          <b style="color: #616161">Back</b>
         </a>
       </span>
     </div>
