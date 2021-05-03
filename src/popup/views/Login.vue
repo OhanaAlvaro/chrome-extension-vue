@@ -1,19 +1,18 @@
 <template>
   <div class="size-wrapper">
     <div>
-      <h2 v-if="data.settings.username">Hi {{ data.settings.username }}!</h2>
+      <h2 v-if="data.settings.username">
+        Hi {{ data.settings.username }}! ({{ rank[data.settings.level] }})
+      </h2>
       <h2 v-else>Welcome to {{ extensionName }}!</h2>
       <span class="menu">
-        <!--
-        <v-btn color="grey" fab x-small dark depressed @click="cancelSettings">
-          <v-icon>mdi-home</v-icon>
-        </v-btn>
-        -->
-
-        <a @click="cancelSettings()">
+        <a v-if="!data.sidebar" @click="cancelSettings()">
           <v-icon class="pb-1" small>mdi-arrow-left</v-icon>
           <b style="color: #616161">Back</b>
         </a>
+        <span v-else @click="hideSidebar">
+          <v-icon small>mdi-close</v-icon>
+        </span>
       </span>
     </div>
 
@@ -41,7 +40,36 @@
       </v-col>
     </v-row>
 
-    <v-row>
+    <div v-if="data.settings.username">
+      <div v-if="data.settings.level == 0">
+        <p>
+          Welcome {{ data.settings.username }}, as a <i>{{ rank[data.settings.level] }}</i
+          >, you are the lowest ranking Jedi. Some of your changes might require approval by higher
+          ranking users.
+        </p>
+
+        <p>
+          As you edit more movies and earn community recognition you will grow into the higher ranks
+          of Ohana.
+        </p>
+      </div>
+      <div v-else-if="data.settings.level < 6">
+        Hi {{ data.settings.username }}, as a <i>{{ rank[data.settings.level] }}</i
+        >, you can approve changes done by lower ranking users, but of your own changes might
+        require approval by a higher ranking users.
+      </div>
+      <div v-else>
+        Hi {{ data.settings.username }}, you are Master Yoda! You can do and undo all changes. With
+        great power comes great responsibility!
+      </div>
+    </div>
+
+    <div>
+      Visit <a href="https://ohanamovies.org/" target="_blank">our website</a> to find out more
+      about Ohana and skipping content.
+    </div>
+
+    <!--<v-row>
       <v-col>
         <h3>Manage your preferences</h3>
         <span>
@@ -70,7 +98,7 @@
           <a href="https://forms.gle/cPr7XQhdS7x1y9hx7" target="_blank">use this form</a>.
         </span>
       </v-col>
-    </v-row>
+    </v-row>-->
 
     <!-- 
     <v-row>
@@ -110,16 +138,12 @@ export default {
 
   data() {
     return {
-      //settings: { skip_tags: [] },  //now using prop data
-      //settings_backup: {},
-      //skip_tags_backup: [],
 
       darkMode: false,
 
-      dialog: false,
+      rank: ['Youngling', 'Padawan', 'Jedi Knight', 'Jedi Master', 'Grand Master', 'Yoda'],
 
-      //other settings
-      show_password: false,
+      dialog: false,
 
       //snackbar
       snackbar: false,
@@ -158,26 +182,16 @@ export default {
       this.snackbarTimeout = 6000
       this.snackbar = true
     },
-    loginSuccess(data, serverResponse) {
-      console.log('loginSuccess')
-      this.showSnackbar(serverResponse.msg, 'success')
+    loginSuccess(message) {
+      this.showSnackbar(message, 'success')
     },
-    logginError(data, serverResponse) {
-      console.log('logginError')
-      this.data.settings.username = ''
-      this.data.settings.password = ''
-      if (data.logOut) {
-        this.showSnackbar(serverResponse, 'success')
-      } else {
-        this.showSnackbar(serverResponse, 'error')  
-      }
-      
-      this.saveSettings()
+    logginError(message) {
+      this.showSnackbar(message, 'error')
     },
     cancelSettings() {
       //this.$router.go(-1) //to previous page (just in case at some point we have more than Home/Settings)
       this.$router.back()
-      this.hideSidebar() //TODO: ugly workaround. Good approach would be to show the "close" button only if we are in side bar.
+      //this.hideSidebar() //TODO: ugly workaround. Good approach would be to show the "close" button only if we are in side bar.
     },
 
     //Intereact with content-script (get/push data and messages)

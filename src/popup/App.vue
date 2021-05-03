@@ -75,9 +75,7 @@ export default {
         // If there is no response (or it is incomplete) open wrongsite/nomovie pages
         if (!response) {
           return this.$router.push('/wrongsite')
-        } /* else if (!response.settings || !response.scenes) {
-          return this.$router.push('/no-movie')
-        }*/
+        }
 
         if (firstTime && response.scenes) {
           response.scenes.sort(function(a, b) {
@@ -97,11 +95,13 @@ export default {
           }
         }
 
+        response.sidebar = this.inIframe()
+
         // Make data globally accesible
         this.data = response
 
         // If we are on an iframe (i.e. on the sidebar), open de login/editor
-        if (this.inIframe()) {
+        if (response.sidebar) {
           if (!response.settings.username) {
             this.$router.push('/login')
           } else if (!['Editor'].includes(this.$route.name)) {

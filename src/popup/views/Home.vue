@@ -671,6 +671,10 @@ td {
   font-size: 12px;
 }
 
+#SUMMARY_TEXT a {
+  text-decoration: none;
+}
+
 /*
 .section {
   text-transform: uppercase;
@@ -693,49 +697,6 @@ td {
   padding-top: 0px;
 }
 
-.sliders {
-  display: grid;
-  padding: 10px;
-  grid-template-columns: 80px 220px;
-  grid-column-gap: 15px;
-  grid-row-gap: 15px;
-}
-
-.slider {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 10px;
-  border-radius: 5px;
-  background: #d3d3d3;
-  outline: none;
-  opacity: 0.7;
-  -webkit-transition: 0.2s;
-  transition: opacity 0.2s;
-}
-
-.slider:hover {
-  opacity: 1;
-}
-
-.sliderticks {
-  display: flex;
-  justify-content: space-between;
-  padding: 0 10px;
-}
-
-.sliderticks p {
-  white-space: nowrap;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  width: 1px;
-  background: #d3d3d3;
-  height: 5px;
-  line-height: 40px;
-  margin: 0 0 20px 0;
-  font-size: 11px;
-}
 
 select {
   border-bottom: 1px dashed #555 !important;

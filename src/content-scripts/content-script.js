@@ -372,52 +372,16 @@ var browser = {
         } else if (request.msg == 'seek-diff') {
           player.seek(request.diff + player.getTime(), 'frame')
         } else if (request.msg == 'login') {
-          server.send(
-            {
-              action: 'login',
-              username: request.username,
-              password: request.password
-            },
-            function(response) {
-              console.log(response)
-              if (response.statusCode == 200) {
-                fc.settings.token = response.body.token
-                fc.settings.level = response.body.level
-                fc.settings.username = request.username
-                console.log('updating settings ',fc.settings)
-                fc.loadSettings(fc.settings)
-                browser.setData('settings', fc.settings)
-              }
-              sendResponse(response)
-            }
-          )
-          return true
+          return server.auth('login', request, sendResponse)
         } else if (request.msg == 'newuser') {
-          server.send(
-            {
-              action: 'newuser',
-              username: request.username,
-              password: request.password,
-              email: request.email
-            },
-            function(response) {
-              sendResponse(response)
-            }
-          )
-          return true
+          return server.auth('newuser', request, sendResponse)
         } else if (request.msg == 'newpass') {
-          server.send(
-            {
-              action: 'newpass',
-              username: request.username,
-              password: request.password,
-              newpassword: request.newpassword
-            },
-            function(response) {
-              sendResponse(response)
-            }
-          )
-          return true
+          return server.auth('newpass', request, sendResponse)
+        } else if (request.msg == 'logout') {
+          fc.settings.username = ''
+          fc.settings.token = ''
+          browser.setData('settings', fc.settings)
+          fc.onContentEdit('settings')
         } else {
           console.log('unknown request: ', request)
         }
@@ -499,6 +463,31 @@ var server = {
     })
   },
 
+  auth: function(action, request, callback) {
+    console.log('[auth] ', action, request)
+    server.send(
+      {
+        action: action,
+        username: request.username,
+        password: request.password,
+        email: request.email,
+        newpassword: request.newpassword
+      },
+      function(response) {
+        if (response.statusCode == 200) {
+          fc.settings.token = response.body.token
+          fc.settings.level = response.body.level
+          fc.settings.username = request.username
+          console.log('updating settings ', fc.settings)
+          fc.loadSettings(fc.settings)
+          browser.setData('settings', fc.settings)
+        }
+        callback(response)
+      }
+    )
+    return true
+  },
+
   getMovie: function() {
     if (!fc.metadata || !fc.metadata.id) {
       console.warn('[getMovie] Invalid metadata ', fc.metadata)
@@ -530,7 +519,7 @@ var server = {
       }
       fc.scenes = utils.merge(result.body.scenes, fc.scenes)
       fc.tagged = Object.assign({}, result.body.tagged)
-      Object.assign(fc.metadata, result.body.metadata);
+      Object.assign(fc.metadata, result.body.metadata)
       fc.onContentEdit('server')
     })
   },
@@ -564,7 +553,7 @@ var server = {
     // Build url
     var out = []
     for (var key in query) {
-      if (query.hasOwnProperty(key)) {
+      if (query.hasOwnProperty(key) && query[key] != null) {
         out.push(key + '=' + encodeURIComponent(query[key]))
       }
     }

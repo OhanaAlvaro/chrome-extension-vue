@@ -50,11 +50,11 @@
     ></v-text-field>
 
     <span v-if="page == 'login'">
-      New user? <a @click="page = 'register'">Register now!</a>
+      New user? <a @click="page2 = 'register'">Register now!</a>
       <v-btn color="info" @click="checkLogin()" block depressed tile class="mt-2">Login</v-btn>
     </span>
     <span v-if="page == 'register'">
-      Already a user? <a @click="page = 'login'">Log in!</a>
+      Already a user? <a @click="page2 = 'login'">Log in!</a>
       <v-btn color="info" @click="newUser()" block depressed tile class="mt-2">Register</v-btn>
     </span>
     <span v-if="page == 'logout'">
@@ -70,8 +70,15 @@ export default {
     data: {
       type: Object,
       default() {
-        return { username: '', password: '' }
+        return { settings: { username: '', password: '' } }
       }
+    }
+  },
+
+  computed: {
+    page() {
+      if (this.data.settings.username) return 'logout'
+      return this.page2
     }
   },
 
@@ -80,17 +87,17 @@ export default {
       deep: true,
       handler: function(newValue, oldValue) {
         console.warn('Watched data login>login')
-        console.warn('new value', newValue)
-        console.warn('old value', oldValue)
+        console.warn('new value', newValue.settings)
+        console.warn('old value', oldValue.settings)
 
-        if (newValue.settings.username) {
-          console.log('username watched in login', newValue)
-          this.username_copy = newValue.settings.username
-          this.page = this.username_copy ? 'logout' : 'register'
-        }
-        if (newValue.settings.password) {
+        //if (newValue.settings.username) {
+        console.log('username watched in login', newValue)
+        this.username_copy = newValue.settings.username
+        this.page2 = this.username_copy ? 'logout' : 'register'
+        //}
+        /*if (newValue.settings.password) {
           this.password_copy = newValue.settings.password
-        }
+        }*/
       }
     }
   },
@@ -101,7 +108,7 @@ export default {
       password_copy: '',
       email_copy: '',
       show_password: false,
-      page: 'register'
+      page2: 'register'
     }
   },
 
@@ -115,10 +122,6 @@ export default {
         ? 'has-success'
         : 'has-error, error--text'
     },
-    achus(event) {
-      console.log(event)
-      this.$refs.passwordField.focus()
-    },
     checkLogin() {
       console.log('check login started...', this.username_copy, this.password_copy)
       var data = { username: this.username_copy, password: this.password_copy }
@@ -126,24 +129,23 @@ export default {
       var payload = { msg: 'login', username: this.username_copy, password: this.password_copy }
 
       fclib.sendMessage(payload, response => {
-        console.log('login', response)
+        console.log('[checkLogin]', response)
         if (response.statusCode < 300) {
-          this.$emit('success', data, response.body) //let parent know
-          this.page = 'logout'
+          this.$emit('success', response.body.msg) //let parent know
+          this.page2 = 'logout'
         } else {
-          //this.username_copy = '' //not reflecting to parent...
           this.password_copy = ''
           this.$refs.usernameField.focus()
-          this.$emit('error', data, response.body) //let parent know
+          this.$emit('error', response.body) //let parent know
         }
       })
     },
 
     logOut() {
-      var data = { username: '', password: '', logOut: true }
-      var response = { data: 'Successfully logged out!' }
-      this.$emit('error', data, response) //let parent know
-      this.page = 'login'
+      fclib.sendMessage({ msg: 'logout' }, response => {
+        this.$emit('success', 'Successfully logged out!')
+        this.page2 = 'login'
+      })
     },
 
     newUser() {
@@ -160,13 +162,13 @@ export default {
       fclib.sendMessage(payload, response => {
         console.log('newuser', response)
         if (response.statusCode < 300) {
-          this.$emit('success', data, response.body) //let parent know
-          this.page = 'logout'
+          this.$emit('success', response.body.msg) //let parent know
+          this.page2 = 'logout'
         } else {
           //this.username_copy = '' //not reflecting to parent...
           this.password_copy = ''
           this.$refs.usernameField.focus()
-          this.$emit('error', data, response.body) //let parent know
+          this.$emit('error', response.body) //let parent know
         }
       })
     }

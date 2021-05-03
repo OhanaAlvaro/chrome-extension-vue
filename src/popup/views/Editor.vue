@@ -4,10 +4,6 @@
     <div>
       <h1>Create new filters</h1>
       <span class="menu">
-        <span @click="go2Login">
-          <v-icon small>mdi-account</v-icon>
-        </span>
-
         <span @click="hideSidebar">
           <v-icon small>mdi-close</v-icon>
         </span>
@@ -194,13 +190,6 @@ export default {
   methods: {
     hideSidebar() {
       this.sendMessage({ msg: 'show-sidebar', show: false })
-    },
-    go2Login() {
-      if (this.$route.name == 'Login') {
-        this.$router.go(-1) //go back to whatever route we were before :)  | (just in case at some point we have more than Home/Login)
-      } else {
-        this.$router.push('/login')
-      }
     },
     prettyTime(time) {
       var mins = Math.floor(time / 1000 / 60)

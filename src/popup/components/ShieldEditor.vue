@@ -23,6 +23,7 @@
                 <div @click="nextStatus(tag_sex)" style="cursor: pointer;">
                   <v-icon v-if="status(tag_sex) == `missing`" color="red">mdi-flag-variant</v-icon>
                   <v-icon v-if="status(tag_sex) == `done`" :color="certifiedColor">mdi-emoticon-happy</v-icon>
+                  <v-icon v-if="status(tag_sex) == `cut`" :color="certifiedColor">mdi-content-cut</v-icon>
                   <v-icon v-if="status(tag_sex) == `unknown`" color="gray"
                     >mdi-progress-question</v-icon
                   >
@@ -37,6 +38,7 @@
                 <div @click="nextStatus(tag_vio)" style="cursor: pointer;">
                   <v-icon v-if="status(tag_vio) == `missing`" color="red">mdi-flag-variant</v-icon>
                   <v-icon v-if="status(tag_vio) == `done`" :color="certifiedColor">mdi-emoticon-happy</v-icon>
+                  <v-icon v-if="status(tag_vio) == `cut`" :color="certifiedColor">mdi-content-cut</v-icon>
                   <v-icon v-if="status(tag_vio) == `unknown`" color="gray"
                     >mdi-progress-question</v-icon
                   >
@@ -57,9 +59,13 @@
               <v-icon color="gray">mdi-progress-question</v-icon> I don't know
             </fc-tooltip>
             <!-- Done shield -->
-            <fc-tooltip text="All scenes of this type have been listed with the right times">
+            <fc-tooltip text="Clean movie, no need to skip anything">
               <v-icon :color="certifiedColor">mdi-emoticon-happy</v-icon> Clean
             </fc-tooltip>
+
+            <!--<fc-tooltip text="All scenes of this type have been listed with the right times">
+              <v-icon :color="certifiedColor">mdi-content-cut</v-icon> Cut
+            </fc-tooltip>-->
           </div>
         </v-card-text>
         <v-card-actions>
@@ -129,19 +135,23 @@ export default {
 
     status(tag) {
       if (!this.tagged[tag.value]) return 'unknown'
-      return this.tagged[tag.value].status
+      return this.tagged[tag.value].status || 'unknown'
     },
 
     nextStatus(tag) {
       var current = this.status(tag)
       if (!this.tagged[tag.value]) this.tagged[tag.value] = {}
       // Update status
-      if (current == 'done') {
+      if (current == 'done' || current == 'cut') {
         this.tagged[tag.value].status = 'missing'
       } else if (current == 'missing') {
         this.tagged[tag.value].status = 'unknown'
       } else {
-        this.tagged[tag.value].status = 'done'
+        if (this.tagged[tag.value].count) {
+          this.tagged[tag.value].status = 'cut'
+        } else {
+          this.tagged[tag.value].status = 'done'  
+        }
       }
       console.log('Status of', tag.value, ' updated from ', current, ' to ', this.status(tag))
       this.$forceUpdate()
