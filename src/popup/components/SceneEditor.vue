@@ -73,24 +73,24 @@
             <v-btn text small @click="seekFrame(scene.end)">Go</v-btn>
           </div>
 
-          <v-btn @click="seekForward(-1000)" class="no-uppercase" text small>
-            -1s
+          <v-btn @click="seekForward(-5000)" class="no-uppercase" text small>
+            -5s
           </v-btn>
 
-          <v-btn @click="seekForward(-50)" class="no-uppercase" text small>
-            -1f
+          <v-btn @click="seekForward(-500)" class="no-uppercase" text small>
+            -0.5s
           </v-btn>
 
           <v-btn @click="sendMessage({ msg: 'play-pause' })" text small>
             <v-icon fab>mdi-play-pause</v-icon>
           </v-btn>
 
-          <v-btn @click="seekForward(50)" class="no-uppercase" text small>
-            +1f
+          <v-btn @click="seekForward(500)" class="no-uppercase" text small>
+            +0.5s
           </v-btn>
 
-          <v-btn @click="seekForward(1000)" class="no-uppercase" text small>
-            +1s
+          <v-btn @click="seekForward(5000)" class="no-uppercase" text small>
+            +5s
           </v-btn>
 
           <br />

@@ -2,7 +2,22 @@
   <div class="size-wrapper">
     <!-- Header -->
     <div>
-      <h1>Create new filters</h1>
+      <h2>
+        Create new filters
+      </h2>
+
+      <h4>
+        {{ data.settings.username }}
+        <span v-if="data.metadata.title">@ {{ data.metadata.title }} </span>
+        <a
+          v-if="data.metadata.imdb"
+          target="_blanck"
+          :href="'https://www.imdb.com/title/' + data.metadata.imdb + '/parentalguide'"
+          >imdb</a
+        >
+      </h4>
+      <br>
+
       <span class="menu">
         <span @click="hideSidebar">
           <v-icon small>mdi-close</v-icon>
@@ -71,18 +86,19 @@
     </div>
 
     <!-- Filter status button (show shield button) -->
-    
 
     <!-- New scene button -->
-    <fc-tooltip text="(Alt+N)">
-      <v-btn color="black" @click="markCurrentTime()" text small>
-        <div v-if="data.state.marking == false"><v-icon>mdi-plus</v-icon>New filter</div>
+    <br>
+    <fc-tooltip text="Click to add a new filter (Alt+N)">
+      <v-btn block depressed @click="markCurrentTime()">
+        <div v-if="data.state.marking == false"><v-icon>mdi-plus</v-icon>Create new filter</div>
         <div v-else><v-icon>mdi-check</v-icon>End Filter</div>
       </v-btn>
     </fc-tooltip>
+    <br>
+
     <v-btn block dense depressed tile @click="shield_visible = !shield_visible">
       <fc-tooltip text="Click to define filter status">
-
         <v-icon :color="certifiedColor" small>mdi-emoticon-happy</v-icon>
         <v-icon :color="certifiedColor" small>mdi-content-cut</v-icon>
         <v-icon color="red" small>mdi-flag-variant</v-icon>
@@ -177,7 +193,7 @@ export default {
       return scenes
     },
 
-    certifiedColor(){
+    certifiedColor() {
       if (this.data.settings.level >= 6) return 'blue'
       return 'green'
     }
@@ -231,6 +247,8 @@ export default {
     },
 
     markCurrentTime() {
+      fclib.sendMessage({ msg: 'play' })
+
       fclib.sendMessage({ msg: 'mark-current-time' }, response => {
         console.log(response)
         if (response && response.scene) {
@@ -260,7 +278,7 @@ export default {
 
 .size-wrapper {
   height: 96vh;
-  width: calc( 100vw - 20px);
+  width: calc(100vw - 20px);
 }
 
 .no-uppercase {

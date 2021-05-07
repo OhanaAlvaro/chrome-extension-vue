@@ -44,7 +44,7 @@ var fc = {
     console.log('Previewing scene: ', scene)
     fc.preview_skip = scene
     player.play()
-    player.seek(fc.preview_skip.start - 2500)
+    player.seek(fc.preview_skip.start - 5000)
     return true
   },
 

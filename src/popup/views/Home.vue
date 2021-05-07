@@ -13,21 +13,6 @@
         </span>
         
       </h2>
-      <!-- Just to debug: -->
-      <!-- 
-      <i>{{ mouseoverSample }}</i>
-
-      {{ categories }}
-      <br />
-      {{ severities }}
-      <br />
-      {{ context }}
-      <br />
-      {{ data }}
-      <br />
-      {{ selectedTags }}
-
-      -->
 
       <v-spacer></v-spacer>
       <span class="menu">
@@ -53,8 +38,7 @@
     <div id="TAB_MOVIE" v-if="tab != 0">
       <!-- 1. SAFE DEFINITION -->
       <div id="SAFE_DEFINITION" style="font-size: 100%; margin-top: 5px;">
-        "Safe" is defined based on your preferences. Review your preferences anytime
-        <router-link to="/preferences">here</router-link>.
+        Update <router-link to="/preferences">your preferences</router-link>.
       </div>
 
       <!-- 2. TAGS EXPANSION BLOCKS -->
@@ -672,7 +656,8 @@ td {
 }
 
 #SUMMARY_TEXT a {
-  text-decoration: none;
+  text-decoration: underline;
+  color: inherit;
 }
 
 /*
