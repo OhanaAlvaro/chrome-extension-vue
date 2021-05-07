@@ -643,7 +643,10 @@ var player = {
     console.log('[seek_time] seeking time ', time)
 
     // Check objective time is within range
-    if (!time || time < 0 || time > fc.metadata.duration) {
+    if (!fc.metadata.duration && player.video) {
+      fc.metadata.duration = player.video.duration * 1000
+    }
+    if (!time || time < 0 || (fc.metadata.duration && time > fc.metadata.duration)) {
       console.log('Invalid time ', time, ', video length is ', fc.metadata.duration)
       return
     }
