@@ -213,6 +213,38 @@ var actions = {
   ]
 }
 
+var extraTags = {
+  videoAudioTags: [
+    {
+      value: 'Video and audio',
+      description: 'Filter applies to both video and audio'
+    },
+    {
+      value: 'Video only',
+      description: 'Filter applies to only to the video'
+    },
+    {
+      value: 'Audio only',
+      description: 'Filter applies only to the audio'
+    }
+  ],
+  plotTags: [
+    {
+      value: 'No plot',
+      description: 'This scene can be skipped without missing plot relevant data'
+    },
+
+    {
+      value: 'Mild plot',
+      description: 'Movie can be follow, though some explanation is useful'
+    },
+    {
+      value: 'Strong plot',
+      description: 'Movie will be impossible to understand without some explanation'
+    }
+  ]
+}
+
 var categories = content.map(x => x.value) //[c1, c2, c3...]
 var severities = content.map(x => x.severity.map(y => y.value)) // [[cat1-sev1, cat1-sev2,...], [cat2-sev1, cat2-sev2...]]
 var descriptions = content.map(x => x.severity.map(y => y.description)) // [[cat1-sev1, cat1-sev2,...], [cat2-sev1, cat2-sev2...]]
@@ -232,5 +264,7 @@ module.exports = {
   severitiesR,
   descriptionsR,
 
-  context
+  context,
+
+  extraTags //...
 }

@@ -6,12 +6,11 @@
     <div>
       <h2 @mouseover="mouseoverSample = 'Select the categories'" @mouseleave="mouseoverSample = ''">
         <span v-if="data.metadata.title">
-          {{data.metadata.title}}
+          {{ data.metadata.title }}
         </span>
         <span v-else>
           Welcome to Ohana!
         </span>
-        
       </h2>
 
       <v-spacer></v-spacer>
@@ -57,11 +56,28 @@
 
               <div style="position: absolute; right: 0px; top: 0px">
                 <div v-for="(sev, i2) in severities[index]" :key="i2" style="display:inline">
-                  <v-btn icon v-if="selectedTags[index].includes(sev)">
-                    <v-icon :color="getTagColor(sev)">
-                      {{ getTagIcon(sev) }}
-                    </v-icon>
-                  </v-btn>
+                  <fc-tooltip
+                    :text="
+                      '<b>' +
+                        sev +
+                        '</b>: ' +
+                        (selectedTags[index].includes(sev)
+                          ? 'You told us to skip this'
+                          : 'You didn\'t tell us to skip this')
+                    "
+                    :html="true"
+                    position="top"
+                  >
+                    <v-btn small icon class="mt-1">
+                      <v-icon
+                        :small="!selectedTags[index].includes(sev)"
+                        :color="getTagColor(sev)"
+                        :style="{ opacity: selectedTags[index].includes(sev) ? 1 : 0.1 }"
+                      >
+                        {{ getTagIcon(sev) }}
+                      </v-icon>
+                    </v-btn>
+                  </fc-tooltip>
                 </div>
               </div>
             </div>
@@ -115,7 +131,11 @@
                         >
                           <!--<v-list-item-action-text v-text="'5 min'"></v-list-item-action-text>-->
 
-                          <fc-tooltip :text="hoverDescription" :html="false" position="top">
+                          <fc-tooltip
+                            :text="hoverDescription ? hoverDescription : 'No description available'"
+                            :html="false"
+                            position="top"
+                          >
                             <v-btn icon>
                               <v-icon color="grey lighten-1" small>mdi-information</v-icon>
                             </v-btn>
@@ -153,74 +173,74 @@
       </div>
 
       <!-- 3. SUMMARY TEXT -->
-      <div
-        id="SUMMARY_TEXT"
-        align="center"
-        justify="center"
-        style="padding:10px; margin: auto; "
-      >
-        <span v-if="!data.success">
+      <div id="SUMMARY_TEXT" align="center" justify="center" style="padding:10px; margin: auto; ">
+        <div v-if="!data.success">
           <h3 style="color: red">No movie!</h3>
           Open a specific movie/show to start using Ohana. If you've already opened a movie, try
           refreshing the page.
-        </span>
+        </div>
 
         <!-- NO skipTags -->
-        <span v-if="finalSelectedTags.length == 0">
+        <div v-if="finalSelectedTags.length == 0">
           <h3 style="color: black">You are not using Ohana to skip content</h3>
-          To automagically skip unwanted scenes, let us know 
+          To automagically skip unwanted scenes, let us know
           <router-link to="/preferences">your sensitivity</router-link>
-        </span>
+        </div>
 
         <!-- Clean -->
-        <span
+        <div
           v-else-if="(data.shield == `done` && skipScenesCount == 0) || data.shield == 'clean'"
           style="color: #00b359"
         >
           <h3>Clean movie! <v-icon small color="green" class="mb-1">mdi-emoticon-happy</v-icon></h3>
           Enjoy! This is a clean movie, there is no need to skip anything!
-        </span>
+        </div>
 
         <!-- Cut -->
-        <span v-else-if="data.shield == `done`" style="color: #00b359">
+        <div v-else-if="data.shield == `done`" style="color: #00b359">
           <h3>Safe Movie! <v-icon small color="green" class="mb-1">mdi-content-cut</v-icon></h3>
           Grab some popcorn and enjoy! We will skip {{ skipScenesCount == 1 ? 'the' : 'all' }}
           {{ skipScenesCount }} unwanted {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}.
-        </span>
+        </div>
 
         <!-- Unsafe / flagged -->
-        <span v-else-if="data.shield == `missing`" style="color: red">
+        <div v-else-if="data.shield == `missing`" style="color: red">
           <h3>Unsafe Movie! <v-icon small color="red" class="mb-1">mdi-flag-variant</v-icon></h3>
           This movie has unwanted scenes that we can't skip yet.
           <span v-if="skipScenesCount != 0">
-            We will skip {{ skipScenesCount }}
-          {{ skipScenesCount == 1 ? 'scene' : 'scenes' }} , but there are more.  
+            We will skip {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }} , but
+            there are more.
           </span>
           Please consider
-          <a target="_blank" href="https://www.patreon.com/ohanamovies">donating</a> or <a @click="showSidebar(true)">becoming an editor</a> to support the creation of new filters.
-        </span>
+          <a target="_blank" href="https://www.patreon.com/ohanamovies">donating</a> or
+          <a @click="showSidebar(true)">becoming an editor</a> to support the creation of new
+          filters.
+        </div>
 
         <!-- Unknown-->
-        <span v-else style="color: #DC6F08">
-          <h3>Warning! Unknown content <v-icon small color="gray" class="mb-1">mdi-progress-question</v-icon></h3>
+        <div v-else style="color: #DC6F08">
+          <h3>
+            Warning! Unknown content
+            <v-icon small color="gray" class="mb-1">mdi-progress-question</v-icon>
+          </h3>
           This movie might contain unwanted scenes.
           <span v-if="skipScenesCount != 0">
-          We will skip
-          {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but there might be
-          more.
+            We will skip
+            {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but there might
+            be more.
           </span>
           Please consider
-          <a target="_blank" href="https://www.patreon.com/ohanamovies">donating</a> or <a @click="showSidebar(true)">becoming an editor</a> to support the creation of new filters.
-        </span>
+          <a target="_blank" href="https://www.patreon.com/ohanamovies">donating</a> or
+          <a @click="showSidebar(true)">becoming an editor</a> to support the creation of new
+          filters.
+        </div>
       </div>
 
       <!-- 4. ACTION BUTTONS-->
       <div id="ACTION_BUTTONS">
         <v-row no-gutters>
           <v-col cols="4">
-            <v-btn block dense depressed tile text @click="showSidebar(true)"
-              >Edit filters</v-btn
-            >
+            <v-btn block dense depressed tile text @click="showSidebar(true)">Edit filters</v-btn>
           </v-col>
           <v-col cols="4">
             <v-btn
@@ -239,7 +259,14 @@
             </v-btn>
           </v-col>
           <v-col cols="4">
-            <v-btn color="success" block dense depressed tile text @click="saveSkipTagsSettings(true)"
+            <v-btn
+              color="success"
+              block
+              dense
+              depressed
+              tile
+              text
+              @click="saveSkipTagsSettings(true)"
               >Watch</v-btn
             >
           </v-col>
@@ -439,11 +466,11 @@ export default {
           : "Original doesn't have this kind of content"
       } else if (this.getTagStatus(sev) == 'missing') {
         xx = this.finalSelectedTags.includes(sev)
-          ? '<span style="color: red">Careful!</span> content flagged, but not cut yet'
+          ? '<span style="color: red; font-weight: bold">Careful!</span> content flagged, but not cut yet'
           : 'Content flagged, but not cut yet'
       } else {
         xx = this.finalSelectedTags.includes(sev)
-          ? '<span style="color: red">Careful!</span> Content not reviewed yet'
+          ? '<span style="color: red; font-weight: bold">Careful!</span> Content not reviewed yet'
           : 'Content not reviewed yet'
       }
 

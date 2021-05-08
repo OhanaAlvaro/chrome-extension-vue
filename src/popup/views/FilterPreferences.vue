@@ -38,7 +38,7 @@
         <!-- TODO: ugly way of removing other...-->
         <div
           v-if="cat != 'Other'"
-          style="border: solid 1px lightgrey; margin-bottom: 3px; margin-top: 3px; padding: 5px; "
+          style="border: solid 1px lightgrey; margin-bottom: 3px; margin-top: 3px; padding: 5px; background-color: #F6F6F6 "
         >
           <v-switch
             hide-details
@@ -89,22 +89,28 @@
 
     <!-- 4. ICONS EXPLANATION-->
     <div style="margin: 5px;">
-      You can now relax and enjoy watching movies as usual! We will automagically skip any unwanted
-      scenes.
+      <div style="margin-top: 5px;">
+        You can now relax and enjoy watching movies as usual! We will automagically skip any
+        unwanted scene.
+      </div>
 
-      <br />
-      On every movie, we will let you know if it is:
-      <br />
-      <v-icon color="green" small>mdi-emoticon-happy</v-icon><b>Clean:</b> No need to skip anything.
-      <br />
-      <v-icon color="green" small>mdi-content-cut</v-icon><b>Cut:</b> All unwanted scenes will be
-      skipped.
-      <br />
-      <v-icon color="red" small>mdi-flag-variant</v-icon><b>Unsafe:</b> Beware! We can't skip all
-      unwanted scenes yet.
-      <br />
-      <v-icon color="gray" small>mdi-progress-question</v-icon><b>Unknown:</b> Careful! Movie might
-      have unwanted scenes.
+      <div style="margin-top: 5px; margin-bottom: 1px;">
+        On every movie, we will let you know if it is:
+      </div>
+
+      <div style="margin-left: 5px;">
+        <v-icon color="green" small>mdi-emoticon-happy</v-icon> <b>Clean:</b> No need to skip
+        anything.
+        <br />
+        <v-icon color="green" small>mdi-content-cut</v-icon> <b>Cut:</b> All unwanted scenes will be
+        skipped.
+        <br />
+        <v-icon color="red" small>mdi-flag-variant</v-icon> <b>Unsafe:</b> Beware! We can't skip all
+        unwanted scenes yet.
+        <br />
+        <v-icon color="gray" small>mdi-progress-question</v-icon> <b>Unknown:</b> Careful! Movie
+        might have unwanted scenes.
+      </div>
     </div>
 
     <!-- ACTION BUTTONS -->
@@ -277,18 +283,16 @@ export default {
 </script>
 
 <style lang="scss">
+.v-slider__thumb {
+  height: 20px;
+  width: 20px;
+}
 
- .v-slider__thumb {
-    height: 20px;
-    width: 20px;
-  }
+.v-slider__thumb:before {
+  display: none;
+}
 
-  .v-slider__thumb:before {
-    display: none;
-  }
-
-  .v-slider__track-container {
-    height: 3px !important;
-  }
-
+.v-slider__track-container {
+  height: 3px !important;
+}
 </style>

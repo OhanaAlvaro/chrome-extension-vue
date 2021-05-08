@@ -2,10 +2,7 @@
   <div class="size-wrapper">
     <!-- Header -->
     <div>
-      <h2>
-        Create new filters
-      </h2>
-
+      <h2>Create and edit filters</h2>
       <h4>
         {{ data.settings.username }}
         <span v-if="data.metadata.title">@ {{ data.metadata.title }} </span>
@@ -16,7 +13,7 @@
           >imdb</a
         >
       </h4>
-      <br>
+      <br />
 
       <span class="menu">
         <span @click="hideSidebar">
@@ -30,6 +27,7 @@
       :visible="shield_visible"
       :tagged="data.tagged"
       :level="data.settings.level"
+      :data="data"
       @hide="shield_visible = false"
     ></shield-editor>
 
@@ -88,14 +86,17 @@
     <!-- Filter status button (show shield button) -->
 
     <!-- New scene button -->
-    <br>
-    <fc-tooltip text="Click to add a new filter (Alt+N)">
+    <hr />
+    <br />
+    <fc-tooltip
+      :text="!data.state.marking ? 'Click to start a new filter (Alt+N)' : 'Click again... (Alt+N)'"
+    >
       <v-btn block depressed @click="markCurrentTime()">
-        <div v-if="data.state.marking == false"><v-icon>mdi-plus</v-icon>Create new filter</div>
-        <div v-else><v-icon>mdi-check</v-icon>End Filter</div>
+        <div v-if="data.state.marking == false"><v-icon>mdi-plus</v-icon>Start a new filter</div>
+        <div v-else><v-icon>mdi-check</v-icon>End filter</div>
       </v-btn>
     </fc-tooltip>
-    <br>
+    <br />
 
     <v-btn block dense depressed tile @click="shield_visible = !shield_visible">
       <fc-tooltip text="Click to define filter status">
@@ -181,6 +182,7 @@ export default {
     scenes_list() {
       var scenes = Object.assign([], this.data.scenes)
 
+      /*     alex: let's use that fclib so this can be re-used further :)
       var categories = raw_tags.categories
       var severities = fclib.collapse(raw_tags.severities)
       var u_cat_sev = fclib.union(categories, severities) //collapse(raw_tags.context)
@@ -190,7 +192,10 @@ export default {
         scenes[i].severity = fclib.intersect(severities, scenes[i].tags)[0]
         scenes[i].context = fclib.difference(scenes[i].tags, u_cat_sev)
       }
+      
       return scenes
+      */
+      return fclib.scenesList(scenes)
     },
 
     certifiedColor() {

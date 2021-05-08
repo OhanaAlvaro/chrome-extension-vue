@@ -1,7 +1,14 @@
 <template>
   <div>
-    <v-dialog v-model="visible" width="500" max-width="100%" persistent fullscreen>
-      <!-- feel free to test adding fullscreen prop on the dialog :) -->
+    <v-dialog
+      v-model="visible"
+      width="500"
+      max-width="100%"
+      persistent
+      fullscreen
+      transition="dialog-bottom-transition"
+    >
+      <!-- Feel free to test adding fullscreen prop on the dialog :) -->
       <v-card>
         <v-card-title primary-title style="font-size:130%; padding-bottom:2px; padding-top:2px">
           What content is fully listed?
@@ -9,58 +16,77 @@
             <v-icon color="blue" small class="pb-1">mdi-information</v-icon>
           </fc-tooltip>
         </v-card-title>
-        <v-card-text style="padding-bottom:5px">
+        <v-card-text style="padding-bottom:5px" class="px-2">
           <!-- TABS MENU -->
-          <v-tabs v-model="tab" background-color="transparent" color="basil" grow height="30px">
+          <v-tabs
+            show-arrows
+            v-model="tab"
+            background-color="transparent"
+            color="basil"
+            grow
+            height="30px"
+          >
             <v-tab style="font-size:90%">sex</v-tab>
             <v-tab style="font-size:90%">violence</v-tab>
+            <v-tab style="font-size:90%">profanity</v-tab>
           </v-tabs>
 
+          <!-- TABS (now dynamic instead of duplicate code) -->
           <v-tabs-items v-model="tab" class="pt-3">
-            <!-- SEX TAB -->
-            <v-tab-item>
-              <div v-for="(tag_sex, index) in sex_tags" :key="index">
-                <div @click="nextStatus(tag_sex)" style="cursor: pointer;">
-                  <v-icon v-if="status(tag_sex) == `missing`" color="red">mdi-flag-variant</v-icon>
-                  <v-icon v-if="status(tag_sex) == `done`" :color="certifiedColor">mdi-emoticon-happy</v-icon>
-                  <v-icon v-if="status(tag_sex) == `cut`" :color="certifiedColor">mdi-content-cut</v-icon>
-                  <v-icon v-if="status(tag_sex) == `unknown`" color="gray"
-                    >mdi-progress-question</v-icon
-                  >
-                  <b style="min-width: 100px">{{ tag_sex.title }} </b> - {{ tag_sex.description }}
-                </div>
-              </div>
-            </v-tab-item>
+            <v-tab-item v-for="(tag_group, index) in tag_groups" :key="index">
+              <div v-for="(tag, index) in tag_group" :key="index">
+                <div @click="nextStatus(tag)" style="cursor: pointer;">
+                  <v-row class="mb-3">
+                    <v-col cols="1" class="py-0">
+                      <v-icon v-if="status(tag) == `missing`" color="red">mdi-flag-variant</v-icon>
 
-            <!-- VIOLENCE TAB -->
-            <v-tab-item>
-              <div v-for="(tag_vio, index) in vio_tags" :key="index">
-                <div @click="nextStatus(tag_vio)" style="cursor: pointer;">
-                  <v-icon v-if="status(tag_vio) == `missing`" color="red">mdi-flag-variant</v-icon>
-                  <v-icon v-if="status(tag_vio) == `done`" :color="certifiedColor">mdi-emoticon-happy</v-icon>
-                  <v-icon v-if="status(tag_vio) == `cut`" :color="certifiedColor">mdi-content-cut</v-icon>
-                  <v-icon v-if="status(tag_vio) == `unknown`" color="gray"
-                    >mdi-progress-question</v-icon
-                  >
-                  <b style="min-width: 100px">{{ tag_vio.title }} </b> - {{ tag_vio.description }}
+                      <v-icon
+                        v-if="status(tag) == `done` && scenesCountByTag(tag) == 0"
+                        :color="certifiedColor"
+                        >mdi-emoticon-happy</v-icon
+                      >
+                      <v-icon
+                        v-if="status(tag) == `done` && scenesCountByTag(tag) > 0"
+                        :color="certifiedColor"
+                        >mdi-content-cut</v-icon
+                      >
+                      <v-icon v-if="status(tag) == `unknown`" color="gray"
+                        >mdi-progress-question</v-icon
+                      >
+                    </v-col>
+                    <v-col class="py-0">
+                      <b style="min-width: 100px">{{ tag.title }} ({{ scenesCountByTag(tag) }})</b>
+                      -
+                      {{ tag.description }}
+                    </v-col>
+                  </v-row>
                 </div>
               </div>
             </v-tab-item>
           </v-tabs-items>
 
           <!-- Shield explainer tooltips -->
-          <div style="margin-top: 20px">
+
+          <div style="margin-top: 20px; font-size: 90%">
+            <h4>Definitions</h4>
             <!-- Missing shield -->
             <fc-tooltip text="The movie contains scenes of this type that are not yet listed">
-              <v-icon color="red">mdi-flag-variant</v-icon> Pending
+              <v-icon small color="red" class="mb-1">mdi-flag-variant</v-icon> Pending
             </fc-tooltip>
+            |
             <!-- unknown shield -->
             <fc-tooltip text="The movie might contain scenes of this type which are not yet listed">
-              <v-icon color="gray">mdi-progress-question</v-icon> I don't know
+              <v-icon small color="gray" class="mb-1">mdi-progress-question</v-icon> I don't know
             </fc-tooltip>
-            <!-- Done shield -->
-            <fc-tooltip text="Clean movie, no need to skip anything">
-              <v-icon :color="certifiedColor">mdi-emoticon-happy</v-icon> Clean
+            |
+            <!-- Done-Clean shield -->
+            <fc-tooltip text="Clean movie, no need to skip anything of this type">
+              <v-icon small :color="certifiedColor" class="mb-1">mdi-emoticon-happy</v-icon> Clean
+            </fc-tooltip>
+            |
+            <!-- Done-Cut shield -->
+            <fc-tooltip text="All scenes of this type are properly filtered">
+              <v-icon small :color="certifiedColor" class="mb-1">mdi-content-cut</v-icon> Cut
             </fc-tooltip>
 
             <!--<fc-tooltip text="All scenes of this type have been listed with the right times">
@@ -88,6 +114,7 @@ import fclib from '../js/fclib'
 var raw = require('../js/raw_tags')
 export default {
   props: {
+    data: Object,
     visible: {
       type: Boolean,
       default: false
@@ -98,7 +125,7 @@ export default {
         return {}
       }
     },
-    level:{
+    level: {
       type: Number,
       default: 0
     }
@@ -110,19 +137,48 @@ export default {
   },
 
   computed: {
+    tag_groups() {
+      let x = [
+        JSON.parse(JSON.stringify(raw.content[0].severity)).reverse(),
+        JSON.parse(JSON.stringify(raw.content[1].severity)).reverse(),
+        JSON.parse(JSON.stringify(raw.content[2].severity)).reverse()
+      ]
+      return x
+    },
     sex_tags() {
       return JSON.parse(JSON.stringify(raw.content[0].severity)).reverse()
     },
     vio_tags() {
       return JSON.parse(JSON.stringify(raw.content[1].severity)).reverse()
     },
-    certifiedColor(){
+    prof_tags() {
+      return JSON.parse(JSON.stringify(raw.content[2].severity)).reverse()
+    },
+    certifiedColor() {
       if (this.level >= 6) return 'blue'
       return 'green'
     }
   },
 
   methods: {
+    scenesCountByTag(tag) {
+      //TODO: Replace usage of this with tagged[tag].count, which should have that information
+      //this counts the scenes per tag from the full data Object
+      var xx = {}
+      if (this.data.scenes) {
+        //avoid errors
+        this.data.scenes.forEach(scene => {
+          if (scene.tags) {
+            scene.tags.forEach(tag => {
+              if (!xx[tag]) xx[tag] = 0
+              xx[tag] = xx[tag] + 1
+            })
+          }
+        })
+      }
+      let n = xx[tag.value] ? xx[tag.value] : 0
+      return n
+    },
     cancel() {
       console.log('shield-cancel')
       this.$emit('hide') //send the visible=false (iput changes the parent v-model)
@@ -142,16 +198,12 @@ export default {
       var current = this.status(tag)
       if (!this.tagged[tag.value]) this.tagged[tag.value] = {}
       // Update status
-      if (current == 'done' || current == 'cut') {
+      if (current == 'done') {
         this.tagged[tag.value].status = 'missing'
       } else if (current == 'missing') {
         this.tagged[tag.value].status = 'unknown'
       } else {
-        if (this.tagged[tag.value].count) {
-          this.tagged[tag.value].status = 'cut'
-        } else {
-          this.tagged[tag.value].status = 'done'  
-        }
+        this.tagged[tag.value].status = 'done'
       }
       console.log('Status of', tag.value, ' updated from ', current, ' to ', this.status(tag))
       this.$forceUpdate()

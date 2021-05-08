@@ -41,14 +41,17 @@
         >
           <v-list-item-content>
             <v-list-item-title style="font-size: 110%; padding-bottom: 1px; pading-top: 2px"
-              >Scene #{{ index + 1 }}</v-list-item-title
+              >Scene #{{ index + 1 }}
+              {{ scene.plotTag ? ' (' + scene.plotTag + ')' : '' }}</v-list-item-title
             >
             <v-list-item-subtitle style="font-size:95%"
               ><b>Context: </b>{{ scene.context.join(', ') }}</v-list-item-subtitle
             >
+
             <v-list-item-subtitle style="font-size:95%"
-              ><b>Duration:</b> {{ prettyTime(scene.end - scene.start) }} | <b>Start:</b>
-              {{ prettyTime(scene.start) }}
+              ><b>Duration:</b> {{ prettyTime(scene.end - scene.start)
+              }}<!-- | <b>Start:</b>
+              {{ prettyTime(scene.start) }} -->
             </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
@@ -64,17 +67,21 @@
         <span style="color:grey"> Hover over a scene to see its description</span>
       </div>
       <div v-else>
-        <div v-if="sceneToDescribe.spoiler">
+        <!-- <div v-if="sceneToDescribe.spoiler"> -->
+        <div>
           <span style="color:red"><b>[WARNING: SPOLIERS] </b></span>
           <span>
-            <b>{{ showSpoiler ? 'Click hide' : 'Click to show' }}</b>
+            <b>{{ showSpoiler ? 'Click again to hide' : 'Click item to show text' }}</b>
           </span>
           <br />
         </div>
-        <div v-if="showSpoiler || !sceneToDescribe.spoiler">
+        <!--<div v-if="showSpoiler || !sceneToDescribe.spoiler">-->
+        <div v-if="showSpoiler">
           <b>Description: </b
           >{{
-            sceneToDescribe.comments ? sceneToDescribe.comments : 'No description for this scene'
+            sceneToDescribe.plot_description
+              ? sceneToDescribe.plot_description
+              : 'No description for this scene'
           }}
         </div>
       </div>

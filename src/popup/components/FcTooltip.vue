@@ -53,6 +53,11 @@ export default {
 </script>
 
 <style lang="scss">
+.v-tooltip__content {
+  line-height: 1 !important; //tried, but I don't think this is working
+  max-width: 70%;
+}
+
 span {
   line-height: normal !important; //tried, but I don't think this is working
 }

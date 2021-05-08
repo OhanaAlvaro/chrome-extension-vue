@@ -134,6 +134,16 @@ function scenesList(scenes) {
     scenes[i].category = intersect(categories, scenes[i].tags)[0]
     scenes[i].severity = intersect(severities, scenes[i].tags)[0]
     scenes[i].context = difference(scenes[i].tags, u_cat_sev)
+
+    //extraTags....
+    scenes[i].videoAudioTag = intersect(
+      raw_tags.extraTags.videoAudioTags.map(x => x.value),
+      scenes[i].tags
+    )[0]
+    scenes[i].plotTag = intersect(
+      raw_tags.extraTags.plotTags.map(x => x.value),
+      scenes[i].tags
+    )[0]
   }
   return scenes
 }
