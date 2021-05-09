@@ -105,7 +105,7 @@
             <!-- IMAGE / SOUND / BOTH -->
             <v-select
               dense
-              label="This impacts..."
+              label="This applies to..."
               v-model="scene.videoAudioTag"
               :items="videoAudioTags"
             >
@@ -137,7 +137,7 @@
             <!-- PLOT / MILD PLOT / NO PLOT -->
             <v-select
               dense
-              label="Is this important for the plot?"
+              label="Is this relevant for the plot?"
               v-model="scene.plotTag"
               :items="plotTags"
             >
@@ -177,60 +177,76 @@
               :hint="
                 'Don\'t be explicit on the ' +
                   (scene.category ? scene.category : '') +
-                  ' details! You writing for people that don\'t want to watch this scene'
+                  ' details! You are writing for people that don\'t want to watch this scene'
               "
-            ></v-textarea>
+            >
+            </v-textarea>
           </div>
           <!-- -->
           <br />
+
           <br />
           <div id="fineTuneTimes">
             <div style="display: flex;">
               <h3 style="margin: auto 0;">Fine tune the times</h3>
-              <v-btn text small @click="sendMessage({ msg: 'preview', scene: scene })">
+              <v-spacer></v-spacer>
+              <v-btn
+                text
+                small
+                @click="sendMessage({ msg: 'preview', scene: scene })"
+                color="primary"
+              >
                 Preview
+                <v-icon right dark>
+                  mdi-eye
+                </v-icon>
               </v-btn>
             </div>
 
             <div style="display: flex;">
               <span style="margin: auto 0;">Start:</span>
               <time-editor v-model="scene.start" @change="seekFrame(scene.start)"></time-editor>
+              <v-spacer></v-spacer>
               <v-btn text small @click="getTime('start')">Now</v-btn>
               <v-btn text small @click="seekFrame(scene.start)">Go</v-btn>
             </div>
             <div style="display: flex;">
               <span style="margin: auto 0;">End: </span>
               <time-editor v-model="scene.end" @change="seekFrame(scene.end)"></time-editor>
+              <v-spacer></v-spacer>
               <v-btn text small @click="getTime('end')">Now</v-btn>
               <v-btn text small @click="seekFrame(scene.end)">Go</v-btn>
             </div>
 
-            <v-btn @click="seekForward(-5000)" class="no-uppercase" text small>
-              -5s
-            </v-btn>
+            <div style="margin-top:20px">
+              <h4>Player controls</h4>
+              <v-btn @click="seekForward(-5000)" class="no-uppercase" text small>
+                -5s
+              </v-btn>
 
-            <v-btn @click="seekForward(-500)" class="no-uppercase" text small>
-              -0.5s
-            </v-btn>
+              <v-btn @click="seekForward(-500)" class="no-uppercase" text small>
+                -0.5s
+              </v-btn>
 
-            <v-btn @click="sendMessage({ msg: 'play-pause' })" text small>
-              <v-icon fab>mdi-play-pause</v-icon>
-            </v-btn>
+              <v-btn @click="sendMessage({ msg: 'play-pause' })" text small>
+                <v-icon fab>mdi-play-pause</v-icon>
+              </v-btn>
 
-            <v-btn @click="seekForward(500)" class="no-uppercase" text small>
-              +0.5s
-            </v-btn>
+              <v-btn @click="seekForward(500)" class="no-uppercase" text small>
+                +0.5s
+              </v-btn>
 
-            <v-btn @click="seekForward(5000)" class="no-uppercase" text small>
-              +5s
-            </v-btn>
+              <v-btn @click="seekForward(5000)" class="no-uppercase" text small>
+                +5s
+              </v-btn>
+            </div>
 
-            <br />
             <br />
             <br />
           </div>
+          <br />
           <div id="editorSafety">
-            <h3>Editor's safety</h3>
+            <h3>Stay safe while you edit</h3>
 
             <div style="display: flex;">
               <!-- Mute video while marking scene-->
@@ -242,6 +258,7 @@
               ></v-checkbox>
               <span style="width: 40px;"></span>
               <!-- Blur slider: allow user to control the blur right from here -->
+
               <v-slider
                 style="margin: auto 0px;"
                 v-model="blur_level"
@@ -267,9 +284,13 @@
           <v-btn text small @click="cancel()">
             Cancel
           </v-btn>
-          <span style="width:60px"></span>
-          <v-btn color="primary" text small @click="save()">
+          <!--<span style="width:60px"></span>-->
+          <v-spacer></v-spacer>
+          <v-btn color="success" text small @click="save()" style="margin-right: 10px">
             Save
+            <v-icon right dark>
+              mdi-cloud-upload
+            </v-icon>
           </v-btn>
           <!--<v-btn  small text @click="save()">
             Publish
@@ -297,7 +318,7 @@ export default {
     scene: {
       type: Object,
       default() {
-        return { category: '', severity: '', plotTag: '', videoAudioTag: '' }
+        return { category: '', severity: '', plotTag: '', videoAudioTag: '', plot_description: '' }
       }
     }
   },
@@ -327,6 +348,10 @@ export default {
   },
 
   watch: {
+    blur_level() {
+      //TODO: too much? (this makes it change blur while moving the slider)
+      this.blur()
+    },
     scene() {
       this.categoryUpdated()
     }
