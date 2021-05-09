@@ -5,7 +5,7 @@
 
     <div>
       <h2 @mouseover="mouseoverSample = 'Select the categories'" @mouseleave="mouseoverSample = ''">
-        <span v-if="data.metadata.title">
+        <span v-if="data.metadata && data.metadata.title">
           {{ data.metadata.title }}
         </span>
         <span v-else>

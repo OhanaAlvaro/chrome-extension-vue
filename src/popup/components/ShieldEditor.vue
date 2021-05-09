@@ -9,11 +9,12 @@
       transition="dialog-bottom-transition"
     >
       <!-- Feel free to test adding fullscreen prop on the dialog :) -->
+
       <v-card>
         <v-card-title primary-title style="font-size:130%; padding-bottom:2px; padding-top:2px">
           What content is fully listed?
-          <fc-tooltip text="Click on the shield icons below to change status">
-            <v-icon color="blue" small class="pb-1">mdi-information</v-icon>
+          <fc-tooltip text="Click on the shield icons below to change status" position="bottom">
+            <v-icon color="gray" x-small class="ml-2 mb-1">mdi-help-circle-outline</v-icon>
           </fc-tooltip>
         </v-card-title>
         <v-card-text style="padding-bottom:5px" class="px-2">
@@ -69,18 +70,20 @@
 
           <div style="margin-top: 20px; font-size: 90%">
             <h4>Definitions</h4>
-            <!-- Missing shield -->
-            <fc-tooltip text="The movie contains scenes of this type that are not yet listed">
-              <v-icon small color="red" class="mb-1">mdi-flag-variant</v-icon> Pending
-            </fc-tooltip>
-            |
             <!-- unknown shield -->
             <fc-tooltip text="The movie might contain scenes of this type which are not yet listed">
               <v-icon small color="gray" class="mb-1">mdi-progress-question</v-icon> I don't know
             </fc-tooltip>
             |
+
+            <!-- Missing shield -->
+            <fc-tooltip text="The movie contains scenes of this type that are not yet listed">
+              <v-icon small color="red" class="mb-1">mdi-flag-variant</v-icon> Pending
+            </fc-tooltip>
+            |
+
             <!-- Done-Clean shield -->
-            <fc-tooltip text="Clean movie, no need to skip anything of this type">
+            <fc-tooltip text="Movie was originally clean for this type: no need to skip anything">
               <v-icon small :color="certifiedColor" class="mb-1">mdi-emoticon-happy</v-icon> Clean
             </fc-tooltip>
             |
@@ -119,7 +122,7 @@ export default {
       type: Boolean,
       default: false
     },
-    tagged: {
+    tagged_original: {
       type: Object,
       default() {
         return {}
@@ -132,7 +135,15 @@ export default {
   },
   data() {
     return {
-      tab: 0
+      tab: 0,
+
+      tagged: {}
+    }
+  },
+
+  watch: {
+    tagged_original(newValue) {
+      this.tagged = newValue
     }
   },
 
@@ -181,6 +192,7 @@ export default {
     },
     cancel() {
       console.log('shield-cancel')
+      this.tagged = this.tagged_original //make sure UI looks as before changes
       this.$emit('hide') //send the visible=false (iput changes the parent v-model)
     },
     save() {

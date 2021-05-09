@@ -71,18 +71,17 @@
         <div>
           <span style="color:red"><b>[WARNING: SPOLIERS] </b></span>
           <span>
-            <b>{{ showSpoiler ? 'Click again to hide' : 'Click item to show text' }}</b>
+            {{ showSpoiler ? 'Click again to hide' : 'Click item to show text' }}
           </span>
           <br />
         </div>
         <!--<div v-if="showSpoiler || !sceneToDescribe.spoiler">-->
         <div v-if="showSpoiler">
-          <b>Description: </b
-          >{{
+          <i>{{
             sceneToDescribe.plot_description
               ? sceneToDescribe.plot_description
               : 'No description for this scene'
-          }}
+          }}</i>
         </div>
       </div>
     </div>

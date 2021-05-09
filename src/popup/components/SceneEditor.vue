@@ -17,7 +17,7 @@
         </v-card-title>
         -->
         <br />
-        <v-card-text>
+        <v-card-text class="px-3">
           <div id="sceneTagsUI">
             <h3>Describe the scene</h3>
             <br />
@@ -70,7 +70,7 @@
               multiple
             >
               <template v-slot:selection="{ item }">
-                <v-chip small>{{ item.value }}</v-chip>
+                <v-chip x-small>{{ item.value }}</v-chip>
               </template>
 
               <template v-slot:item="{ active, item, attrs, on }">
@@ -167,13 +167,13 @@
             </v-select>
 
             <v-textarea
+              counter
               v-if="scene.plotTag == 'Mild plot' || scene.plotTag == 'Strong plot'"
               dense
-              label="What do people need to know?"
+              label="What do users need to know to follow the plot?"
               v-model="scene.plot_description"
               auto-grow
-              rows="2"
-              row-height="15"
+              rows="1"
               :hint="
                 'Don\'t be explicit on the ' +
                   (scene.category ? scene.category : '') +
@@ -183,23 +183,31 @@
             </v-textarea>
           </div>
           <!-- -->
-          <br />
 
-          <br />
-          <div id="fineTuneTimes">
+          <div id="fineTuneTimes" style="margin-top: 30px">
             <div style="display: flex;">
               <h3 style="margin: auto 0;">Fine tune the times</h3>
+              <!--
+              <fc-tooltip
+                text="<b>Now: </b>Make start/end time match current video time<br><b>Go: </b>Take the video to the current start/end time"
+                :html="true"
+                position="top"
+              >
+                <v-icon color="gray" x-small class="ml-1">mdi-help-circle-outline</v-icon>
+              </fc-tooltip>
+              -->
               <v-spacer></v-spacer>
               <v-btn
                 text
-                small
+                x-small
                 @click="sendMessage({ msg: 'preview', scene: scene })"
                 color="primary"
               >
                 Preview
-                <v-icon right dark>
+                <!-- <v-icon right small dark>
                   mdi-eye
                 </v-icon>
+                -->
               </v-btn>
             </div>
 
@@ -207,18 +215,22 @@
               <span style="margin: auto 0;">Start:</span>
               <time-editor v-model="scene.start" @change="seekFrame(scene.start)"></time-editor>
               <v-spacer></v-spacer>
-              <v-btn text small @click="getTime('start')">Now</v-btn>
-              <v-btn text small @click="seekFrame(scene.start)">Go</v-btn>
+
+              <v-btn outlined class="mx-1 mt-1" x-small @click="getTime('start')">Now</v-btn>
+
+              <v-btn outlined class="mx-1 mt-1" x-small @click="seekFrame(scene.start)">Go</v-btn>
             </div>
             <div style="display: flex;">
               <span style="margin: auto 0;">End: </span>
               <time-editor v-model="scene.end" @change="seekFrame(scene.end)"></time-editor>
               <v-spacer></v-spacer>
-              <v-btn text small @click="getTime('end')">Now</v-btn>
-              <v-btn text small @click="seekFrame(scene.end)">Go</v-btn>
+
+              <v-btn outlined class="mx-1 mb-1" x-small @click="getTime('end')">Now</v-btn>
+
+              <v-btn outlined class="mx-1 mb-1" x-small @click="seekFrame(scene.end)">Go</v-btn>
             </div>
 
-            <div style="margin-top:20px">
+            <div style="margin-top:20px;">
               <h4>Player controls</h4>
               <v-btn @click="seekForward(-5000)" class="no-uppercase" text small>
                 -5s
@@ -244,8 +256,8 @@
             <br />
             <br />
           </div>
-          <br />
-          <div id="editorSafety">
+
+          <div id="editorSafety" style="margin-top: 20px">
             <h3>Stay safe while you edit</h3>
 
             <div style="display: flex;">
@@ -315,7 +327,7 @@ export default {
       type: Boolean,
       default: false
     },
-    scene: {
+    the_scene: {
       type: Object,
       default() {
         return { category: '', severity: '', plotTag: '', videoAudioTag: '', plot_description: '' }
@@ -325,6 +337,8 @@ export default {
 
   data() {
     return {
+      scene: { category: '', severity: '', plotTag: '', videoAudioTag: '', plot_description: '' },
+
       sliderValue: 4,
       mute_on_mark: false,
       severities: [],
@@ -352,6 +366,13 @@ export default {
       //TODO: too much? (this makes it change blur while moving the slider)
       this.blur()
     },
+    the_scene: {
+      deep: true,
+      handler(value) {
+        //console.log('alex5 - watched!', value)
+        this.scene = JSON.parse(JSON.stringify(value))
+      }
+    },
     scene() {
       this.categoryUpdated()
     }
@@ -359,6 +380,7 @@ export default {
 
   methods: {
     cancel() {
+      this.scene = this.the_scene //reset value to original from the prop
       this.$emit('hide')
     },
     save() {
@@ -400,10 +422,10 @@ export default {
       delete scene.severity
 
       //TODO 4. audio/video/both tag
-      scene.tags.push(scene.videoAudioTag)
+      if (scene.videoAudioTag) scene.tags.push(scene.videoAudioTag)
       delete scene.videoAudioTag
       //TODO 5. plot tag
-      scene.tags.push(scene.plotTag)
+      if (scene.plotTag) scene.tags.push(scene.plotTag)
       delete scene.plotTag
 
       return scene
@@ -427,8 +449,15 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+.v-textarea textarea {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  max-height: 60px !important;
+}
 .no-uppercase {
-  text-transform: none;
+  text-transform: none !important;
 }
 </style>

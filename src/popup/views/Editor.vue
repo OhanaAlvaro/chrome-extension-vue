@@ -5,15 +5,23 @@
       <h2>Create and edit filters</h2>
       <h4>
         {{ data.settings.username }}
-        <span v-if="data.metadata.title">@ {{ data.metadata.title }} </span>
+        <span v-if="data.metadata && data.metadata.title">@ {{ data.metadata.title }} </span>
         <a
-          v-if="data.metadata.imdb"
-          target="_blanck"
+          v-if="data.metadata && data.metadata.imdb"
+          target="_blank"
+          style="font-size: 90%; font-weight: normal"
           :href="'https://www.imdb.com/title/' + data.metadata.imdb + '/parentalguide'"
           >imdb</a
         >
       </h4>
       <br />
+      <!-- just testing:
+      <v-tabs fixed-tabs>
+        <v-tab>list</v-tab>
+        <v-tab>Status</v-tab>
+        <v-tab>New</v-tab>
+      </v-tabs>
+      -->
 
       <span class="menu">
         <span @click="hideSidebar">
@@ -25,7 +33,7 @@
     <!-- Shield & scene edit dialogs -->
     <shield-editor
       :visible="shield_visible"
-      :tagged="data.tagged"
+      :tagged_original="tagged_current"
       :level="data.settings.level"
       :data="data"
       @hide="shield_visible = false"
@@ -33,7 +41,7 @@
 
     <scene-editor
       :visible="edit_scene_dialog"
-      :scene="active_scene"
+      :the_scene="active_scene"
       @hide="edit_scene_dialog = false"
     ></scene-editor>
 
@@ -55,7 +63,7 @@
         <thead>
           <tr>
             <th>Start</th>
-            <th>Lenght</th>
+            <th>Duration</th>
             <th>Severity</th>
             <th>Context</th>
           </tr>
@@ -65,7 +73,9 @@
             <!-- Start Time -->
             <td>{{ prettyTime(scene.start) }}</td>
             <!-- Duration -->
-            <td>{{ Math.round((scene.end - scene.start) / 100) / 10 }}</td>
+            <td style="text-align: center !important">
+              {{ Math.round((scene.end - scene.start) / 100) / 10 }}s
+            </td>
             <!-- Severity -->
             <td>
               <v-chip x-small :color="getTagColor(scene.category)" dark>
@@ -98,7 +108,7 @@
     </fc-tooltip>
     <br />
 
-    <v-btn block dense depressed tile @click="shield_visible = !shield_visible">
+    <v-btn block dense depressed tile @click="editShield()">
       <fc-tooltip text="Click to define filter status">
         <v-icon :color="certifiedColor" small>mdi-emoticon-happy</v-icon>
         <v-icon :color="certifiedColor" small>mdi-content-cut</v-icon>
@@ -174,6 +184,7 @@ export default {
     return {
       edit_scene_dialog: false,
       active_scene: {},
+      tagged_current: {},
       shield_visible: false
     }
   },
@@ -227,6 +238,11 @@ export default {
         }
       })
       return color_value
+    },
+
+    editShield() {
+      this.tagged_current = JSON.parse(JSON.stringify(this.data.tagged)) //not sure if needed to do that... just in case
+      this.shield_visible = true
     },
 
     editScene(scene) {
