@@ -21,166 +21,184 @@
           <div id="sceneTagsUI">
             <h3>Describe the scene</h3>
             <br />
-            <v-select
-              dense
-              label="Category"
-              v-model="scene.category"
-              :items="categories"
-              @change="categoryUpdated"
-            ></v-select>
 
-            <v-select dense label="Severity" v-model="scene.severity" :items="content.severity">
-              <template v-slot:selection="{ item }">
-                <span style="font-size: 12px"> {{ item.value }}</span>
-              </template>
+            <v-row>
+              <v-col class="py-0 px-3">
+                <v-select
+                  dense
+                  label="Category"
+                  v-model="scene.category"
+                  :items="categories"
+                  @change="categoryUpdated"
+                ></v-select>
+              </v-col>
+              <v-col class="py-0 px-3">
+                <v-select dense label="Severity" v-model="scene.severity" :items="content.severity">
+                  <template v-slot:selection="{ item }">
+                    <span style="font-size: 12px"> {{ item.value }}</span>
+                  </template>
 
-              <template v-slot:item="{ active, item, attrs, on }">
-                <v-list-item v-on="on" v-bind="attrs" dense style="max-height: 10px">
-                  <v-list-item-content>
-                    <v-list-item-title>{{ item.value }} </v-list-item-title>
-                  </v-list-item-content>
+                  <template v-slot:item="{ active, item, attrs, on }">
+                    <v-list-item v-on="on" v-bind="attrs" dense style="max-height: 10px">
+                      <v-list-item-content>
+                        <v-list-item-title>{{ item.value }} </v-list-item-title>
+                      </v-list-item-content>
 
-                  <v-list-item-action>
-                    <fc-tooltip
-                      :text="item.description ? item.description : 'No data available'"
-                      :html="false"
-                      position="top"
-                    >
-                      <v-btn icon>
-                        <v-icon color="grey lighten-1" small>mdi-information</v-icon>
-                      </v-btn>
-                    </fc-tooltip>
-                  </v-list-item-action>
-                </v-list-item>
-              </template>
-              <!--
+                      <v-list-item-action>
+                        <fc-tooltip
+                          :text="item.description ? item.description : 'No data available'"
+                          :html="false"
+                          position="top"
+                        >
+                          <v-btn icon>
+                            <v-icon color="grey lighten-1" small>mdi-information</v-icon>
+                          </v-btn>
+                        </fc-tooltip>
+                      </v-list-item-action>
+                    </v-list-item>
+                  </template>
+                  <!--
             <template v-slot:item="{ item }">
               <fc-tooltip :text="item.description">
                 {{ item.value }}
               </fc-tooltip>
             </template>
             -->
-            </v-select>
+                </v-select>
+              </v-col>
+            </v-row>
 
-            <v-select
-              dense
-              v-model="scene.context"
-              :items="content.context"
-              label="Provide more context"
-              multiple
-            >
-              <template v-slot:selection="{ item }">
-                <v-chip x-small>{{ item.value }}</v-chip>
-              </template>
+            <v-row>
+              <v-col class="py-0 px-3">
+                <v-select
+                  dense
+                  v-model="scene.context"
+                  :items="content.context"
+                  label="Provide more context"
+                  multiple
+                >
+                  <template v-slot:selection="{ item }">
+                    <v-chip x-small>{{ item.value }}</v-chip>
+                  </template>
 
-              <template v-slot:item="{ active, item, attrs, on }">
-                <v-list-item v-on="on" v-bind="attrs" dense style="max-height: 10px">
-                  <v-list-item-content>
-                    <v-list-item-title>{{ item.value }} </v-list-item-title>
-                  </v-list-item-content>
+                  <template v-slot:item="{ active, item, attrs, on }">
+                    <v-list-item v-on="on" v-bind="attrs" dense style="max-height: 10px">
+                      <v-list-item-content>
+                        <v-list-item-title>{{ item.value }} </v-list-item-title>
+                      </v-list-item-content>
 
-                  <v-list-item-action>
-                    <fc-tooltip
-                      :text="item.description ? item.description : 'No data available'"
-                      :html="false"
-                      position="top"
-                    >
-                      <v-btn icon>
-                        <v-icon color="grey lighten-1" small>mdi-information</v-icon>
-                      </v-btn>
-                    </fc-tooltip>
-                  </v-list-item-action>
-                </v-list-item>
-              </template>
+                      <v-list-item-action>
+                        <fc-tooltip
+                          :text="item.description ? item.description : 'No data available'"
+                          :html="false"
+                          position="top"
+                        >
+                          <v-btn icon>
+                            <v-icon color="grey lighten-1" small>mdi-information</v-icon>
+                          </v-btn>
+                        </fc-tooltip>
+                      </v-list-item-action>
+                    </v-list-item>
+                  </template>
 
-              <!--
+                  <!--
             <template v-slot:item="{ item }">
               <fc-tooltip :text="item.description">
                 {{ item.value }}
               </fc-tooltip>
             </template>
             -->
-            </v-select>
+                </v-select>
+              </v-col>
+            </v-row>
 
-            <!-- IMAGE / SOUND / BOTH -->
-            <v-select
-              dense
-              label="This applies to..."
-              v-model="scene.videoAudioTag"
-              :items="videoAudioTags"
-            >
-              <template v-slot:selection="{ item }">
-                <span style="font-size: 12px"> {{ item.value }}</span>
-              </template>
+            <v-row>
+              <v-col class="py-0 px-3">
+                <!-- IMAGE / SOUND / BOTH -->
+                <v-select
+                  dense
+                  label="This applies to..."
+                  v-model="scene.videoAudioTag"
+                  :items="videoAudioTags"
+                >
+                  <template v-slot:selection="{ item }">
+                    <span style="font-size: 12px"> {{ item.value }}</span>
+                  </template>
 
-              <template v-slot:item="{ active, item, attrs, on }">
-                <v-list-item v-on="on" v-bind="attrs" dense style="max-height: 10px">
-                  <v-list-item-content>
-                    <v-list-item-title>{{ item.value }} </v-list-item-title>
-                  </v-list-item-content>
+                  <template v-slot:item="{ active, item, attrs, on }">
+                    <v-list-item v-on="on" v-bind="attrs" dense style="max-height: 10px">
+                      <v-list-item-content>
+                        <v-list-item-title>{{ item.value }} </v-list-item-title>
+                      </v-list-item-content>
 
-                  <v-list-item-action>
-                    <fc-tooltip
-                      :text="item.description ? item.description : 'No data available'"
-                      :html="false"
-                      position="top"
-                    >
-                      <v-btn icon>
-                        <v-icon color="grey lighten-1" small>mdi-information</v-icon>
-                      </v-btn>
-                    </fc-tooltip>
-                  </v-list-item-action>
-                </v-list-item>
-              </template>
-            </v-select>
+                      <v-list-item-action>
+                        <fc-tooltip
+                          :text="item.description ? item.description : 'No data available'"
+                          :html="false"
+                          position="top"
+                        >
+                          <v-btn icon>
+                            <v-icon color="grey lighten-1" small>mdi-information</v-icon>
+                          </v-btn>
+                        </fc-tooltip>
+                      </v-list-item-action>
+                    </v-list-item>
+                  </template>
+                </v-select>
+              </v-col>
+              <!-- PLOT / MILD PLOT / NO PLOT -->
+              <v-col class="py-0 px-3">
+                <v-select
+                  dense
+                  label="Is this relevant for the plot?"
+                  v-model="scene.plotTag"
+                  :items="plotTags"
+                >
+                  <template v-slot:selection="{ item }">
+                    <span style="font-size: 12px"> {{ item.value }}</span>
+                  </template>
 
-            <!-- PLOT / MILD PLOT / NO PLOT -->
-            <v-select
-              dense
-              label="Is this relevant for the plot?"
-              v-model="scene.plotTag"
-              :items="plotTags"
-            >
-              <template v-slot:selection="{ item }">
-                <span style="font-size: 12px"> {{ item.value }}</span>
-              </template>
+                  <template v-slot:item="{ active, item, attrs, on }">
+                    <v-list-item v-on="on" v-bind="attrs" dense style="max-height: 10px">
+                      <v-list-item-content>
+                        <v-list-item-title>{{ item.value }} </v-list-item-title>
+                      </v-list-item-content>
 
-              <template v-slot:item="{ active, item, attrs, on }">
-                <v-list-item v-on="on" v-bind="attrs" dense style="max-height: 10px">
-                  <v-list-item-content>
-                    <v-list-item-title>{{ item.value }} </v-list-item-title>
-                  </v-list-item-content>
+                      <v-list-item-action>
+                        <fc-tooltip
+                          :text="item.description ? item.description : 'No data available'"
+                          :html="false"
+                          position="top"
+                        >
+                          <v-btn icon>
+                            <v-icon color="grey lighten-1" small>mdi-information</v-icon>
+                          </v-btn>
+                        </fc-tooltip>
+                      </v-list-item-action>
+                    </v-list-item>
+                  </template>
+                </v-select>
+              </v-col>
+            </v-row>
 
-                  <v-list-item-action>
-                    <fc-tooltip
-                      :text="item.description ? item.description : 'No data available'"
-                      :html="false"
-                      position="top"
-                    >
-                      <v-btn icon>
-                        <v-icon color="grey lighten-1" small>mdi-information</v-icon>
-                      </v-btn>
-                    </fc-tooltip>
-                  </v-list-item-action>
-                </v-list-item>
-              </template>
-            </v-select>
-
-            <v-textarea
-              counter
-              v-if="scene.plotTag == 'Mild plot' || scene.plotTag == 'Strong plot'"
-              dense
-              label="What do users need to know to follow the plot?"
-              v-model="scene.plot_description"
-              auto-grow
-              rows="1"
-              :hint="
-                'Don\'t be explicit on the ' +
-                  (scene.category ? scene.category : '') +
-                  ' details! You are writing for people that don\'t want to watch this scene'
-              "
-            >
-            </v-textarea>
+            <v-row v-if="scene.plotTag == 'Mild plot' || scene.plotTag == 'Strong plot'">
+              <v-col class="py-0 pt-3 px-3">
+                <v-textarea
+                  counter
+                  dense
+                  label="What do users need to know to follow the plot?"
+                  v-model="scene.plot_description"
+                  auto-grow
+                  rows="1"
+                  :hint="
+                    'Don\'t be explicit on the ' +
+                      (scene.category ? scene.category : '') +
+                      ' details! You are writing for people that don\'t want to watch this scene'
+                  "
+                >
+                </v-textarea>
+              </v-col>
+            </v-row>
           </div>
           <!-- -->
 
