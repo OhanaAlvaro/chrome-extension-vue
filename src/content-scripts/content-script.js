@@ -19,15 +19,17 @@ var provider = require('./provider')
 var fc = {
   default_settings: {
     username: '',
-    blur_level: 20,
+    
     skip_tags: [],
     ignore_default_settings: true,
     pause_after_adding_scene: false,
     playbackRate_on_mark: 1.5,
     mute_on_mark: true,
+    blur_on_mark: 20,
+    mute_on_edit: false,
+    blur_on_edit: 10,
     level: 0,
     token: null,
-    blur_on_frame_seek: false // if false, it uses settings.blur_level
   },
 
   settings: false,
@@ -37,14 +39,16 @@ var fc = {
   preview_skip: false,
   skipping: false,
   frame_seeked: false,
+  editing: false,
   skip_ids: {},
   tagged: {},
 
   previewScene: function(scene) {
     console.log('Previewing scene: ', scene)
+    fc.view_mode()
     fc.preview_skip = scene
     player.play()
-    player.seek(fc.preview_skip.start - 5000)
+    player.seek(fc.preview_skip.start - 4000)
     return true
   },
 
@@ -213,6 +217,22 @@ var fc = {
     })
   },
 
+  view_mode: function (mode) {
+    if (mode == 'mark') {
+      player.blur(fc.settings.blur_on_mark)
+      if (fc.settings.mute_on_mark) player.mute(true)
+      fc.editing = true
+    } else if (mode == 'edit') {
+      player.blur(fc.settings.blur_on_edit)
+      if (fc.settings.mute_on_edit) player.mute(true)
+      fc.editing = true
+    } else {
+      player.blur(0)
+      player.mute(false)
+      fc.editing = false
+    }
+  },
+
   mark_current_time: function(tags) {
     if (!tags) tags = []
     var start = fc.marking_started
@@ -220,18 +240,16 @@ var fc = {
     if (!start) {
       fc.marking_started = player.video.paused ? time : time - 2000
       player.video.playbackRate = fc.settings.playbackRate_on_mark
-      player.blur(fc.settings.blur_level)
-      if (fc.settings.mute_on_mark) player.mute(true)
+      fc.view_mode('mark')
       console.log('Scene start marked at ', fc.marking_started)
     } else {
       var end = player.video.paused ? time : time - 2000
       var scene = { tags: tags, start: start, end: end, id: utils.random_id() }
       fc.addScene(scene)
       fc.marking_started = false
+      fc.view_mode(false)
       player.video.playbackRate = 1
-      player.blur(0)
       if (fc.settings.pause_after_adding_scene) player.pause()
-      player.mute(false)
       console.log('Scene added ', start, ' -> ', end)
       return { msg: 'marked-scene', scene: scene }
     }
@@ -241,11 +259,13 @@ var fc = {
     var now = player.getTime()
     var next_good = 0
 
-    if (fc.frame_seeked) {
+    /*if (fc.frame_seeked) {
       if (player.video.paused || Date.now() < fc.frame_seeked + 500) return
       //player.blur(0)
       fc.frame_seeked = false
-    }
+    }*/
+
+    if (fc.editing) return
 
     // Our skip_list is the main skip_list, unless we are on preview mode
     var skip_list = fc.scenes
@@ -269,10 +289,13 @@ var fc = {
     // Go back to normal or skip content when needed
     if (next_good === 0 && fc.skipping) {
       console.log('[check_needs_skip] Back to normal')
-      fc.preview_skip = null
       player.video.style.visibility = 'visible'
       player.mute(false)
       fc.skipping = false
+      if (fc.preview_skip) {
+        fc.preview_skip = null
+        fc.view_mode('edit')
+      }
     } else if (next_good !== 0 && !fc.skipping) {
       console.log('[check_needs_skip] It does!')
       player.video.style.visibility = 'hidden'
@@ -365,6 +388,8 @@ var browser = {
           player.mute(request.state)
         } else if (request.msg == 'blur') {
           player.blur(request.blur_level)
+        } else if (request.msg == 'view-mode') {
+          fc.view_mode(request.mode)
         } else if (request.msg == 'seek-frame') {
           player.seek(request.time, 'frame')
         } else if (request.msg == 'seek-diff') {
@@ -650,14 +675,14 @@ var player = {
     }
 
     // Pause player if it is framed seeked
-    if (mode == 'frame') {
+    /*if (mode == 'frame') {
       console.log('Frame seeking!')
       fc.frame_seeked = Date.now()
       /*if (fc.settings.blur_on_frame_seek) {
         player.blur(fc.settings.blur_on_frame_seek)
       }
-      player.pause()*/
-    }
+      player.pause()* /
+    }*/
 
     // Seek requested time
     if (fc.metadata.provider == 'netflix') {

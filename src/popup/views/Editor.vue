@@ -42,6 +42,7 @@
     <scene-editor
       :visible="edit_scene_dialog"
       :the_scene="active_scene"
+      :settings="data.settings"
       @hide="edit_scene_dialog = false"
     ></scene-editor>
 
@@ -116,7 +117,7 @@
 
       <!-- Blur slider: allow user to control the blur right from here -->
       <v-slider
-        v-model="data.settings.blur_level"
+        v-model="data.settings.blur_on_mark"
         inverse-label
         :min="0"
         :max="40"
@@ -249,6 +250,7 @@ export default {
     editScene(scene) {
       console.log(scene)
       this.active_scene = scene
+      fclib.sendMessage({ msg: 'view-mode', mode: 'edit' })
       this.edit_scene_dialog = true
     },
 
@@ -257,9 +259,9 @@ export default {
     },
 
     changeBlur() {
-      console.log('change blur', this.data.settings.blur_level)
+      console.log('change blur', this.data.settings.blur_on_mark)
       fclib.sendMessage({ msg: 'update-settings', settings: this.data.settings })
-      fclib.sendMessage({ msg: 'blur', blur_level: this.data.settings.blur_level })
+      fclib.sendMessage({ msg: 'blur', blur_level: this.data.settings.blur_on_mark })
     },
 
     changeMute() {

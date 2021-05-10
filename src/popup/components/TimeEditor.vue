@@ -47,4 +47,11 @@ export default {
 input[type='time']::-webkit-datetime-edit-ampm-field {
   display: none !important;
 }
+
+input[type='time'] {
+  border-bottom: 1px solid black;
+  padding: 1px;
+  margin: 1px;
+  border-radius: 2px;
+}
 </style>

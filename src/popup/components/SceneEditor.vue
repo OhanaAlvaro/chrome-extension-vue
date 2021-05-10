@@ -270,19 +270,16 @@
                 +5s
               </v-btn>
             </div>
-
-            <br />
-            <br />
           </div>
 
           <div id="editorSafety" style="margin-top: 20px">
-            <h3>Stay safe while you edit</h3>
+            <h4>Stay safe while you edit</h4>
 
             <div style="display: flex;">
               <!-- Mute video while marking scene-->
               <v-checkbox
                 style="margin: auto 0px;"
-                v-model="mute_status"
+                v-model="settings.mute_on_edit"
                 :label="`Mute`"
                 @change="mute"
               ></v-checkbox>
@@ -291,7 +288,7 @@
 
               <v-slider
                 style="margin: auto 0px;"
-                v-model="blur_level"
+                v-model="settings.blur_on_edit"
                 inverse-label
                 :min="0"
                 :max="40"
@@ -350,6 +347,12 @@ export default {
       default() {
         return { category: '', severity: '', plotTag: '', videoAudioTag: '', plot_description: '' }
       }
+    },
+    settings: {
+      type: Object,
+      default(){
+        return {blur_on_edit: 0, mute_on_edit: false}
+      }
     }
   },
 
@@ -358,12 +361,9 @@ export default {
       scene: { category: '', severity: '', plotTag: '', videoAudioTag: '', plot_description: '' },
 
       sliderValue: 4,
-      mute_on_mark: false,
       severities: [],
       context: [],
       content: {},
-      blur_level: 0,
-      mute_status: false
     }
   },
 
@@ -393,20 +393,22 @@ export default {
   },
 
   methods: {
+    hide(){
+      fclib.sendMessage({ msg: 'view-mode'})
+      fclib.sendMessage({ msg: 'update-settings', settings: this.settings })
+      this.$emit('hide')
+    },
     cancel() {
       this.scene = this.the_scene //reset value to original from the prop
-      this.blur(0)
-      this.$emit('hide')
+      this.hide()
     },
     save() {
       fclib.sendMessage({ msg: 'update-scene', scene: this.cleanScene(this.scene) })
-      this.blur(0)
-      this.$emit('hide')
+      this.hide()
     },
     removeScene() {
       fclib.sendMessage({ msg: 'remove', id: this.scene.id })
-      this.blur(0)
-      this.$emit('hide')
+      this.hide()
     },
     getTime(edge) {
       fclib.sendMessage({ msg: 'get-time' }, response => {
@@ -417,14 +419,15 @@ export default {
       fclib.sendMessage({ msg: 'seek-diff', diff: diff })
     },
     seekFrame(time) {
+      fclib.sendMessage({ msg: 'pause' })
       fclib.sendMessage({ msg: 'seek-frame', time: time })
     },
     blur(level) {
-      if (level === null) level = this.blur_level
+      if (level === null) level = this.settings.blur_on_edit
       fclib.sendMessage({ msg: 'blur', blur_level: level })
     },
     mute() {
-      fclib.sendMessage({ msg: 'mute', state: this.mute_status })
+      fclib.sendMessage({ msg: 'mute', state: this.settings.mute_on_edit })
     },
     // Prepare scene to be shared (collapse category, severity and context into tags)
     cleanScene(scene) {
