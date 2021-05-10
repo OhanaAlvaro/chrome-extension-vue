@@ -653,10 +653,10 @@ var player = {
     if (mode == 'frame') {
       console.log('Frame seeking!')
       fc.frame_seeked = Date.now()
-      if (fc.settings.blur_on_frame_seek) {
+      /*if (fc.settings.blur_on_frame_seek) {
         player.blur(fc.settings.blur_on_frame_seek)
       }
-      player.pause()
+      player.pause()*/
     }
 
     // Seek requested time
@@ -668,7 +668,7 @@ var player = {
       player.video.currentTime = time / 1000
     }
 
-    if (mode == 'frame') player.pause()
+    /*if (mode == 'frame') player.pause()*/
   },
 
   // Get current time in milliseconds (all times are always in milliseconds!)
