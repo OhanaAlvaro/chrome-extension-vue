@@ -102,10 +102,34 @@
       :text="!data.state.marking ? 'Click to start a new filter (Alt+N)' : 'Click again... (Alt+N)'"
     >
       <v-btn block depressed @click="markCurrentTime()">
-        <div v-if="data.state.marking == false"><v-icon>mdi-plus</v-icon>Start a new filter</div>
-        <div v-else><v-icon>mdi-check</v-icon>End filter</div>
+        <div v-if="data.state.marking"><v-icon>mdi-check</v-icon>End filter</div>
+        <div v-else><v-icon>mdi-plus</v-icon>Start a new filter</div>
       </v-btn>
     </fc-tooltip>
+    <div v-if="data.state.marking" style="display: flex;">
+      <!-- Mute video while marking scene-->
+      <v-checkbox
+        v-model="data.settings.mute_on_mark"
+        :label="`Mute`"
+        @change="changeMute"
+      ></v-checkbox>
+
+      <!-- Blur slider: allow user to control the blur right from here -->
+      <v-slider
+        v-model="data.settings.blur_level"
+        inverse-label
+        :min="0"
+        :max="40"
+        thumb-label
+        dense
+        hide-details
+        :label="`Blur`"
+        step="2"
+        @input="changeBlur"
+      >
+        <template v-slot:thumb-label="{ value }">{{ 2.5 * value + '%' }}</template>
+      </v-slider>
+    </div>
     <br />
 
     <v-btn block dense depressed tile @click="editShield()">
@@ -141,29 +165,6 @@
       <v-btn @click="seekForward(15000)" class="no-uppercase" text small>
         +15s
       </v-btn>
-
-      <div style="display: flex;">
-        <!-- Mute video while marking scene-->
-        <v-checkbox
-          v-model="data.settings.mute_on_mark"
-          :label="`Mute on mark`"
-          @change="changeMute"
-        ></v-checkbox>
-
-        <!-- Blur slider: allow user to control the blur right from here -->
-        <v-slider
-          v-model="data.settings.blur_level"
-          inverse-label
-          :min="0"
-          :max="40"
-          thumb-label
-          :label="`Blur on mark`"
-          step="2"
-          @change="changeBlur"
-        >
-          <template v-slot:thumb-label="{ value }">{{ 2.5 * value + '%' }}</template>
-        </v-slider>
-      </div>
     </div>
   </div>
 </template>

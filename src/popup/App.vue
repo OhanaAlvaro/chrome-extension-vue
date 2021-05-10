@@ -103,9 +103,9 @@ export default {
         // If we are on an iframe (i.e. on the sidebar), open de login/editor
         if (response.sidebar) {
           if (!response.settings.username) {
-            this.$router.push('/login')
+            this.$router.replace('/login')
           } else if (!['Editor'].includes(this.$route.name)) {
-            this.$router.push('/editor')
+            this.$router.replace('/editor')
           }
           return
         }

@@ -72,7 +72,7 @@
                       <v-icon
                         :small="!selectedTags[index].includes(sev)"
                         :color="getTagColor(sev)"
-                        :style="{ opacity: selectedTags[index].includes(sev) ? 1 : 0.1 }"
+                        :style="{ opacity: selectedTags[index].includes(sev) ? 1 : 0.2 }"
                       >
                         {{ getTagIcon(sev) }}
                       </v-icon>

@@ -243,7 +243,7 @@ var fc = {
 
     if (fc.frame_seeked) {
       if (player.video.paused || Date.now() < fc.frame_seeked + 500) return
-      player.blur(0)
+      //player.blur(0)
       fc.frame_seeked = false
     }
 
@@ -365,8 +365,6 @@ var browser = {
           player.mute(request.state)
         } else if (request.msg == 'blur') {
           player.blur(request.blur_level)
-          // This is not really true, but it keeps the blur level while movie is paused
-          if (!fc.marking_started) fc.frame_seeked = Date.now()
         } else if (request.msg == 'seek-frame') {
           player.seek(request.time, 'frame')
         } else if (request.msg == 'seek-diff') {

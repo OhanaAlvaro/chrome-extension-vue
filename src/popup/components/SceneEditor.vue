@@ -298,7 +298,7 @@
                 thumb-label
                 :label="`Blur`"
                 step="2"
-                @change="blur"
+                @input="blur"
               >
                 <template v-slot:thumb-label="{ value }">{{ 2.5 * value + '%' }}</template>
               </v-slider>
@@ -380,10 +380,6 @@ export default {
   },
 
   watch: {
-    blur_level() {
-      //TODO: too much? (this makes it change blur while moving the slider)
-      this.blur()
-    },
     the_scene: {
       deep: true,
       handler(value) {
@@ -399,10 +395,17 @@ export default {
   methods: {
     cancel() {
       this.scene = this.the_scene //reset value to original from the prop
+      this.blur(0)
       this.$emit('hide')
     },
     save() {
       fclib.sendMessage({ msg: 'update-scene', scene: this.cleanScene(this.scene) })
+      this.blur(0)
+      this.$emit('hide')
+    },
+    removeScene() {
+      fclib.sendMessage({ msg: 'remove', id: this.scene.id })
+      this.blur(0)
       this.$emit('hide')
     },
     getTime(edge) {
@@ -410,18 +413,15 @@ export default {
         if (response && response.time) this.scene[edge] = response.time
       })
     },
-    removeScene() {
-      fclib.sendMessage({ msg: 'remove', id: this.scene.id })
-      this.$emit('hide')
-    },
     seekForward(diff) {
       fclib.sendMessage({ msg: 'seek-diff', diff: diff })
     },
     seekFrame(time) {
       fclib.sendMessage({ msg: 'seek-frame', time: time })
     },
-    blur() {
-      fclib.sendMessage({ msg: 'blur', blur_level: this.blur_level })
+    blur(level) {
+      if (level === null) level = this.blur_level
+      fclib.sendMessage({ msg: 'blur', blur_level: level })
     },
     mute() {
       fclib.sendMessage({ msg: 'mute', state: this.mute_status })
