@@ -32,7 +32,7 @@
                   @change="categoryUpdated"
                 ></v-select>
               </v-col>
-              <v-col class="py-0 px-3">
+              <v-col class="py-0 px-3" v-if="severities.length > 0">
                 <v-select dense label="Severity" v-model="scene.severity" :items="content.severity">
                   <template v-slot:selection="{ item }">
                     <span style="font-size: 12px"> {{ item.value }}</span>
@@ -238,7 +238,7 @@
 
               <v-btn outlined class="mx-1 mt-1" x-small @click="seekFrame(scene.start)">Go</v-btn>
             </div>
-            <div style="display: flex;">
+            <div style="display: flex; margin-top: 2px">
               <span style="margin: auto 0;">End: </span>
               <time-editor v-model="scene.end" @change="seekFrame(scene.end)"></time-editor>
               <v-spacer></v-spacer>
@@ -350,8 +350,8 @@ export default {
     },
     settings: {
       type: Object,
-      default(){
-        return {blur_on_edit: 0, mute_on_edit: false}
+      default() {
+        return { blur_on_edit: 0, mute_on_edit: false }
       }
     }
   },
@@ -363,7 +363,7 @@ export default {
       sliderValue: 4,
       severities: [],
       context: [],
-      content: {},
+      content: {}
     }
   },
 
@@ -393,8 +393,8 @@ export default {
   },
 
   methods: {
-    hide(){
-      fclib.sendMessage({ msg: 'view-mode'})
+    hide() {
+      fclib.sendMessage({ msg: 'view-mode' })
       fclib.sendMessage({ msg: 'update-settings', settings: this.settings })
       this.$emit('hide')
     },
@@ -434,18 +434,19 @@ export default {
       //1. Context tags  (remove invalid context tags first)
       if (scene.context) scene.tags = fclib.intersect(scene.context, this.context) // remove invalid tags
       delete scene.context
+
       //2. Category tags
       scene.tags.push(scene.category)
       delete scene.category
 
       //3. Severity tags
-      scene.tags.push(scene.severity)
+      if (this.severities.includes(scene.severity)) scene.tags.push(scene.severity) //make sure we don't save the severity from other category (it happened, as dropdown was updated but not its value)
       delete scene.severity
 
-      //TODO 4. audio/video/both tag
+      //4. audio/video/both tag
       if (scene.videoAudioTag) scene.tags.push(scene.videoAudioTag)
       delete scene.videoAudioTag
-      //TODO 5. plot tag
+      //5. plot tag
       if (scene.plotTag) scene.tags.push(scene.plotTag)
       delete scene.plotTag
 
