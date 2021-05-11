@@ -218,10 +218,13 @@
               <v-btn
                 text
                 x-small
-                @click="sendMessage({ msg: 'preview', scene: scene })"
+                @click="preview"
                 color="primary"
               >
-                Preview
+                <span v-if="isPreviewing">
+                  End Preview
+                </span>
+                <span v-else>Preview</span>
                 <!-- <v-icon right small dark>
                   mdi-eye
                 </v-icon>
@@ -363,7 +366,8 @@ export default {
       sliderValue: 4,
       severities: [],
       context: [],
-      content: {}
+      content: {},
+      isPreviewing: false,
     }
   },
 
@@ -415,6 +419,15 @@ export default {
         if (response && response.time) this.scene[edge] = response.time
       })
     },
+    preview(){
+      if (this.isPreviewing) {
+        this.isPreviewing = false
+        fclib.sendMessage({ msg: 'preview', scene: false })
+      } else {
+        this.isPreviewing = true
+        fclib.sendMessage({ msg: 'preview', scene: this.scene })  
+      }
+    },
     seekForward(diff) {
       fclib.sendMessage({ msg: 'seek-diff', diff: diff })
     },
@@ -424,9 +437,11 @@ export default {
     },
     blur(level) {
       if (level === null) level = this.settings.blur_on_edit
+      fclib.sendMessage({ msg: 'update-settings', settings: this.settings, silent: true })
       fclib.sendMessage({ msg: 'blur', blur_level: level })
     },
     mute() {
+      fclib.sendMessage({ msg: 'update-settings', settings: this.settings, silent: true })
       fclib.sendMessage({ msg: 'mute', state: this.settings.mute_on_edit })
     },
     // Prepare scene to be shared (collapse category, severity and context into tags)

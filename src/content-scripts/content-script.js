@@ -44,6 +44,12 @@ var fc = {
   tagged: {},
 
   previewScene: function(scene) {
+    if (!scene) {
+      fc.preview_skip = null
+      player.pause()
+      fc.view_mode('edit')
+      return
+    }
     console.log('Previewing scene: ', scene)
     fc.view_mode()
     fc.preview_skip = scene
@@ -147,7 +153,7 @@ var fc = {
     return scenes
   },
 
-  loadSettings: function(settings) {
+  loadSettings: function(settings, silent) {
     if (settings && settings.ignore_default_settings) {
       for (var key in fc.default_settings) {
         if (typeof fc.default_settings[key] !== typeof settings[key]) {
@@ -159,7 +165,7 @@ var fc = {
       console.warn('Setting default settings instead of : ', settings)
       fc.settings = fc.default_settings
     }
-    fc.onContentEdit('settings')
+    if(!silent) fc.onContentEdit('settings')
   },
 
   onContentEdit: function(edit) {
@@ -292,10 +298,7 @@ var fc = {
       player.video.style.visibility = 'visible'
       player.mute(false)
       fc.skipping = false
-      if (fc.preview_skip) {
-        fc.preview_skip = null
-        fc.view_mode('edit')
-      }
+      fc.preview_skip = null
     } else if (next_good !== 0 && !fc.skipping) {
       console.log('[check_needs_skip] It does!')
       player.video.style.visibility = 'hidden'
@@ -372,7 +375,7 @@ var browser = {
             }
           })
         } else if (request.msg == 'update-settings') {
-          fc.loadSettings(request.settings)
+          fc.loadSettings(request.settings, request.silent)
           browser.setData('settings', fc.settings)
         } else if (request.msg == 'set-tagged') {
           fc.tagged = request.tagged
