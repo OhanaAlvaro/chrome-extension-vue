@@ -117,7 +117,7 @@
     <div style="margin: 10px 5px 0 5px">
       <!--<b>Help us improve</b>-->
       <v-btn plain text href="https://forms.gle/cPr7XQhdS7x1y9hx7" target="_blank">
-        Feekback
+        Feedback
       </v-btn>
 
       <v-btn plain text color="primary" href="https://www.patreon.com/ohanamovies" target="_blank">

@@ -271,8 +271,6 @@ export default {
     },
 
     markCurrentTime() {
-      fclib.sendMessage({ msg: 'play' })
-
       fclib.sendMessage({ msg: 'mark-current-time' }, response => {
         console.log(response)
         if (response && response.scene) {

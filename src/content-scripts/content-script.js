@@ -44,12 +44,6 @@ var fc = {
   tagged: {},
 
   previewScene: function(scene) {
-    if (!scene) {
-      fc.preview_skip = null
-      player.pause()
-      fc.view_mode('edit')
-      return
-    }
     console.log('Previewing scene: ', scene)
     fc.view_mode()
     fc.preview_skip = scene
@@ -247,6 +241,7 @@ var fc = {
       fc.marking_started = player.video.paused ? time : time - 2000
       player.video.playbackRate = fc.settings.playbackRate_on_mark
       fc.view_mode('mark')
+      player.play()
       console.log('Scene start marked at ', fc.marking_started)
     } else {
       var end = player.video.paused ? time : time - 2000

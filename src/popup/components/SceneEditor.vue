@@ -215,12 +215,7 @@
               </fc-tooltip>
               -->
               <v-spacer></v-spacer>
-              <v-btn
-                text
-                x-small
-                @click="preview"
-                color="primary"
-              >
+              <v-btn text x-small @click="preview" color="primary">
                 <span v-if="isPreviewing">
                   End Preview
                 </span>
@@ -273,6 +268,18 @@
                 +5s
               </v-btn>
             </div>
+          </div>
+
+          <div id="time-travel">
+            <table>
+              <tr>
+                <td :style="'width: ' + w1 + '%'" class="color1"></td>
+                <td :style="'width: ' + w2 + '%'" class="color2"></td>
+                <td class="color1"></td>
+              </tr>
+            </table>
+
+            <span :style="'margin-left:' + w3 + '%'" id="current-time">^</span>
           </div>
 
           <div id="editorSafety" style="margin-top: 20px">
@@ -362,15 +369,28 @@ export default {
   data() {
     return {
       scene: { category: '', severity: '', plotTag: '', videoAudioTag: '', plot_description: '' },
-
+      currentTime: 0,
       sliderValue: 4,
       severities: [],
       context: [],
       content: {},
-      isPreviewing: false,
+      isPreviewing: false
     }
   },
 
+  mounted() {
+    this.$nextTick(function() {
+      console.log('mounted ', this.visible, this.visible2)
+      var that = this
+      setInterval(function() {
+        if (that.visible) {
+          fclib.sendMessage({ msg: 'get-time' }, response => {
+            if (response && response.time) that.currentTime = response.time
+          })
+        }
+      }, 250)
+    })
+  },
   computed: {
     categories() {
       return raw_tags.categories
@@ -380,6 +400,23 @@ export default {
     },
     plotTags() {
       return raw_tags.extraTags.plotTags
+    },
+    t0() {
+      return Math.min(this.scene.start - 20e3, this.currentTime - 20e3)
+    },
+    tf() {
+      return Math.max(this.scene.end + 20e3, this.currentTime + 20e3)
+    },
+    w1() {
+      return ((this.scene.start - this.t0) / (this.tf - this.t0)) * 100
+    },
+    w2() {
+      var len = (this.scene.end - this.scene.start) / (this.tf - this.t0) * 100
+      if( len <= 0 ) return 0.1
+      return len
+    },
+    w3() {
+      return ((this.currentTime - this.t0) / (this.tf - this.t0)) * 100 - 1
     }
   },
 
@@ -399,7 +436,7 @@ export default {
   methods: {
     hide() {
       fclib.sendMessage({ msg: 'view-mode' })
-      fclib.sendMessage({ msg: 'update-settings', settings: this.settings })
+      this.isPreviewing = false
       this.$emit('hide')
     },
     cancel() {
@@ -416,16 +453,21 @@ export default {
     },
     getTime(edge) {
       fclib.sendMessage({ msg: 'get-time' }, response => {
-        if (response && response.time) this.scene[edge] = response.time
+        if (response && response.time) {
+          this.scene[edge] = response.time
+        }
       })
     },
-    preview(){
+    editMode(){
+      fclib.sendMessage({ msg: 'view-mode', mode: 'edit' })
+    },
+    preview() {
       if (this.isPreviewing) {
         this.isPreviewing = false
         fclib.sendMessage({ msg: 'preview', scene: false })
       } else {
-        this.isPreviewing = true
-        fclib.sendMessage({ msg: 'preview', scene: this.scene })  
+        this.isPreviewing = false
+        fclib.sendMessage({ msg: 'preview', scene: this.scene })
       }
     },
     seekForward(diff) {
@@ -496,5 +538,20 @@ export default {
 }
 .no-uppercase {
   text-transform: none !important;
+}
+
+#time-travel table {
+  border-collapse: collapse;
+  width: 100%;
+}
+#time-travel td {
+  height: 2px;
+  padding: 0px;
+}
+.color1 {
+  background-color: blue;
+}
+.color2 {
+  background-color: red;
 }
 </style>
