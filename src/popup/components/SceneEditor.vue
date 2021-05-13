@@ -215,16 +215,21 @@
               </fc-tooltip>
               -->
               <v-spacer></v-spacer>
-              <v-btn text x-small @click="preview" color="primary">
-                <span v-if="isPreviewing">
-                  End Preview
-                </span>
-                <span v-else>Preview</span>
-                <!-- <v-icon right small dark>
+              <fc-tooltip
+                text="Click to preview the final result (without the unwanted content)"
+                position="top"
+              >
+                <v-btn text x-small @click="preview" color="primary">
+                  <span v-if="isPreviewing">
+                    End Preview
+                  </span>
+                  <span v-else>Preview result</span>
+                  <!-- <v-icon right small dark>
                   mdi-eye
                 </v-icon>
                 -->
-              </v-btn>
+                </v-btn>
+              </fc-tooltip>
             </div>
 
             <div style="display: flex;">
@@ -411,8 +416,8 @@ export default {
       return ((this.scene.start - this.t0) / (this.tf - this.t0)) * 100
     },
     w2() {
-      var len = (this.scene.end - this.scene.start) / (this.tf - this.t0) * 100
-      if( len <= 0 ) return 0.1
+      var len = ((this.scene.end - this.scene.start) / (this.tf - this.t0)) * 100
+      if (len <= 0) return 0.1
       return len
     },
     w3() {
@@ -458,7 +463,7 @@ export default {
         }
       })
     },
-    editMode(){
+    editMode() {
       fclib.sendMessage({ msg: 'view-mode', mode: 'edit' })
     },
     preview() {

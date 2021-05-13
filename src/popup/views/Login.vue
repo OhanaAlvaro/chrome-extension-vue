@@ -7,8 +7,9 @@
       <h2 v-else>Welcome to {{ extensionName }}!</h2>
       <span class="menu">
         <a v-if="!data.sidebar" @click="cancelSettings()">
+          <fc-tooltip text="Go back" position="bottom">
           <v-icon class="pb-1" small>mdi-arrow-left</v-icon>
-          <b style="color: #616161">Back</b>
+          </fc-tooltip>
         </a>
         <span v-else @click="hideSidebar">
           <v-icon small>mdi-close</v-icon>

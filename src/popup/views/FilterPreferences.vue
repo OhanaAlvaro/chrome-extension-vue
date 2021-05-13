@@ -6,10 +6,17 @@
 
       <v-spacer></v-spacer>
       <span class="menu">
+        <fc-tooltip text="Movie view" position="bottom">
+        <a @click="goTo('/')">
+          <v-icon class="pb-1" small>mdi-movie</v-icon>
+        </a>
+      </fc-tooltip>
+      <fc-tooltip text="Account" position="bottom">
         <a @click="go2Login()">
           <v-icon class="pb-1" small>mdi-account</v-icon>
-          <b style="color: #616161"> {{ data.settings.username }}</b>
+          <!--<b style="color: #616161"> {{ data.settings.username }}</b>-->
         </a>
+      </fc-tooltip>
       </span>
     </div>
 
@@ -124,8 +131,10 @@
         Donate
       </v-btn>
 
-      <v-btn v-if="data.hasFilm" plain text color="success" to="/"> Back</v-btn>
-      <v-btn v-else plain text color="success" @click="closePopup()"> Close </v-btn>
+      <v-btn plain text color="success" @click="closePopup()">
+        <span v-if="data.hasFilm">Watch</span>
+        <span v-else>Close</span>
+      </v-btn>
     </div>
   </div>
 </template>

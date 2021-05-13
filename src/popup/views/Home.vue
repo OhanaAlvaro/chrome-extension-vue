@@ -15,10 +15,18 @@
 
       <v-spacer></v-spacer>
       <span class="menu">
+        <fc-tooltip text="Settings" position="bottom">
+        <a @click="goTo('/preferences')">
+          <v-icon class="pb-1" small>mdi-cog</v-icon>
+          <!--<b style="color: #616161">Settings</b>-->
+        </a>
+      </fc-tooltip>
+      <fc-tooltip text="Account" position="bottom">
         <a @click="go2Login()">
           <v-icon class="pb-1" small>mdi-account</v-icon>
-          <b style="color: #616161"> {{ data.settings.username }}</b>
+          <!--<b style="color: #616161"> {{ data.settings.username }}</b>-->
         </a>
+      </fc-tooltip>
       </span>
     </div>
 
@@ -35,10 +43,10 @@
     -->
 
     <div id="TAB_MOVIE" v-if="tab != 0">
-      <!-- 1. SAFE DEFINITION -->
+      <!-- 1. SAFE DEFINITION 
       <div id="SAFE_DEFINITION" style="font-size: 100%; margin-top: 5px;">
-        Update <router-link to="/preferences">your preferences</router-link>.
-      </div>
+        Update <router-link to="/preferences">your settings</router-link>.
+      </div>-->
 
       <!-- 2. TAGS EXPANSION BLOCKS -->
       <div id="EXPANSION-BLOCKS" style="margin-bottom: 10px; margin-top: 5px; " v-if="tab == 1">
@@ -240,7 +248,7 @@
       <div id="ACTION_BUTTONS">
         <v-row no-gutters>
           <v-col cols="4">
-            <v-btn block dense depressed tile text @click="showSidebar(true)">Edit filters</v-btn>
+            <v-btn block dense depressed tile text @click="showSidebar(true)">Edit scenes</v-btn>
           </v-col>
           <v-col cols="4">
             <v-btn

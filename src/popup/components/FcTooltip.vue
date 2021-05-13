@@ -1,6 +1,6 @@
 <template>
   <!-- note: not returning a div, so this stays inline-->
-  <v-tooltip :top="top" :bottom="bottom" :left="left" :right="right" color="black">
+  <v-tooltip open-delay="500" :top="top" :bottom="bottom" :left="left" :right="right" color="black">
     <template v-slot:activator="{ on, attrs }">
       <span v-bind="attrs" v-on="on">
         <slot>
