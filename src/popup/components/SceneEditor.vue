@@ -223,7 +223,7 @@
                   <span v-if="isPreviewing">
                     End Preview
                   </span>
-                  <span v-else>Preview result</span>
+                  <span v-else>Preview cut</span>
                   <!-- <v-icon right small dark>
                   mdi-eye
                 </v-icon>
@@ -261,7 +261,7 @@
                 -0.5s
               </v-btn>
 
-              <v-btn @click="sendMessage({ msg: 'play-pause' })" text small>
+              <v-btn @click="togglePlay()" text small>
                 <v-icon fab>mdi-play-pause</v-icon>
               </v-btn>
 
@@ -275,7 +275,7 @@
             </div>
           </div>
 
-          <div id="time-travel">
+          <div id="time-travel" @click="timeTravel">
             <table>
               <tr>
                 <td :style="'width: ' + w1 + '%'" class="color1"></td>
@@ -284,7 +284,7 @@
               </tr>
             </table>
 
-            <span :style="'margin-left:' + w3 + '%'" id="current-time">^</span>
+            <b :style="'margin-left:' + w3 + '%'" id="current-time">^</b>
           </div>
 
           <div id="editorSafety" style="margin-top: 20px">
@@ -463,6 +463,21 @@ export default {
         }
       })
     },
+    togglePlay() {
+      fclib.sendMessage({ msg: 'play-pause' })
+      fclib.sendMessage({ msg: 'view-mode', mode: 'seek' })
+    },
+    timeTravel(event) {
+      let x = event.clientX - 12
+      let xTotal = document.getElementById('time-travel').offsetWidth
+      let tTotal = this.tf - this.t0
+
+      let t = this.t0 + (x / xTotal) * tTotal
+      console.log('values ', event, x, xTotal, tTotal, this.tf, this.t0)
+      fclib.sendMessage({ msg: 'pause' })
+      fclib.sendMessage({ msg: 'view-mode', mode: 'edit' })
+      fclib.sendMessage({ msg: 'seek-frame', time: t })
+    },
     editMode() {
       fclib.sendMessage({ msg: 'view-mode', mode: 'edit' })
     },
@@ -476,10 +491,12 @@ export default {
       }
     },
     seekForward(diff) {
+      fclib.sendMessage({ msg: 'view-mode', mode: 'seek' })
       fclib.sendMessage({ msg: 'seek-diff', diff: diff })
     },
     seekFrame(time) {
       fclib.sendMessage({ msg: 'pause' })
+      fclib.sendMessage({ msg: 'view-mode', mode: 'edit' })
       fclib.sendMessage({ msg: 'seek-frame', time: time })
     },
     blur(level) {
@@ -548,6 +565,7 @@ export default {
 #time-travel table {
   border-collapse: collapse;
   width: 100%;
+  cursor: pointer;
 }
 #time-travel td {
   height: 2px;

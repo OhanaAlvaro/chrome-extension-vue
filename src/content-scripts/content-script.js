@@ -19,17 +19,17 @@ var provider = require('./provider')
 var fc = {
   default_settings: {
     username: '',
-    
+
     skip_tags: [],
     ignore_default_settings: true,
     pause_after_adding_scene: false,
     playbackRate_on_mark: 1.5,
     mute_on_mark: true,
     blur_on_mark: 20,
-    mute_on_edit: false,
+    mute_on_edit: true,
     blur_on_edit: 10,
     level: 0,
-    token: null,
+    token: null
   },
 
   settings: false,
@@ -45,10 +45,10 @@ var fc = {
 
   previewScene: function(scene) {
     console.log('Previewing scene: ', scene)
-    fc.view_mode()
     fc.preview_skip = scene
-    player.play()
     player.seek(fc.preview_skip.start - 4000)
+    player.play()
+    setTimeout(fc.view_mode, 500)
     return true
   },
 
@@ -159,7 +159,7 @@ var fc = {
       console.warn('Setting default settings instead of : ', settings)
       fc.settings = fc.default_settings
     }
-    if(!silent) fc.onContentEdit('settings')
+    if (!silent) fc.onContentEdit('settings')
   },
 
   onContentEdit: function(edit) {
@@ -217,7 +217,7 @@ var fc = {
     })
   },
 
-  view_mode: function (mode) {
+  view_mode: function(mode) {
     if (mode == 'mark') {
       player.blur(fc.settings.blur_on_mark)
       if (fc.settings.mute_on_mark) player.mute(true)
@@ -226,6 +226,9 @@ var fc = {
       player.blur(fc.settings.blur_on_edit)
       if (fc.settings.mute_on_edit) player.mute(true)
       fc.editing = true
+    } else if (mode == 'seek') {
+      if (fc.preview_skip) return
+      fc.view_mode('edit')
     } else {
       player.blur(0)
       player.mute(false)
@@ -578,7 +581,7 @@ var server = {
         out.push(key + '=' + encodeURIComponent(query[key]))
       }
     }
-    var url = 'https://api.ohanamovies.org/dev?' + out.join('&')
+    var url = 'https://api.ohanamovies.org/prod?' + out.join('&')
     return url
   }
 }

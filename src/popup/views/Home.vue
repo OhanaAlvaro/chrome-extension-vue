@@ -248,22 +248,20 @@
       <div id="ACTION_BUTTONS">
         <v-row no-gutters>
           <v-col cols="4">
-            <v-btn block dense depressed tile text @click="showSidebar(true)">Edit scenes</v-btn>
+            <v-btn block dense depressed tile text @click="goTo('/preferences')" >Settings</v-btn>
           </v-col>
           <v-col cols="4">
             <v-btn
               text
-              plain
               dark
               block
               dense
               depressed
               tile
               color="primary"
-              href="https://www.patreon.com/ohanamovies"
-              target="_blank"
+              @click="showSidebar(true)"
             >
-              Donate
+              Editor
             </v-btn>
           </v-col>
           <v-col cols="4">
