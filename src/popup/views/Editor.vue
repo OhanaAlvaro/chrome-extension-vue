@@ -139,7 +139,7 @@
         <v-icon :color="certifiedColor" small>mdi-content-cut</v-icon>
         <v-icon color="red" small>mdi-flag-variant</v-icon>
         <v-icon color="gray" small>mdi-progress-question</v-icon>
-        Set Filter status
+        Filtering Progress
       </fc-tooltip>
     </v-btn>
 

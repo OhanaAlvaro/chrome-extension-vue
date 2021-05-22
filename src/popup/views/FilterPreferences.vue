@@ -6,17 +6,15 @@
 
       <v-spacer></v-spacer>
       <span class="menu">
-        <fc-tooltip text="Movie view" position="bottom">
-        <a @click="goTo('/')">
+        <a v-if="data.hasFilm" @click="goTo('/')">
           <v-icon class="pb-1" small>mdi-movie</v-icon>
         </a>
-      </fc-tooltip>
-      <fc-tooltip text="Account" position="bottom">
-        <a @click="go2Login()">
-          <v-icon class="pb-1" small>mdi-account</v-icon>
-          <!--<b style="color: #616161"> {{ data.settings.username }}</b>-->
+        <a @click="goTo('/preferences')" class="active-menu">
+          <v-icon class="pb-1" small>mdi-cog</v-icon>
         </a>
-      </fc-tooltip>
+        <a @click="goTo('/login')">
+          <v-icon class="pb-1" small>mdi-account</v-icon>
+        </a>
       </span>
     </div>
 
@@ -121,14 +119,15 @@
     </div>
 
     <!-- ACTION BUTTONS -->
-    <div style="margin: 10px 5px 0 5px">
+    <div style="margin: 10px 5px; float: right">
       <!--<b>Help us improve</b>-->
-      <v-btn plain text href="https://forms.gle/cPr7XQhdS7x1y9hx7" target="_blank">
-        Feedback
+
+      <v-btn v-if="data.hasFilm" plain text>
+        Back
       </v-btn>
 
-      <v-btn plain text color="primary" href="https://www.patreon.com/ohanamovies" target="_blank">
-        Donate
+      <v-btn plain text color="primary" @click="goTo('Login')">
+        Community
       </v-btn>
 
       <v-btn plain text color="success" @click="closePopup()">
@@ -303,5 +302,13 @@ export default {
 
 .v-slider__track-container {
   height: 3px !important;
+}
+
+.menu a {
+  padding: 4px;
+}
+
+.active-menu {
+  border-bottom: solid black 1px;
 }
 </style>

@@ -12,17 +12,18 @@
 }
 
 .ohana-shield {
-  position: absolute;
+  position: absolute !important;
   filter: none !important;
   display: block !important;
   bottom: 5px;
   right: 5px;
 
   /*alex*/
-  width: 22px;
-  border-radius: 50%;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
   padding: 4px !important;
-  background-color: white;
+  background-color: white !important;
   /*alex*/
 }
 

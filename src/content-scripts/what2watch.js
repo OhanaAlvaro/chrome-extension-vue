@@ -9,7 +9,7 @@ var w2w = {
     w2w.skip_tags = skip_tags
     if (skip_tags.length) {
       document.body.classList.remove('hide-shields')
-    } else{
+    } else {
       document.body.classList.add('hide-shields')
     }
     w2w.add_shields(force)
@@ -41,7 +41,7 @@ var w2w = {
       var id = provider.parseURL(links[i].href).id
       if (!w2w.tagged[id]) {
         missing_id.push(id)
-        w2w.tagged[id] = { done: [], missing: [] } // This stops items from being added again as missing
+        w2w.tagged[id] = {} // This stops items from being added again as missing
       }
       w2w.add_shield(links[i], w2w.tagged[id])
     }
@@ -56,33 +56,40 @@ var w2w = {
     })
   },
 
+  joinStatus: function(tagged, skipTags) {
+    if (!tagged) return {status: 'unknown', cuts: 0, level: 0}
+    if (!skipTags || !skipTags.length) return {status: 'unset', cuts: 0, level: 0}
+    let status = 'done'
+    let cuts = 0
+    let level = Infinity
+    for (var tag of skipTags) {
+      // Set default
+      let s = tagged[tag] || {}
+      // Set num cuts/scenes & min user level
+      if (s.cuts) cuts += s.cuts
+      level = Math.min(level, s.level || 0)
+      // Set watchability status
+      if (s.status == 'missing') {
+        status = 'missing'
+      } else if (s.status != 'done') {
+        status = 'unknown'
+      }
+    }
+    return { status: status, cuts: cuts, level: level }
+  },
+
   add_shield: function(elem, tagged) {
-    // If EVERY skip_tag is included in tagged.done
-    if (w2w.skip_tags.every(x => tagged.done.includes(x))) {
-      //now check the total number of scenes per skipTag
-      //TODO: review tagsCount is properly done.
-      var tagsCount = 0
-      for (let st in w2w.skip_tags) {
-        if (tagged.tagged && tagged.tagged[st]) {
-          tagsCount += tagged.tagged[st][0]
-        }
-      }
+    let join = w2w.joinStatus(tagged.status, w2w.skip_tags)
 
-      if (tagsCount > 0) {
-        return w2w.update_shield(elem, 'mdi-content-cut', 'done')
-      } else {
-        return w2w.update_shield(elem, 'mdi-emoticon-happy', 'done')
-      }
-    }
-
-    // If ANY skip_tag is included in tagged.missing
-    if (w2w.skip_tags.some(x => tagged.missing.includes(x))) {
-      //return w2w.update_shield(elem, 'missing', 'missing')
+    if (join.status == 'done' && join.cuts) {
+      return w2w.update_shield(elem, 'mdi-content-cut', 'done')
+    } else if (join.status == 'done') {
+      return w2w.update_shield(elem, 'mdi-emoticon-happy', 'done')
+    } else if (join.status == 'missing') {
       return w2w.update_shield(elem, 'mdi-flag-variant', 'missing')
+    } else {
+      w2w.update_shield(elem, 'mdi-progress-question', 'unknown')
     }
-
-    // Otherwise
-    w2w.update_shield(elem, 'mdi-progress-question', 'unknown')
   },
 
   update_shield: function(elem, icon, cls) {

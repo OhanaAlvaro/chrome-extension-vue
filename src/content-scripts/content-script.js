@@ -29,7 +29,7 @@ var fc = {
     mute_on_edit: true,
     blur_on_edit: 10,
     level: 0,
-    token: null
+    authToken: ''
   },
 
   settings: false,
@@ -113,8 +113,10 @@ var fc = {
     for (var i = 0; i < fc.scenes.length; i++) {
       if (fc.scenes[i].skip) count++
     }
+
+    if (!fc.metadata.id) override = 'inactive'
     if (shield == 'done' && count == 0) override = 'clean'
-    if (skip_tags.length == 0) override = 'inactive2' //Alex: workaournd for now, to avoid pretending it's EVERYHTING is safe (no skip_tags) | check background.js
+    if (skip_tags.length == 0) override = 'inactive' //Alex: workaournd for now, to avoid pretending it's EVERYHTING is safe (no skip_tags) | check background.js
     //--------
     fc.shield = shield
     console.log('[updateShield] new status ', fc.shield)
@@ -403,7 +405,8 @@ var browser = {
           return server.auth('newpass', request, sendResponse)
         } else if (request.msg == 'logout') {
           fc.settings.username = ''
-          fc.settings.token = ''
+          fc.settings.authToken = ''
+          console.log('[logout]', fc.settings)
           browser.setData('settings', fc.settings)
           fc.onContentEdit('settings')
         } else {
@@ -424,6 +427,7 @@ var browser = {
     for (var i = 0; i < fc.scenes.length; i++) {
       if (fc.scenes[i].skip) count++
     }
+    if (!fc.metadata.id) count = ''
     browser.sendMessage({ msg: 'update-badge', numDisplayedScenes: count })
   },
 
@@ -481,7 +485,7 @@ var server = {
       action: action,
       id: fc.metadata.id,
       username: fc.settings.username,
-      token: fc.settings.token,
+      token: fc.settings.authToken,
       password: fc.settings.password,
       data: JSON.stringify(data)
     })
@@ -499,10 +503,10 @@ var server = {
       },
       function(response) {
         if (response.statusCode == 200) {
-          fc.settings.token = response.body.token
+          fc.settings.authToken = response.body.token
           fc.settings.level = response.body.level
           fc.settings.username = request.username
-          console.log('updating settings ', fc.settings)
+          console.log('[auth] updating settings ', fc.settings)
           fc.loadSettings(fc.settings)
           browser.setData('settings', fc.settings)
         }
@@ -581,7 +585,7 @@ var server = {
         out.push(key + '=' + encodeURIComponent(query[key]))
       }
     }
-    var url = 'https://api.ohanamovies.org/prod?' + out.join('&')
+    var url = 'https://api.ohanamovies.org/dev?' + out.join('&')
     return url
   }
 }
@@ -757,6 +761,7 @@ browser.addListeners()
 setInterval(fc.periodicCheck, 100)
 
 browser.getData('settings', function(settings) {
+  if (!settings.authToken) settings.username = '' // TODO remove this after a while
   fc.loadSettings(settings)
 })
 
@@ -766,8 +771,8 @@ function show_sidebar(show) {
   if (!show) return document.body.classList.remove('fc-active')
 
   // Do not show sidebar if there is no movie
-  if (!fc.metadata.id)
-    return console.error('[show_sidebar] No point to show sidebar when there is no movie')
+  /*  if (!fc.metadata.id)
+    return console.error('[show_sidebar] No point to show sidebar when there is no movie')*/
 
   // Add fc-active class (this will show the sidebar)
   document.body.classList.add('fc-active')

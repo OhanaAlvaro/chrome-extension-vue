@@ -5,15 +5,21 @@
         Hi {{ data.settings.username }}! ({{ rank[data.settings.level] }})
       </h2>
       <h2 v-else>Welcome to {{ extensionName }}!</h2>
-      <span class="menu">
-        <a v-if="!data.sidebar" @click="cancelSettings()">
-          <fc-tooltip text="Go back" position="bottom">
-          <v-icon class="pb-1" small>mdi-arrow-left</v-icon>
-          </fc-tooltip>
+      <span v-if="!data.sidebar" class="menu">
+        <a v-if="data.hasFilm" @click="goTo('/')">
+          <v-icon class="pb-1" small>mdi-movie</v-icon>
         </a>
-        <span v-else @click="hideSidebar">
-          <v-icon small>mdi-close</v-icon>
-        </span>
+        <a @click="goTo('/preferences')">
+          <v-icon class="pb-1" small>mdi-cog</v-icon>
+        </a>
+        <a @click="goTo('/login')" class="active-menu">
+          <v-icon class="pb-1" small>mdi-account</v-icon>
+        </a>
+      </span>
+      <span class="menu" v-else>
+        <a @click="hideSidebar">
+          <v-icon class="pb-1" small>mdi-close</v-icon>
+        </a>
       </span>
     </div>
 
@@ -44,7 +50,7 @@
     <div v-if="data.settings.username">
       <div v-if="data.settings.level == 0">
         <p>
-          Welcome {{ data.settings.username }}, as a <i>{{ rank[data.settings.level] }}</i
+          As a <i>{{ rank[data.settings.level] }}</i
           >, you are the lowest ranking Jedi. Some of your changes might require approval by higher
           ranking users.
         </p>
@@ -65,9 +71,29 @@
       </div>
     </div>
 
-    <div>
-      Visit <a href="https://ohanamovies.org/" target="_blank">our website</a> to find out more
-      about Ohana and skipping content.
+    <!-- ACTION BUTTONS -->
+    <br>
+    <b>Help us improve</b>
+
+    <div style="margin: 10px 5px 0 5px">
+      <v-btn plain text href="https://forms.gle/cPr7XQhdS7x1y9hx7" target="_blank">
+        Feedback
+      </v-btn>
+
+<v-btn v-if="!data.sidebar && data.hasFilm" plain text color="primary" @click="showSidebar(true)">
+        Edit
+      </v-btn>
+      <v-btn v-else href="https://ohanamovies.org/" target="_blank" plain text color="primary">
+        Learn
+      </v-btn>
+
+      <v-btn plain text color="success" href="https://www.patreon.com/ohanamovies" target="_blank">
+        Donate
+      </v-btn>
+
+      
+
+      
     </div>
 
     <!--<v-row>
@@ -139,10 +165,17 @@ export default {
 
   data() {
     return {
-
       darkMode: false,
 
-      rank: ['Youngling', 'Padawan', 'Jedi Knight', 'Jedi Master', 'Grand Master', 'Yoda'],
+      rank: [
+        'Youngling',
+        'Padawan',
+        'Jedi Knight',
+        'Jedi Master',
+        'Grand Master',
+        'Baby Yoda',
+        'Master Yoda'
+      ],
 
       dialog: false,
 
@@ -174,6 +207,17 @@ export default {
   methods: {
     hideSidebar() {
       this.sendMessage({ msg: 'show-sidebar', show: false })
+    },
+    goTo(route) {
+      if (route == -1) {
+        this.$router.go(-1)
+      } else {
+        this.$router.push(route)
+      }
+    },
+    showSidebar(close = false) {
+      fclib.sendMessage({ msg: 'show-sidebar', show: true })
+      if (close) window.close()
     },
     //login
     showSnackbar(textt, color) {

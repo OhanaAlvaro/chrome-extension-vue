@@ -15,18 +15,15 @@
 
       <v-spacer></v-spacer>
       <span class="menu">
-        <fc-tooltip text="Settings" position="bottom">
+        <a v-if="data.hasFilm" @click="goTo('/')"  class="active-menu">
+          <v-icon class="pb-1" small>mdi-movie</v-icon>
+        </a>
         <a @click="goTo('/preferences')">
           <v-icon class="pb-1" small>mdi-cog</v-icon>
-          <!--<b style="color: #616161">Settings</b>-->
         </a>
-      </fc-tooltip>
-      <fc-tooltip text="Account" position="bottom">
-        <a @click="go2Login()">
+        <a @click="goTo('/login')">
           <v-icon class="pb-1" small>mdi-account</v-icon>
-          <!--<b style="color: #616161"> {{ data.settings.username }}</b>-->
         </a>
-      </fc-tooltip>
       </span>
     </div>
 

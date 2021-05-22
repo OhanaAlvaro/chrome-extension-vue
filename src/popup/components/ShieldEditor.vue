@@ -13,9 +13,6 @@
       <v-card>
         <v-card-title primary-title style="font-size:130%; padding-bottom:2px; padding-top:2px">
           What content is fully listed?
-          <fc-tooltip text="Click on the shield icons below to change status" position="bottom">
-            <v-icon color="gray" x-small class="ml-2 mb-1">mdi-help-circle-outline</v-icon>
-          </fc-tooltip>
         </v-card-title>
         <v-card-text style="padding-bottom:5px" class="px-2">
           <!-- TABS MENU -->
@@ -32,36 +29,37 @@
             <v-tab style="font-size:90%">profanity</v-tab>
           </v-tabs>
 
+          Click on the icons below to change their status
           <!-- TABS (now dynamic instead of duplicate code) -->
           <v-tabs-items v-model="tab" class="pt-3">
             <v-tab-item v-for="(tag_group, index) in tag_groups" :key="index">
               <div v-for="(tag, index) in tag_group" :key="index">
-                <div @click="nextStatus(tag)" style="cursor: pointer;">
-                  <v-row class="mb-3">
-                    <v-col cols="1" class="py-0">
-                      <v-icon v-if="status(tag) == `missing`" color="red">mdi-flag-variant</v-icon>
-
-                      <v-icon
-                        v-if="status(tag) == `done` && scenesCountByTag(tag) == 0"
-                        :color="certifiedColor"
-                        >mdi-emoticon-happy</v-icon
-                      >
-                      <v-icon
-                        v-if="status(tag) == `done` && scenesCountByTag(tag) > 0"
-                        :color="certifiedColor"
-                        >mdi-content-cut</v-icon
-                      >
-                      <v-icon v-if="status(tag) == `unknown`" color="gray"
-                        >mdi-progress-question</v-icon
-                      >
-                    </v-col>
-                    <v-col class="py-0">
-                      <b style="min-width: 100px">{{ tag.title }} ({{ scenesCountByTag(tag) }})</b>
-                      -
-                      {{ tag.description }}
-                    </v-col>
-                  </v-row>
-                </div>
+                <v-row class="mb-5">
+                  <v-col cols="4" class="py-0" style="cursor: pointer;">
+                    <v-icon :class="getStatus(tag) == `missing` ? `` : `inactive`"
+                    @click="setStatus(tag,`missing`)" color="red">
+                      mdi-flag-variant
+                    </v-icon>
+                    <v-icon :class="getStatus(tag) == `unknown` ? `` : `inactive`"
+                    @click="setStatus(tag,`unknown`)"
+                     color="gray" style="padding: 0 5px;">
+                      mdi-progress-question
+                    </v-icon>
+                    <v-icon
+                      :class="getStatus(tag) == `done` ? `` : `inactive`"
+                      @click="setStatus(tag,`done`)"
+                      :color="certifiedColor"
+                    >
+                      {{ scenesCountByTag(tag) == 0 ? 'mdi-emoticon-happy' : 'mdi-content-cut' }}
+                    </v-icon>
+                  </v-col>
+                  <v-col class="py-0">
+                    <b style="min-width: 100px">{{ tag.title }} ({{ scenesCountByTag(tag) }})</b>
+                    <fc-tooltip :text="tag.description" position="bottom">
+                      <v-icon color="gray" small class="ml-2 mb-1">mdi-help-circle-outline</v-icon>
+                    </fc-tooltip>
+                  </v-col>
+                </v-row>
               </div>
             </v-tab-item>
           </v-tabs-items>
@@ -103,6 +101,11 @@
           <v-btn text @click="cancel()">
             Cancel
           </v-btn>
+          <fc-tooltip text="This movie is safe for all the categories I consider relevant, i.e. the categories I have marked as unwanted">
+            <v-btn color="success" text @click="cleanForMe()">
+              Clean for me
+            </v-btn>
+          </fc-tooltip>
           <v-btn color="primary" text @click="save()">
             Save
           </v-btn>
@@ -156,15 +159,6 @@ export default {
       ]
       return x
     },
-    sex_tags() {
-      return JSON.parse(JSON.stringify(raw.content[0].severity)).reverse()
-    },
-    vio_tags() {
-      return JSON.parse(JSON.stringify(raw.content[1].severity)).reverse()
-    },
-    prof_tags() {
-      return JSON.parse(JSON.stringify(raw.content[2].severity)).reverse()
-    },
     certifiedColor() {
       if (this.level >= 6) return 'blue'
       return 'green'
@@ -201,9 +195,29 @@ export default {
       this.$emit('hide') //Close dialog
     },
 
-    status(tag) {
+    getStatus(tag) {
       if (!this.tagged[tag.value]) return 'unknown'
       return this.tagged[tag.value].status || 'unknown'
+    },
+
+    setStatus(tag,status){
+      if (!this.tagged[tag.value]) this.tagged[tag.value] = {}
+      this.tagged[tag.value].status = status
+      this.$forceUpdate()
+    },
+
+    cleanForMe(){
+      let me = this.data.settings.skip_tags
+      for (let group of this.tag_groups ){
+        for( let tag of group ){
+          if( me.includes(tag.value) ){
+            this.setStatus(tag,'done')
+          } else {
+            console.log('[cleanForMe] what shall we do here?')
+            //this.setStatus(tag,'')
+          }
+        }
+      }
     },
 
     nextStatus(tag) {
@@ -224,4 +238,9 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.inactive {
+  opacity: 0.1;
+  color: gray !important;
+}
+</style>

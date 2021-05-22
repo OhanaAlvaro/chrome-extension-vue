@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener(function(data, sender, sendResponse) {
     chrome.browserAction.setBadgeBackgroundColor({ color: '#2b2b2b' })
   } else if (data.msg === 'shield-status') {
     //----
-    if (data.override == 'inactive2') {
+    if (data.override == 'inactive') {
       chrome.browserAction.setIcon({ path: 'icons/logo-48.png', tabId: sender.tab.id })
     } else if (data.override == 'clean') {
       chrome.browserAction.setIcon({ path: 'icons/clean.png', tabId: sender.tab.id })
