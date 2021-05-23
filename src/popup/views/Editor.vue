@@ -80,7 +80,7 @@
             <!-- Severity -->
             <td>
               <v-chip x-small :color="getTagColor(scene.category)" dark>
-                {{ scene.severity }}
+                {{ scene.severity || 'draft scene'   }}
               </v-chip>
             </td>
             <!-- Context -->

@@ -53,6 +53,7 @@
   top: 0;
   right: 0;
   display: block !important;
+  border: none;
   width: 320px;
   height: 100%;
   z-index: 2147483647;

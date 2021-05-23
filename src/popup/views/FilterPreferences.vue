@@ -122,11 +122,11 @@
     <div style="margin: 10px 5px; float: right">
       <!--<b>Help us improve</b>-->
 
-      <v-btn v-if="data.hasFilm" plain text>
+      <v-btn v-if="data.hasFilm" @click="goTo('/')" plain text>
         Back
       </v-btn>
 
-      <v-btn plain text color="primary" @click="goTo('Login')">
+      <v-btn plain text color="primary" @click="goTo('/login')">
         Community
       </v-btn>
 

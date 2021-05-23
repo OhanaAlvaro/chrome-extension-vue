@@ -249,7 +249,7 @@ var fc = {
       player.play()
       console.log('Scene start marked at ', fc.marking_started)
     } else {
-      var end = player.video.paused ? time : time - 2000
+      var end = player.video.paused ? time : time - 1500
       var scene = { tags: tags, start: start, end: end, id: utils.random_id() }
       fc.addScene(scene)
       fc.marking_started = false
