@@ -25,9 +25,9 @@ var fc = {
     pause_after_adding_scene: false,
     playbackRate_on_mark: 1.5,
     mute_on_mark: true,
-    blur_on_mark: 20,
+    blur_on_mark: 8,
     mute_on_edit: true,
-    blur_on_edit: 10,
+    blur_on_edit: 4,
     level: 0,
     authToken: ''
   },
@@ -151,11 +151,18 @@ var fc = {
 
   loadSettings: function(settings, silent) {
     if (settings && settings.ignore_default_settings) {
+      // Force default values if any key has a different data type
       for (var key in fc.default_settings) {
         if (typeof fc.default_settings[key] !== typeof settings[key]) {
           settings[key] = fc.default_settings[key]
         }
       }
+      // Force some default values
+      if (settings.blur_on_edit < 6) settings.blur_on_edit = 6
+      if (settings.blur_on_mark < 10) settings.blur_on_mark = 10
+      settings.mute_on_edit = true
+      settings.mute_on_mark = true
+
       fc.settings = settings
     } else {
       console.warn('Setting default settings instead of : ', settings)

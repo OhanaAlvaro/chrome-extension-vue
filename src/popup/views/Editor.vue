@@ -266,7 +266,7 @@ export default {
 
     changeMute() {
       console.log('change mute', this.data.settings.mute_on_mark)
-      fclib.sendMessage({ msg: 'update-settings', settings: this.data.settings })
+      /*fclib.sendMessage({ msg: 'update-settings', settings: this.data.settings })*/
       fclib.sendMessage({ msg: 'mute', state: this.data.settings.mute_on_mark })
     },
 

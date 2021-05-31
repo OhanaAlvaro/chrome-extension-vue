@@ -505,7 +505,7 @@ export default {
       fclib.sendMessage({ msg: 'blur', blur_level: level })
     },
     mute() {
-      fclib.sendMessage({ msg: 'update-settings', settings: this.settings, silent: true })
+      /*fclib.sendMessage({ msg: 'update-settings', settings: this.settings, silent: true })*/
       fclib.sendMessage({ msg: 'mute', state: this.settings.mute_on_edit })
     },
     // Prepare scene to be shared (collapse category, severity and context into tags)
