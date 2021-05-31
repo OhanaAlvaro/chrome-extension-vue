@@ -117,42 +117,9 @@
                 <!-- IMAGE / SOUND / BOTH -->
                 <v-select
                   dense
-                  label="This applies to..."
-                  v-model="scene.videoAudioTag"
-                  :items="videoAudioTags"
-                >
-                  <template v-slot:selection="{ item }">
-                    <span style="font-size: 12px"> {{ item.value }}</span>
-                  </template>
-
-                  <template v-slot:item="{ active, item, attrs, on }">
-                    <v-list-item v-on="on" v-bind="attrs" dense style="max-height: 10px">
-                      <v-list-item-content>
-                        <v-list-item-title>{{ item.value }} </v-list-item-title>
-                      </v-list-item-content>
-
-                      <v-list-item-action>
-                        <fc-tooltip
-                          :text="item.description ? item.description : 'No data available'"
-                          :html="false"
-                          position="top"
-                        >
-                          <v-btn icon>
-                            <v-icon color="grey lighten-1" small>mdi-information</v-icon>
-                          </v-btn>
-                        </fc-tooltip>
-                      </v-list-item-action>
-                    </v-list-item>
-                  </template>
-                </v-select>
-              </v-col>
-              <!-- PLOT / MILD PLOT / NO PLOT -->
-              <v-col class="py-0 px-3">
-                <v-select
-                  dense
-                  label="Is this relevant for the plot?"
-                  v-model="scene.plotTag"
-                  :items="plotTags"
+                  label="What should we do?"
+                  v-model="scene.actionTag"
+                  :items="actionTags"
                 >
                   <template v-slot:selection="{ item }">
                     <span style="font-size: 12px"> {{ item.value }}</span>
@@ -181,12 +148,12 @@
               </v-col>
             </v-row>
 
-            <v-row v-if="scene.plotTag == 'Mild plot' || scene.plotTag == 'Strong plot'">
-              <v-col class="py-0 pt-3 px-3">
+            <v-row v-if="scene.actionTag != 'Skip'">
+              <v-col class="py-0 px-3">
                 <v-textarea
                   counter
                   dense
-                  label="What do users need to know to follow the plot?"
+                  :label="scene.actionTag == 'Just text'? 'What do users need to know to follow the plot?' : 'Is there anything users need to know to follow the plot?'"
                   v-model="scene.plot_description"
                   auto-grow
                   rows="1"
@@ -360,7 +327,7 @@ export default {
     the_scene: {
       type: Object,
       default() {
-        return { category: '', severity: '', plotTag: '', videoAudioTag: '', plot_description: '' }
+        return { category: '', severity: '', actionTag: 'Skip', plot_description: '' }
       }
     },
     settings: {
@@ -373,7 +340,7 @@ export default {
 
   data() {
     return {
-      scene: { category: '', severity: '', plotTag: '', videoAudioTag: '', plot_description: '' },
+      scene: { category: '', severity: '', actionTag: 'Skip', plot_description: '' },
       currentTime: 0,
       sliderValue: 4,
       severities: [],
@@ -385,7 +352,7 @@ export default {
 
   mounted() {
     this.$nextTick(function() {
-      console.log('mounted ', this.visible, this.visible2)
+      console.log('SceneEditor mounted ', this.visible)
       var that = this
       setInterval(function() {
         if (that.visible) {
@@ -400,11 +367,8 @@ export default {
     categories() {
       return raw_tags.categories
     },
-    videoAudioTags() {
-      return raw_tags.extraTags.videoAudioTags
-    },
-    plotTags() {
-      return raw_tags.extraTags.plotTags
+    actionTags() {
+      return raw_tags.extraTags.actionTags
     },
     t0() {
       return Math.min(this.scene.start - 20e3, this.currentTime - 20e3)
@@ -431,6 +395,7 @@ export default {
       handler(value) {
         //console.log('alex5 - watched!', value)
         this.scene = JSON.parse(JSON.stringify(value))
+        console.log('handler',this.scene.actionTag)
       }
     },
     scene() {
@@ -523,11 +488,8 @@ export default {
       delete scene.severity
 
       //4. audio/video/both tag
-      if (scene.videoAudioTag) scene.tags.push(scene.videoAudioTag)
-      delete scene.videoAudioTag
-      //5. plot tag
-      if (scene.plotTag) scene.tags.push(scene.plotTag)
-      delete scene.plotTag
+      if (scene.actionTag != 'Skip') scene.tags.push(scene.actionTag)
+      delete scene.actionTag
 
       return scene
     },

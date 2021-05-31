@@ -59,7 +59,11 @@
       <br />
       <br />
     </div>
-    <div v-else>
+    <div
+      v-else
+      style="max-height: 65%;
+    overflow-x: hidden;"
+    >
       <table width="100%">
         <thead>
           <tr>
@@ -80,7 +84,7 @@
             <!-- Severity -->
             <td>
               <v-chip x-small :color="getTagColor(scene.category)" dark>
-                {{ scene.severity || 'draft scene'   }}
+                {{ scene.severity || 'draft scene' }}
               </v-chip>
             </td>
             <!-- Context -->
@@ -275,7 +279,8 @@ export default {
         console.log(response)
         if (response && response.scene) {
           // We have a new scene!!
-          this.editScene(response.scene)
+          let parsed_scene = fclib.scenesList([response.scene])[0]
+          this.editScene(parsed_scene)
           fclib.sendMessage({ msg: 'pause' })
           this.data.state.marking = false
         } else {

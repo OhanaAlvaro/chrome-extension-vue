@@ -25,9 +25,9 @@ var fc = {
     pause_after_adding_scene: false,
     playbackRate_on_mark: 1.5,
     mute_on_mark: true,
-    blur_on_mark: 8,
+    blur_on_mark: 12,
     mute_on_edit: true,
-    blur_on_edit: 4,
+    blur_on_edit: 8,
     level: 0,
     authToken: ''
   },
@@ -158,8 +158,8 @@ var fc = {
         }
       }
       // Force some default values
-      if (settings.blur_on_edit < 6) settings.blur_on_edit = 6
-      if (settings.blur_on_mark < 10) settings.blur_on_mark = 10
+      if (settings.blur_on_edit < 8) settings.blur_on_edit = 8
+      if (settings.blur_on_mark < 12) settings.blur_on_mark = 12
       settings.mute_on_edit = true
       settings.mute_on_mark = true
 
@@ -250,13 +250,13 @@ var fc = {
     var start = fc.marking_started
     var time = Math.round(player.getTime() / 50) * 50
     if (!start) {
-      fc.marking_started = player.video.paused ? time : time - 2000
+      fc.marking_started = player.video.paused ? time : time - 1500
       player.video.playbackRate = fc.settings.playbackRate_on_mark
       fc.view_mode('mark')
       player.play()
       console.log('Scene start marked at ', fc.marking_started)
     } else {
-      var end = player.video.paused ? time : time - 1500
+      var end = player.video.paused ? time : time
       var scene = { tags: tags, start: start, end: end, id: utils.random_id() }
       fc.addScene(scene)
       fc.marking_started = false
@@ -268,15 +268,45 @@ var fc = {
     }
   },
 
+  skip_action: function(scene) {
+    try {
+      let tags = scene.tags || []
+      if (fc.preview_skip && scene.actionTag) {
+        tags = [scene.actionTag]
+      }
+      if (!tags) return 'skip'
+      if (tags.includes('Mute')) return 'mute'
+      if (tags.includes('Black screen')) return 'black'
+      if (tags.includes('Just text')) return 'text'
+    } catch (e) {
+      console.log('[skip_action] Error: ', e, scene)
+    }
+    return 'skip'
+  },
+
+  show_plot: function(plot) {
+    let div = document.getElementById('fc-plot')
+    if (!plot) {
+      if (div) div.style.display = 'none'
+      return
+    }
+
+    console.log('[show_plot] ', plot)
+    if (!div) {
+      div = document.createElement('div')
+      div.id = 'fc-plot'
+      document.body.appendChild(div)
+    }
+
+    div.innerText = plot
+    div.style.display = 'block'
+  },
+
   check_needs_skip: function() {
     var now = player.getTime()
     var next_good = 0
-
-    /*if (fc.frame_seeked) {
-      if (player.video.paused || Date.now() < fc.frame_seeked + 500) return
-      //player.blur(0)
-      fc.frame_seeked = false
-    }*/
+    var action = ''
+    var plot = ''
 
     if (fc.editing) return
 
@@ -296,6 +326,15 @@ var fc = {
       // Math.max(next_good+500,now) if the scene starts 0.5s after the end of the skip, consider they overlap
       if (Math.max(next_good + 500, now) > start && now < end) {
         next_good = Math.max(next_good, end)
+
+        // Fancy actions
+        let new_action = fc.skip_action(skip_list[i])
+        plot = skip_list[i].plot_description || plot || ''
+        if (action && new_action != action) {
+          action = plot? 'text' : 'skip'
+        } else {
+          action = new_action
+        }
       }
     }
 
@@ -306,11 +345,28 @@ var fc = {
       player.mute(false)
       fc.skipping = false
       fc.preview_skip = null
+      fc.show_plot(false)
     } else if (next_good !== 0 && !fc.skipping) {
-      console.log('[check_needs_skip] It does!')
-      player.video.style.visibility = 'hidden'
-      player.mute(true)
-      player.seek(next_good)
+      console.log('[check_needs_skip] Skipping/muting/... content!')
+      if (action == 'mute') {
+        player.mute(true)
+        if (plot) fc.show_plot(plot)
+      } else if (action == 'black') {
+        player.video.style.visibility = 'hidden'
+        if (plot) fc.show_plot(plot)
+      } else if (action == 'text' && plot) {
+        player.video.style.visibility = 'hidden'
+        player.mute(true)
+        fc.show_plot(plot)
+        let words = plot.split(' ').length
+        let reading_time = Math.max(1000, ( words / 250) * 60 * 1000)
+        console.log('[reading_time] ', reading_time, words )
+        if (next_good - reading_time > now) player.seek(next_good - reading_time)
+      } else {
+        player.video.style.visibility = 'hidden'
+        player.mute(true)
+        player.seek(next_good)
+      }
       fc.skipping = true
     }
   }
@@ -351,7 +407,7 @@ var browser = {
   // Starts listening to messages from interface and background script
   addListeners: function() {
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-      console.log('[listen] Received request: ', request)
+      if (request && request.msg != 'get-time') console.log('[listen] Received request: ', request)
       try {
         if (request.msg == 'mark-current-time') {
           return sendResponse(fc.mark_current_time(request.tags))
@@ -717,8 +773,10 @@ var player = {
 var utils = {
   merge: function(official, local) {
     console.log('[merge] merging: ', official, local)
-    if (!local) return official
     if (!official) return local
+    official = utils.toNewFields(official)
+    if (!local) return official
+    
     for (var i = 0; i < local.length; i++) {
       if (!official.some(e => e.id === local[i].id)) {
         official.push(local[i])
@@ -729,6 +787,33 @@ var utils = {
       return a.start - b.start
     })
     return official
+  },
+
+  toNewFields: function(scenes) {
+    function intersect(a, b) {
+      return a.filter(x => b.includes(x))
+    }
+
+    for (var i = 0; i < scenes.length; i++) {
+      if (!scenes[i].tags) continue
+      if (intersect(['Skip', 'Mute', 'Black screen', 'Just text'], scenes[i].tags).length) {
+        continue
+      } else if (
+        intersect(['Mild plot', 'Strong plot', 'Audio only'], scenes[i].tags).length >= 2
+      ) {
+        scenes[i].tags.push('Mute')
+      } else if (
+        intersect(['Mild plot', 'Strong plot', 'Video only'], scenes[i].tags).length >= 2
+      ) {
+        scenes[i].tags.push('Black screen')
+      } else if (
+        intersect(['Mild plot', 'Strong plot', 'Video and audio'], scenes[i].tags).length >= 2
+      ) {
+        scenes[i].tags.push('Just text')
+      }
+    }
+    console.log('toNewFields ', scenes)
+    return scenes
   },
 
   random_id: function() {

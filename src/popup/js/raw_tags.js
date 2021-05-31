@@ -214,6 +214,27 @@ var actions = {
 }
 
 var extraTags = {
+  /*
+    Update 'content-script skip_action if you change ActionTags value'
+  */
+  actionTags: [
+    {
+      value: 'Skip',
+      description: 'Skip this scene'
+    },
+    {
+      value: 'Mute',
+      description: 'Mute this scene (leaving the video)'
+    },
+    {
+      value: 'Black screen',
+      description: 'Remove the image (leaving a black screen with the audio)'
+    },
+    {
+      value: 'Just text',
+      description: 'Remove audio and video, leaving a black screen with a plot description'
+    }
+  ],
   videoAudioTags: [
     {
       value: 'Video and audio',

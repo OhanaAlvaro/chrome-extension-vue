@@ -15,7 +15,7 @@
 
       <v-spacer></v-spacer>
       <span class="menu">
-        <a v-if="data.hasFilm" @click="goTo('/')"  class="active-menu">
+        <a v-if="data.hasFilm" @click="goTo('/')" class="active-menu">
           <v-icon class="pb-1" small>mdi-movie</v-icon>
         </a>
         <a @click="goTo('/preferences')">
@@ -245,19 +245,10 @@
       <div id="ACTION_BUTTONS">
         <v-row no-gutters>
           <v-col cols="4">
-            <v-btn block dense depressed tile text @click="goTo('/preferences')" >Settings</v-btn>
+            <v-btn block dense depressed tile text @click="goTo('/preferences')">Settings</v-btn>
           </v-col>
           <v-col cols="4">
-            <v-btn
-              text
-              dark
-              block
-              dense
-              depressed
-              tile
-              color="primary"
-              @click="showSidebar(true)"
-            >
+            <v-btn text dark block dense depressed tile color="primary" @click="showSidebar(true)">
               Editor
             </v-btn>
           </v-col>
@@ -586,31 +577,32 @@ export default {
     },
 
     showSidebar(close = false) {
-      fclib.sendMessage({ msg: 'show-sidebar', show: true })
-      if (close) window.close()
+      fclib.sendMessage({ msg: 'show-sidebar', show: true }, response => {
+        if (close) window.close()
+      })
     },
     saveSkipTagsSettings(close = false) {
-      if (this.save_preferences) {
-        //1. if user asked to keep this as default, save settings with selectedTags as settings.skip_tags
-        var xx = this.data.settings
-        xx.skip_tags = this.finalSelectedTags
-        fclib.sendMessage({ msg: 'update-settings', settings: xx }, response => {
-          if (response) {
-            console.log('Settings saved!')
-          } else {
-            console.error('Error saving settings', response)
-          }
-        })
-      } else {
+      if (!this.save_preferences) {
         //TODO: 2. if users didn't want this as default, just save it for this movie
         //to do so, I'm updating the "skip" of every scene that is supposed to be filtered here
         //TODO: users should be able to see the list of filters and decide at scene level if they prefer...
+        return
       }
-
-      if (close) {
-        fclib.sendMessage({ msg: 'play' })
-        window.close()
-      }
+      //1. if user asked to keep this as default, save settings with selectedTags as settings.skip_tags
+      var xx = this.data.settings
+      xx.skip_tags = this.finalSelectedTags
+      fclib.sendMessage({ msg: 'update-settings', settings: xx }, response => {
+        if (response) {
+          console.log('Settings saved!')
+        } else {
+          console.error('Error saving settings', response)
+        }
+        if (close) {
+          fclib.sendMessage({ msg: 'play' }, response => {
+            window.close()  
+          })
+        }
+      })
     },
     mouseOver(item) {
       this.auxx = 'hola - ' + item

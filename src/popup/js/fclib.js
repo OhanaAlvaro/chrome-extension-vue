@@ -44,7 +44,7 @@ function ms2time(s) {
  * //TODO: add a parameter so caller can identify itself on the consoleLog (instead of always using fclib)
  */
 function sendMessage(msg, callback) {
-  console.log('[sendMessage-Editor]: ', msg)
+  if(msg && msg.msg != 'get-time' ) console.log('[sendMessage-Editor]: ', msg)
   chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
     chrome.tabs.sendMessage(tabs[0].id, msg, function(response) {
       if (callback) {
@@ -136,15 +136,12 @@ function scenesList(scenes) {
     scenes[i].context = difference(scenes[i].tags, u_cat_sev)
 
     //extraTags....
-    scenes[i].videoAudioTag = intersect(
-      raw_tags.extraTags.videoAudioTags.map(x => x.value),
+    scenes[i].actionTag = intersect(
+      raw_tags.extraTags.actionTags.map(x => x.value),
       scenes[i].tags
-    )[0]
-    scenes[i].plotTag = intersect(
-      raw_tags.extraTags.plotTags.map(x => x.value),
-      scenes[i].tags
-    )[0]
+    )[0] || 'Skip'
   }
+  console.log('[scenesList]' , scenes)
   return scenes
 }
 
