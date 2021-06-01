@@ -299,7 +299,7 @@ var fc = {
       document.body.appendChild(div)
     }
 
-    div.innerText = plot
+    div.textContent = plot
     div.style.display = 'block'
   },
 
