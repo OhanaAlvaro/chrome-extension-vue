@@ -218,6 +218,8 @@ var fc = {
       if (!metadata.id) return
       fc.metadata.duration = player.duration()
       server.getMovie()
+
+      if (fc.metadata.id.includes('hbo')) fc.hide_hbo_thumbnail()
       console.log('[getVideoID]', fc.metadata)
     })
   },
@@ -236,10 +238,11 @@ var fc = {
       fc.view_mode('edit')
     } else {
       player.blur(0)
-      player.mute(false)
       fc.show_plot(false)
-      player.visible(true)
+      player.hidden(false)
+      player.mute(false)
       fc.editing = false
+      fc.skipping = false
     }
   },
 
@@ -300,72 +303,128 @@ var fc = {
     div.style.display = 'block'
   },
 
-  check_needs_skip: function() {
-    var now = player.getTime()
-    var next_good = 0
+  hide_hbo_thumbnail: function() {
+    console.log('[hide_hbo_thumbnail] activating')
+    var target = document.querySelector('.vjs-mouse-display')
+
+    if (!target) {
+      setTimeout(fc.hide_hbo_thumbnail, 2000)
+      return
+    }
+    // create an observer instance
+    let observer = new MutationObserver(function(mutation) {
+      let time = target.dataset.currentTime.split(':')
+      let s = 0
+      if (time.length == 2) {
+        s = time[0] * 60 + time[1] * 1 //mm:ss
+      } else {
+        s = time[0] * 60 * 60 + time[1] * 60 + time[2] * 1 // hh:mm:ss
+      }
+      let ba = fc.best_action(fc.scenes, s * 1000)
+      if (ba.action) {
+        console.log('hidding fc-hidden-thumbnail')
+        document.body.classList.add('fc-hidden-thumbnail')
+      } else {
+        document.body.classList.remove('fc-hidden-thumbnail')
+      }
+    })
+    // pass in the element you wanna watch as well as the options
+    observer.observe(target, { attributes: true })
+  },
+
+  best_action: function(skip_list, time) {
+    var safety_margin = fc.preview_skip ? 0 : 160
+    var next_edge = Infinity
     var action = ''
     var plot = ''
-    var safety_margin = fc.preview_skip ? 160 : 0
-
-    if (fc.editing) return
-
-    // Our skip_list is the main skip_list, unless we are on preview mode
-    var skip_list = fc.scenes
-    if (fc.preview_skip) {
-      skip_list = [fc.preview_skip] // should we replace or add it as a new one?
-    }
-
-    if (!skip_list) return
 
     // Check if we are on a bad time
     for (var i = 0; i < skip_list.length; i++) {
       if (!fc.preview_skip && !skip_list[i].skip) continue
       var start = skip_list[i].start - safety_margin
       var end = skip_list[i].end + safety_margin
-      // Math.max(next_good+500,now) if the scene starts 0.5s after the end of the skip, consider they overlap
-      if (Math.max(next_good + 500, now) > start && now < end) {
-        next_good = Math.max(next_good, end)
 
-        // Fancy actions
+      // Action for the current time
+      if (start < time && time < end) {
         let new_action = fc.skip_action(skip_list[i])
         plot = skip_list[i].plot_description || plot || ''
-        if (action && new_action != action) {
+        //console.log('[best_action] ', plot, ', ', action, ', ', new_action, ', ', time, ', ', start, ', ', safety_margin)
+        if (action && action != new_action) {
+          //console.log('[best_action] plot= ', plot, ', action= ', action, ', edge= ', next_edge)
           action = plot ? 'text' : 'skip'
         } else {
           action = new_action
         }
+        next_edge = Math.min(next_edge, end)
       }
+    }
+    return { edge: next_edge, action: action, plot: plot }
+  },
+
+  overlaps: function(skip_list, now, edge) {
+    for (var i = skip_list.length - 1; i >= 0; i--) {
+      let start = skip_list[i].start
+      if (now < start - 500 && start < edge) {
+        //console.log('[overlaps] ',', start: ', start,', now: ', now,', edge: ', edge )
+        edge = Math.min(edge, start)
+      }
+    }
+    return edge
+  },
+
+  check_needs_skip: function() {
+    if (fc.editing) return
+    var now = player.getTime()
+    if (!now) return
+
+    // Our skip_list is the main skip_list, unless we are on preview mode
+    var skip_list = fc.scenes
+    if (fc.preview_skip) {
+      skip_list = [fc.preview_skip] // should we replace or add it as a new one?
+    }
+    if (!skip_list) return
+
+    // Find best action
+    let ba = fc.best_action(skip_list, now)
+    // Check whether it overlaps with something else
+    if (ba.action) {
+      ba.edge = fc.overlaps(skip_list, now, ba.edge)
     }
 
     // Go back to normal or skip content when needed
-    if (next_good === 0 && fc.skipping) {
-      console.log('[check_needs_skip] Back to normal')
-      player.visible(true)
+    if (ba.edge === Infinity) {
+      if (!fc.skipping) return
+      console.log('[check_needs_skip] Back to normal @ ', now, ', ba: ', ba)
+      player.hidden(false)
       player.mute(false)
       fc.skipping = false
       fc.preview_skip = null
       fc.show_plot(false)
-    } else if (next_good !== 0 && !fc.skipping) {
-      console.log('[check_needs_skip] Skipping/muting/... content!')
-      if (action == 'mute') {
+    } else {
+      let key = ba.action + '_' + ba.plot + '_' + ba.edge
+      if (fc.skipping == key) return
+      console.log('[check_needs_skip] Skipping/muting/... content! @ ', now, ', ba: ', ba)
+      if (ba.action == 'mute') {
+        player.hidden(false)
         player.mute(true)
-        fc.show_plot(plot)
-      } else if (action == 'black') {
-        player.visible(false)
-        fc.show_plot(plot)
-      } else if (action == 'text' && plot) {
-        player.visible(false)
+        fc.show_plot(ba.plot)
+      } else if (ba.action == 'black') {
+        player.hidden(true)
+        player.mute(false)
+        fc.show_plot(ba.plot)
+      } else if (ba.action == 'text' && ba.plot) {
+        player.hidden(true)
         player.mute(true)
-        fc.show_plot(plot)
-        let words = plot.split(' ').length
-        let reading_time = Math.max(1000, (words / 250) * 60 * 1000)
-        if (next_good - reading_time > now) player.seek(next_good - reading_time)
+        fc.show_plot(ba.plot)
+        let words = ba.plot.split(' ').length
+        let reading_time = Math.max(1500, (words / 200) * 60 * 1000)
+        if (ba.edge - reading_time > now) player.seek(ba.edge - reading_time)
       } else {
-        player.visible(false)
+        player.hidden(true)
         player.mute(true)
-        player.seek(next_good)
+        player.seek(ba.edge)
       }
-      fc.skipping = true
+      fc.skipping = key
     }
   }
 }
@@ -691,9 +750,9 @@ var player = {
     return true
   },
 
-  visible: function(state) {
+  hidden: function(state) {
     if (!player.video) return
-    player.video.style.visibility = state ? 'visible' : 'hidden'
+    player.video.style.visibility = state ? 'hidden' : 'visible'
     return player.video.style.visibility
   },
 

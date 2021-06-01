@@ -31,16 +31,27 @@
 #fc-plot {
   position: fixed;
   bottom: 25%;
-  right: 15%;
+  left: 15%;
   width: 70%;
   background-color: black;
   z-index: 2147483647;
+  color: white;
+  font-size: 20px;
+  text-align: center;
 }
 
+.fc-active #fc-plot {
+  left: 10%;
+  width: calc(80% - 320px) !important;
+}
 
 /* Hide HBO loading spinner (gives a weird feeling) */
 .vjs-loading-spinner {
   visibility: hidden;
+}
+
+.fc-hidden-thumbnail .tmp_thumbnail {
+  display: none;
 }
 
 /***************************/
