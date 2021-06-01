@@ -203,9 +203,7 @@ var fc = {
     }
 
     // Check video player controller is working
-    if (!player.video || !player.video.duration) {
-      if (!player.load()) return
-    }
+    if (!player.duration() && !player.load()) return
 
     // Check if the current time needs to be skipped
     fc.check_needs_skip()
@@ -218,9 +216,7 @@ var fc = {
     provider.getID().then(metadata => {
       fc.metadata = metadata
       if (!metadata.id) return
-      if (player.video && player.video.duration) {
-        fc.metadata.duration = player.video.duration * 1000
-      }
+      fc.metadata.duration = player.duration()
       server.getMovie()
       console.log('[getVideoID]', fc.metadata)
     })
@@ -241,6 +237,8 @@ var fc = {
     } else {
       player.blur(0)
       player.mute(false)
+      fc.show_plot(false)
+      player.visible(true)
       fc.editing = false
     }
   },
@@ -251,7 +249,7 @@ var fc = {
     var time = Math.round(player.getTime() / 50) * 50
     if (!start) {
       fc.marking_started = player.video.paused ? time : time - 1500
-      player.video.playbackRate = fc.settings.playbackRate_on_mark
+      player.rate(fc.settings.playbackRate_on_mark)
       fc.view_mode('mark')
       player.play()
       console.log('Scene start marked at ', fc.marking_started)
@@ -261,7 +259,7 @@ var fc = {
       fc.addScene(scene)
       fc.marking_started = false
       fc.view_mode(false)
-      player.video.playbackRate = 1
+      player.rate(1)
       if (fc.settings.pause_after_adding_scene) player.pause()
       console.log('Scene added ', start, ' -> ', end)
       return { msg: 'marked-scene', scene: scene }
@@ -307,6 +305,7 @@ var fc = {
     var next_good = 0
     var action = ''
     var plot = ''
+    var safety_margin = fc.preview_skip ? 160 : 0
 
     if (fc.editing) return
 
@@ -321,8 +320,8 @@ var fc = {
     // Check if we are on a bad time
     for (var i = 0; i < skip_list.length; i++) {
       if (!fc.preview_skip && !skip_list[i].skip) continue
-      var start = skip_list[i].start - 40
-      var end = skip_list[i].end - 40
+      var start = skip_list[i].start - safety_margin
+      var end = skip_list[i].end + safety_margin
       // Math.max(next_good+500,now) if the scene starts 0.5s after the end of the skip, consider they overlap
       if (Math.max(next_good + 500, now) > start && now < end) {
         next_good = Math.max(next_good, end)
@@ -331,7 +330,7 @@ var fc = {
         let new_action = fc.skip_action(skip_list[i])
         plot = skip_list[i].plot_description || plot || ''
         if (action && new_action != action) {
-          action = plot? 'text' : 'skip'
+          action = plot ? 'text' : 'skip'
         } else {
           action = new_action
         }
@@ -341,7 +340,7 @@ var fc = {
     // Go back to normal or skip content when needed
     if (next_good === 0 && fc.skipping) {
       console.log('[check_needs_skip] Back to normal')
-      player.video.style.visibility = 'visible'
+      player.visible(true)
       player.mute(false)
       fc.skipping = false
       fc.preview_skip = null
@@ -350,20 +349,19 @@ var fc = {
       console.log('[check_needs_skip] Skipping/muting/... content!')
       if (action == 'mute') {
         player.mute(true)
-        if (plot) fc.show_plot(plot)
+        fc.show_plot(plot)
       } else if (action == 'black') {
-        player.video.style.visibility = 'hidden'
-        if (plot) fc.show_plot(plot)
+        player.visible(false)
+        fc.show_plot(plot)
       } else if (action == 'text' && plot) {
-        player.video.style.visibility = 'hidden'
+        player.visible(false)
         player.mute(true)
         fc.show_plot(plot)
         let words = plot.split(' ').length
-        let reading_time = Math.max(1000, ( words / 250) * 60 * 1000)
-        console.log('[reading_time] ', reading_time, words )
+        let reading_time = Math.max(1000, (words / 250) * 60 * 1000)
         if (next_good - reading_time > now) player.seek(next_good - reading_time)
       } else {
-        player.video.style.visibility = 'hidden'
+        player.visible(false)
         player.mute(true)
         player.seek(next_good)
       }
@@ -663,7 +661,7 @@ var player = {
       return false
     }
     player.video = video[0]
-    fc.metadata.duration = player.video.duration * 1000
+    fc.metadata.duration = player.duration()
 
     if (fc.metadata.provider == 'netflix') {
       if (!document.getElementById('fc-netflix-video-controller')) {
@@ -691,6 +689,23 @@ var player = {
       }
     }
     return true
+  },
+
+  visible: function(state) {
+    if (!player.video) return
+    player.video.style.visibility = state ? 'visible' : 'hidden'
+    return player.video.style.visibility
+  },
+
+  rate: function(rate) {
+    if (!player.video) return
+    player.video.playbackRate = rate ? rate : 1
+    return player.video.playbackRate
+  },
+
+  duration: function() {
+    if (!player.video) return 0
+    return player.video.duration * 1000
   },
 
   mute: function(state) {
@@ -735,22 +750,12 @@ var player = {
 
     // Check objective time is within range
     if (!fc.metadata.duration && player.video) {
-      fc.metadata.duration = player.video.duration * 1000
+      fc.metadata.duration = player.duration()
     }
     if (!time || time < 0 || (fc.metadata.duration && time > fc.metadata.duration)) {
       console.log('Invalid time ', time, ', video length is ', fc.metadata.duration)
       return
     }
-
-    // Pause player if it is framed seeked
-    /*if (mode == 'frame') {
-      console.log('Frame seeking!')
-      fc.frame_seeked = Date.now()
-      /*if (fc.settings.blur_on_frame_seek) {
-        player.blur(fc.settings.blur_on_frame_seek)
-      }
-      player.pause()* /
-    }*/
 
     // Seek requested time
     if (fc.metadata.provider == 'netflix') {
@@ -760,8 +765,6 @@ var player = {
     } else {
       player.video.currentTime = time / 1000
     }
-
-    /*if (mode == 'frame') player.pause()*/
   },
 
   // Get current time in milliseconds (all times are always in milliseconds!)
@@ -776,7 +779,7 @@ var utils = {
     if (!official) return local
     official = utils.toNewFields(official)
     if (!local) return official
-    
+
     for (var i = 0; i < local.length; i++) {
       if (!official.some(e => e.id === local[i].id)) {
         official.push(local[i])
