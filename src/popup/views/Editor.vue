@@ -123,7 +123,7 @@
       <v-slider
         v-model="data.settings.blur_on_mark"
         inverse-label
-        :min="0"
+        :min="4"
         :max="40"
         thumb-label
         dense
@@ -254,6 +254,7 @@ export default {
     editScene(scene) {
       console.log(scene)
       this.active_scene = scene
+      fclib.sendMessage({ msg: 'enforce-safety' })
       fclib.sendMessage({ msg: 'view-mode', mode: 'edit' })
       this.edit_scene_dialog = true
     },
@@ -270,7 +271,6 @@ export default {
 
     changeMute() {
       console.log('change mute', this.data.settings.mute_on_mark)
-      /*fclib.sendMessage({ msg: 'update-settings', settings: this.data.settings })*/
       fclib.sendMessage({ msg: 'mute', state: this.data.settings.mute_on_mark })
     },
 
@@ -286,6 +286,7 @@ export default {
         } else {
           // We are marking a scene
           this.data.state.marking = true
+          fclib.sendMessage({ msg: 'enforce-safety' })
         }
       })
     },

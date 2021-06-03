@@ -157,11 +157,6 @@ var fc = {
           settings[key] = fc.default_settings[key]
         }
       }
-      // Force some default values
-      if (settings.blur_on_edit < 8) settings.blur_on_edit = 8
-      if (settings.blur_on_mark < 12) settings.blur_on_mark = 12
-      settings.mute_on_edit = true
-      settings.mute_on_mark = true
 
       fc.settings = settings
     } else {
@@ -218,8 +213,6 @@ var fc = {
       if (!metadata.id) return
       fc.metadata.duration = player.duration()
       server.getMovie()
-
-      if (fc.metadata.id.includes('hbo')) fc.hide_hbo_thumbnail()
       console.log('[getVideoID]', fc.metadata)
     })
   },
@@ -237,12 +230,13 @@ var fc = {
       if (fc.preview_skip) return
       fc.view_mode('edit')
     } else {
+      fc.preview_skip = null
       player.blur(0)
-      fc.show_plot(false)
       player.hidden(false)
       player.mute(false)
       fc.editing = false
       fc.skipping = false
+      fc.show_plot(false)
     }
   },
 
@@ -286,21 +280,25 @@ var fc = {
   },
 
   show_plot: function(plot) {
-    let div = document.getElementById('fc-plot')
-    if (!plot) {
-      if (div) div.style.display = 'none'
-      return
-    }
+    try {
+      let div = document.getElementById('fc-plot')
+      if (!plot) {
+        if (div) div.style.display = 'none'
+        return
+      }
 
-    console.log('[show_plot] ', plot)
-    if (!div) {
-      div = document.createElement('div')
-      div.id = 'fc-plot'
-      document.body.appendChild(div)
-    }
+      console.log('[show_plot] ', plot)
+      if (!div) {
+        div = document.createElement('div')
+        div.id = 'fc-plot'
+        player.video.parentNode.appendChild(div)
+      }
 
-    div.textContent = plot
-    div.style.display = 'block'
+      div.textContent = plot
+      div.style.display = 'block'
+    } catch (e) {
+      console.log(e)
+    }
   },
 
   hide_hbo_thumbnail: function() {
@@ -333,7 +331,7 @@ var fc = {
   },
 
   best_action: function(skip_list, time) {
-    var safety_margin = fc.preview_skip ? 0 : 160
+    var safety_margin = fc.preview_skip !== null ? 0 : 160
     var next_edge = Infinity
     var action = ''
     var plot = ''
@@ -361,11 +359,13 @@ var fc = {
     return { edge: next_edge, action: action, plot: plot }
   },
 
-  overlaps: function(skip_list, now, edge) {
+  overlaps: function(skip_list, time, edge) {
+    var safety_margin = fc.preview_skip !== null ? 0 : 160
     for (var i = skip_list.length - 1; i >= 0; i--) {
-      let start = skip_list[i].start
-      if (now < start - 500 && start < edge) {
-        //console.log('[overlaps] ',', start: ', start,', now: ', now,', edge: ', edge )
+      if (!fc.preview_skip && !skip_list[i].skip) continue
+      let start = skip_list[i].start - safety_margin
+      if (time + 500 < start && start < edge - 500) {
+        //console.log('[overlaps] ',', start: ', start,', time: ', time,', edge: ', edge )
         edge = Math.min(edge, start)
       }
     }
@@ -386,10 +386,9 @@ var fc = {
 
     // Find best action
     let ba = fc.best_action(skip_list, now)
-    // Check whether it overlaps with something else
-    if (ba.action) {
-      ba.edge = fc.overlaps(skip_list, now, ba.edge)
-    }
+
+    // Check if it overlaps with another scene
+    if (ba.action) ba.edge = fc.overlaps(skip_list, now, ba.edge)
 
     // Go back to normal or skip content when needed
     if (ba.edge === Infinity) {
@@ -398,7 +397,7 @@ var fc = {
       player.hidden(false)
       player.mute(false)
       fc.skipping = false
-      fc.preview_skip = null
+      fc.preview_skip = false
       fc.show_plot(false)
     } else {
       let key = ba.action + '_' + ba.plot + '_' + ba.edge
@@ -417,12 +416,13 @@ var fc = {
         player.mute(true)
         fc.show_plot(ba.plot)
         let words = ba.plot.split(' ').length
-        let reading_time = Math.max(1500, (words / 200) * 60 * 1000)
+        let reading_time = Math.max(2000, (words / 400) * 60 * 1000)
+        console.log('reading_time ', words, reading_time)
         if (ba.edge - reading_time > now) player.seek(ba.edge - reading_time)
       } else {
         player.hidden(true)
         player.mute(true)
-        player.seek(ba.edge)
+        player.seek(ba.edge - 50) // TODO. test
       }
       fc.skipping = key
     }
@@ -496,6 +496,13 @@ var browser = {
           })
         } else if (request.msg == 'update-settings') {
           fc.loadSettings(request.settings, request.silent)
+          browser.setData('settings', fc.settings)
+        } else if (request.msg == 'enforce-safety') {
+          if (fc.settings.blur_on_edit < 8) fc.settings.blur_on_edit = 8
+          if (fc.settings.blur_on_mark < 12) fc.settings.blur_on_mark = 12
+          fc.settings.mute_on_edit = true
+          fc.settings.mute_on_mark = true
+          fc.loadSettings(fc.settings)
           browser.setData('settings', fc.settings)
         } else if (request.msg == 'set-tagged') {
           fc.tagged = request.tagged
@@ -601,14 +608,27 @@ var server = {
       //action == 'removeScene'
     }
 
-    server.send({
-      action: action,
-      id: fc.metadata.id,
-      username: fc.settings.username,
-      token: fc.settings.authToken,
-      password: fc.settings.password,
-      data: JSON.stringify(data)
-    })
+    server.send(
+      {
+        action: action,
+        id: fc.metadata.id,
+        username: fc.settings.username,
+        token: fc.settings.authToken,
+        password: fc.settings.password,
+        data: JSON.stringify(data)
+      },
+      function(response) {
+        if (response.statusCode == 200) {
+          browser.sendMessage({ msg: 'snackbar', color: 'success', text: response.body.text })
+        } else {
+          browser.sendMessage({
+            msg: 'snackbar',
+            color: 'error',
+            text: 'Oops, something went wrong...'
+          })
+        }
+      }
+    )
   },
 
   auth: function(action, request, callback) {
@@ -681,13 +701,18 @@ var server = {
 
   send: function(query, callback) {
     var url = server.buildURL(query)
-    fetch(url).then(response => {
-      response.json().then(body => {
-        let res = { statusCode: response.status, body: body }
-        console.warn('[server.send] Url:', url, '. Query: ', query, '. Response: ', res)
-        if (callback) callback(res)
+    fetch(url)
+      .then(response => {
+        response.json().then(body => {
+          let res = { statusCode: response.status, body: body }
+          console.warn('[server.send] Url:', url, '. Query: ', query, '. Response: ', res)
+          if (callback) callback(res)
+        })
       })
-    })
+      .catch(x => {
+        console.log(x)
+        if (callback) callback(x)
+      })
   },
 
   // Helper function to build the url/end point for the given query
@@ -722,7 +747,9 @@ var player = {
     player.video = video[0]
     fc.metadata.duration = player.duration()
 
-    if (fc.metadata.provider == 'netflix') {
+    if (fc.metadata.provider == 'hboespana') {
+      fc.hide_hbo_thumbnail()
+    } else if (fc.metadata.provider == 'netflix') {
       if (!document.getElementById('fc-netflix-video-controller')) {
         var script = document.createElement('script')
         script.id = 'fc-netflix-video-controller'

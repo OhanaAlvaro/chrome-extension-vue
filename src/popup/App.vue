@@ -5,6 +5,20 @@
         <v-container>
           <!-- Use :data="data" to pass "data" as a property to router views-->
           <router-view :data="data"></router-view>
+          <v-snackbar
+            app
+            width="15px"
+            v-model="snackbar"
+            :timeout="snackbarTimeout"
+            :color="snackbarColor"
+          >
+            {{ snackbarText }}
+            <template v-slot:action="{ attrs }">
+              <v-btn color="white" icon v-bind="attrs" @click="snackbar = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </template>
+          </v-snackbar>
         </v-container>
       </v-main>
     </v-app>
@@ -23,8 +37,14 @@ export default {
         shield: 'unknown',
         hasFilm: false,
         state: {},
-        success: false
-      } //default values, to avoid missing keys
+        success: false,
+        dialog: false
+      },
+      //snackbar
+      snackbar: false,
+      snackbarTimeout: 3000,
+      snackbarText: '',
+      snackbarColor: 'info'
     }
   },
   watch: {
@@ -53,6 +73,12 @@ export default {
         if (request.msg == 'new-data') {
           console.log('[listen-App.vue] Received request: ', request)
           this.getData()
+        } else if (request.msg == 'snackbar') {
+          this.snackbar = false
+          this.snackbarText = request.text
+          this.snackbarColor = request.color
+          //this.snackbarTimeout = 6000
+          this.snackbar = true
         }
         //sendResponse({ success: true, source: this.$route.name })  //TODO: [Alex]: I don't understand why this is here for, but it seems that this.data gets overwriten with the content of this response...
       })
@@ -137,6 +163,11 @@ html {
 
 .v-label {
   font-size: 12px !important;
+}
+
+.v-snack__wrapper {
+  width: 100% !important;
+  min-width: unset !important;
 }
 
 //HANDLE POPUP SIZE

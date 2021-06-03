@@ -272,7 +272,7 @@
                 style="margin: auto 0px;"
                 v-model="settings.blur_on_edit"
                 inverse-label
-                :min="0"
+                :min="4"
                 :max="40"
                 thumb-label
                 :label="`Blur`"
@@ -395,12 +395,10 @@ export default {
       handler(value) {
         //console.log('alex5 - watched!', value)
         this.scene = JSON.parse(JSON.stringify(value))
+        this.categoryUpdated()
         console.log('handler',this.scene.actionTag)
       }
     },
-    scene() {
-      this.categoryUpdated()
-    }
   },
 
   methods: {
@@ -443,9 +441,9 @@ export default {
       fclib.sendMessage({ msg: 'view-mode', mode: 'edit' })
       fclib.sendMessage({ msg: 'seek-frame', time: t })
     },
-    editMode() {
+    /*editMode() {
       fclib.sendMessage({ msg: 'view-mode', mode: 'edit' })
-    },
+    },*/
     preview() {
       if (this.isPreviewing) {
         this.isPreviewing = false
@@ -470,7 +468,7 @@ export default {
       fclib.sendMessage({ msg: 'blur', blur_level: level })
     },
     mute() {
-      /*fclib.sendMessage({ msg: 'update-settings', settings: this.settings, silent: true })*/
+      fclib.sendMessage({ msg: 'update-settings', settings: this.settings, silent: true })
       fclib.sendMessage({ msg: 'mute', state: this.settings.mute_on_edit })
     },
     // Prepare scene to be shared (collapse category, severity and context into tags)

@@ -39,11 +39,11 @@
   font-size: 20px;
   text-align: center;
 }
-
+/*
 .fc-active #fc-plot {
   left: 10%;
   width: calc(80% - 320px) !important;
-}
+}*/
 
 /* Hide HBO loading spinner (gives a weird feeling) */
 .vjs-loading-spinner {

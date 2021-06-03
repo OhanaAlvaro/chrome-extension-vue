@@ -174,7 +174,7 @@ export default {
         'Jedi Master',
         'Grand Master',
         'Baby Yoda',
-        'Master Yoda'
+        'Ashoka'
       ],
 
       dialog: false,
