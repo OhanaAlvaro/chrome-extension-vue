@@ -2,7 +2,7 @@
   <div style="min-width: 340px;">
     <!-- 1. HEADER -->
     <div>
-      <h2>What do you want to skip?</h2>
+      <h2>{{ $t('preferencesTitle') }}</h2>
 
       <v-spacer></v-spacer>
       <span class="menu">
@@ -18,24 +18,6 @@
       </span>
     </div>
 
-    <!-- hasFilm: {{ data.hasFilm }} -->
-
-    <!--
-    {{ protection }}
-
-    {{ protectionLevels }}
-
-    <br />
-    {{ selectedTags }}
-
-    <br />
-    {{ skipTags }}
-    -->
-
-    <!-- 2. INTRO TEXT
-    <div style="margin-top: 5px; font-size: 95%">
-      You decide what <b>"safe"</b> means, by letting us know what content you want to avoid. We will skip any unwanted content.
-    </div>-->
     <!-- 3. CATEGORY OPTIONS  -->
     <!-- 3.1 Category Header -->
     <div style="max-height: 350px; overflow-y: auto; padding: 2px">
@@ -47,7 +29,7 @@
         >
           <v-switch
             hide-details
-            :label="`Skip '` + cat + `'`"
+            :label="$t('skip') +` '` + cat + `'`"
             v-model="protection[index]"
             dense
             @change="saveSkipTagsSettings()"
@@ -93,28 +75,20 @@
     </div>
 
     <!-- 4. ICONS EXPLANATION-->
-    <div style="margin: 5px;">
-      <div style="margin-top: 5px;">
-        You can now relax and enjoy watching movies as usual! We will automagically skip any
-        unwanted scene.
-      </div>
-
-      <div style="margin-top: 5px; margin-bottom: 1px;">
-        On every movie, we will let you know if it is:
+    <div style="margin: 2px">
+      <div style="margin: 5px 0 1px 0;">
+        <span v-html="$t('relaxAndEnjoy')"></span>
       </div>
 
       <div style="margin-left: 5px;">
-        <v-icon color="green" small>mdi-emoticon-happy</v-icon> <b>Clean:</b> No need to skip
-        anything.
+        <v-icon color="green" small>mdi-emoticon-happy</v-icon> <span v-html="$t('clean')"></span>
         <br />
-        <v-icon color="green" small>mdi-content-cut</v-icon> <b>Cut:</b> All unwanted scenes will be
-        skipped.
+        <v-icon color="green" small>mdi-content-cut</v-icon> <span v-html="$t('cut')"></span>
         <br />
-        <v-icon color="red" small>mdi-flag-variant</v-icon> <b>Unsafe:</b> Beware! We can't skip all
-        unwanted scenes yet.
+        <v-icon color="red" small>mdi-flag-variant</v-icon><span v-html="$t('unsafe')"></span>
         <br />
-        <v-icon color="gray" small>mdi-progress-question</v-icon> <b>Unknown:</b> Careful! Movie
-        might have unwanted scenes.
+        <v-icon color="gray" small>mdi-progress-question</v-icon>
+        <span v-html="$t('unknown')"></span>
       </div>
     </div>
 
@@ -123,16 +97,16 @@
       <!--<b>Help us improve</b>-->
 
       <v-btn v-if="data.hasFilm" @click="goTo('/')" plain text>
-        Back
+        {{ $t('btn_back') }}
       </v-btn>
 
       <v-btn plain text color="primary" @click="goTo('/login')">
-        Community
+        {{ $t('btn_community') }}
       </v-btn>
 
       <v-btn plain text color="success" @click="closePopup()">
-        <span v-if="data.hasFilm">Watch</span>
-        <span v-else>Close</span>
+        <span v-if="data.hasFilm">{{ $t('btn_watch') }}</span>
+        <span v-else>{{ $t('btn_close') }}</span>
       </v-btn>
     </div>
   </div>
@@ -199,6 +173,9 @@ export default {
   },
 
   methods: {
+    $t(name) {
+      return chrome.i18n.getMessage(name)
+    },
     ui2skipTags() {
       console.log('hey')
       let new_skipTags = []

@@ -54,6 +54,16 @@
   display: none;
 }
 
+video {
+  opacity: 100%;
+  transition: opacity 0s;
+}
+
+.fc-hidden-video {
+  transition: opacity 0s;
+  opacity: 0%;
+}
+
 /***************************/
 /*       Side bar          */
 /***************************/

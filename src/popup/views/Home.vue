@@ -8,9 +8,7 @@
         <span v-if="data.metadata && data.metadata.title">
           {{ data.metadata.title }}
         </span>
-        <span v-else>
-          Welcome to Ohana!
-        </span>
+        <span v-else> {{ $('welcome') }} </span>
       </h2>
 
       <v-spacer></v-spacer>
@@ -448,6 +446,9 @@ export default {
   },
 
   methods: {
+    $t(name) {
+      return chrome.i18n.getMessage(name)
+    },
     severitySummaryText(sev) {
       let xx
       if (this.getTagStatus(sev) == 'done' && this.scenesCountByTag[sev] > 0) {
@@ -599,7 +600,7 @@ export default {
         }
         if (close) {
           fclib.sendMessage({ msg: 'play' }, response => {
-            window.close()  
+            window.close()
           })
         }
       })

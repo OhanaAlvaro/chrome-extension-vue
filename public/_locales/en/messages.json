@@ -2,5 +2,56 @@
   "extName": {
     "message": "Ohana",
     "description": ""
+  },
+  "editorsTitle": {
+    "message": "Create and edit filters"
+  },
+  "welcome": {
+    "message": "Welcome to Ohana!"
+  },
+  "preferencesTitle": {
+    "message": "What do you want to skip?"
+  },
+  "relaxAndEnjoy": {
+    "message": "You can now relax and enjoy watching movies as usual! We will automagically skip any unwanted scene. <br> On every movie, we will let you know if it is:"
+  },
+  "skip": {
+    "message": "Skip"
+  },
+  "clean": {
+    "message": "<b>Clean:</b> No need to skip anything."
+  },
+  "cut": {
+    "message": "<b>Cut:</b> All unwanted scenes will be skipped."
+  },
+  "unsafe": {
+    "message": "<b>Unsafe:</b> Beware! We can't skip all unwanted scenes yet."
+  },
+  "unknown": {
+    "message": "<b>Unknown:</b> Careful! Movie might have unwanted scenes."
+  },
+  "btn_back": {
+    "message": "Back"
+  },
+  "btn_community": {
+    "message": "Community"
+  },
+  "btn_watch": {
+    "message": "Watch"
+  },
+  "btn_close": {
+    "message": "Close"
+  },
+  "noFilters": {
+    "message": "No filters for this film. Be the first one to add one!"
+  },
+  "clickToStartFilter": {
+    "message": "Click to start a new filter (Alt+N)"
+  },
+  "clickToEndFilter": {
+    "message": "Click again... (Alt+N)"
+  },
+  "a": {
+    "message": ""
   }
 }

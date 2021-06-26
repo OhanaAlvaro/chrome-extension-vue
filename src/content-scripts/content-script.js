@@ -176,6 +176,7 @@ var fc = {
       browser.updateBadge()
     }
 
+    // Refresh w2w icons when settings are updated
     if (edit == 'settings') {
       what2watch.init(fc.settings.skip_tags, server, true)
     }
@@ -330,6 +331,31 @@ var fc = {
     observer.observe(target, { attributes: true })
   },
 
+
+  muting_profanity: '',
+  mute_profanity: function(){
+    fc.settings.profanity = ['hijo','padre','traidor']
+    try {
+      if (!fc.settings.profanity || !fc.settings.profanity.length) return console.log('empty')
+      let text = document.querySelector('video').textTracks[0].activeCues[0].text
+
+      let reg = new RegExp(fc.settings.profanity.join("|"))
+      if (reg.test(text)) {
+        fc.show_plot(text)
+        if( fc.muting_profanity ) return
+        fc.muting_profanity = player.volume(0)
+        console.log(fc.muting_profanity)
+      } else if (fc.muting_profanity) {
+        player.volume(fc.muting_profanity)
+        fc.muting_profanity = 0
+        fc.show_plot('')
+      }
+    } catch(e){
+      console.log(e)
+    }
+    
+  },
+
   best_action: function(skip_list, time) {
     var safety_margin = fc.preview_skip !== null ? 0 : 160
     var next_edge = Infinity
@@ -388,7 +414,9 @@ var fc = {
     let ba = fc.best_action(skip_list, now)
 
     // Check if it overlaps with another scene
-    if (ba.action) ba.edge = fc.overlaps(skip_list, now, ba.edge)
+    if (fc.preview_skip) {
+      if (ba.action) ba.edge = fc.overlaps(skip_list, now, ba.edge)
+    }
 
     // Go back to normal or skip content when needed
     if (ba.edge === Infinity) {
@@ -779,6 +807,12 @@ var player = {
 
   hidden: function(state) {
     if (!player.video) return
+
+    /*if (state) {
+      player.video.classList.add('fc-hidden-video')  
+    } else {
+      player.video.classList.remove('fc-hidden-video')  
+    }*/
     player.video.style.visibility = state ? 'hidden' : 'visible'
     return player.video.style.visibility
   },
@@ -794,11 +828,18 @@ var player = {
     return player.video.duration * 1000
   },
 
+  volume: function(vol) {
+    let old = player.video.volume
+    player.video.volume = vol
+    return old
+  },
+
   mute: function(state) {
     player.video.muted = state
   },
 
   blur: function(blur_level) {
+    if (!player.video) return
     if (!blur_level) blur_level = 0
     player.video.style.webkitFilter = 'blur(' + parseInt(blur_level) + 'px)'
   },
@@ -835,11 +876,8 @@ var player = {
     console.log('[seek_time] seeking time ', time)
 
     // Check objective time is within range
-    if (!fc.metadata.duration && player.video) {
-      fc.metadata.duration = player.duration()
-    }
-    if (!time || time < 0 || (fc.metadata.duration && time > fc.metadata.duration)) {
-      console.log('Invalid time ', time, ', video length is ', fc.metadata.duration)
+    if (!time || time < 0 || time > player.duration() ) {
+      console.log('Invalid time ', time, ', video length is ', player.duration())
       return
     }
 

@@ -2,7 +2,7 @@
   <div class="size-wrapper">
     <!-- Header -->
     <div>
-      <h2>Create and edit filters</h2>
+      <h2>{{ $t('editorsTitle') }}</h2>
       <h4>
         {{ data.settings.username }}
         <span v-if="data.metadata && data.metadata.title">@ {{ data.metadata.title }} </span>
@@ -15,13 +15,6 @@
         >
       </h4>
       <br />
-      <!-- just testing:
-      <v-tabs fixed-tabs>
-        <v-tab>list</v-tab>
-        <v-tab>Status</v-tab>
-        <v-tab>New</v-tab>
-      </v-tabs>
-      -->
 
       <span class="menu">
         <span @click="hideSidebar">
@@ -55,7 +48,7 @@
       style="width:100%"
     >
       <br />
-      No filters for this film. Be the first one to add one!
+      {{ $t('noFilters') }}
       <br />
       <br />
     </div>
@@ -103,9 +96,7 @@
     <!-- New scene button -->
     <hr />
     <br />
-    <fc-tooltip
-      :text="!data.state.marking ? 'Click to start a new filter (Alt+N)' : 'Click again... (Alt+N)'"
-    >
+    <fc-tooltip :text="!data.state.marking ? t('clickToStartFilter') : t('clickToEndFilter')">
       <v-btn block depressed @click="markCurrentTime()">
         <div v-if="data.state.marking"><v-icon>mdi-check</v-icon>End filter</div>
         <div v-else><v-icon>mdi-plus</v-icon>Start a new filter</div>
@@ -226,6 +217,9 @@ export default {
   },
 
   methods: {
+    $t(name) {
+      return chrome.i18n.getMessage(name)
+    },
     hideSidebar() {
       this.sendMessage({ msg: 'show-sidebar', show: false })
     },
