@@ -60,10 +60,10 @@
       <table width="100%">
         <thead>
           <tr>
-            <th>Start</th>
-            <th>Duration</th>
-            <th>Severity</th>
-            <th>Context</th>
+            <th>{{$t('start')}}</th>
+            <th>{{$t('duration')}}</th>
+            <th>{{$t('severity')}}</th>
+            <th>{{$t('context')}}</th>
           </tr>
         </thead>
         <tbody>
@@ -98,15 +98,15 @@
     <br />
     <fc-tooltip :text="!data.state.marking ? t('clickToStartFilter') : t('clickToEndFilter')">
       <v-btn block depressed @click="markCurrentTime()">
-        <div v-if="data.state.marking"><v-icon>mdi-check</v-icon>End filter</div>
-        <div v-else><v-icon>mdi-plus</v-icon>Start a new filter</div>
+        <div v-if="data.state.marking"><v-icon>mdi-check</v-icon>{{$t('btn_endFilter')}}</div>
+        <div v-else><v-icon>mdi-plus</v-icon>{{$t('btn_startFilter')}}</div>
       </v-btn>
     </fc-tooltip>
     <div v-if="data.state.marking" style="display: flex;">
       <!-- Mute video while marking scene-->
       <v-checkbox
         v-model="data.settings.mute_on_mark"
-        :label="`Mute`"
+        :label="$t('mute')"
         @change="changeMute"
       ></v-checkbox>
 
@@ -119,7 +119,7 @@
         thumb-label
         dense
         hide-details
-        :label="`Blur`"
+        :label="$t('blur')"
         step="2"
         @input="changeBlur"
       >
@@ -134,13 +134,13 @@
         <v-icon :color="certifiedColor" small>mdi-content-cut</v-icon>
         <v-icon color="red" small>mdi-flag-variant</v-icon>
         <v-icon color="gray" small>mdi-progress-question</v-icon>
-        Filtering Progress
+        {{$t('blur')}}
       </fc-tooltip>
     </v-btn>
 
     <!-- Bottom menu -->
     <div id="bottom">
-      <h3>Player controls</h3>
+      <h3>{{$t('playerControls')}}</h3>
       <!-- Play/Pause button -->
       <v-btn @click="seekForward(-15000)" class="no-uppercase" text small>
         -15s

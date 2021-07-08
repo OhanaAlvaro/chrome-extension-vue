@@ -100,7 +100,8 @@ export default {
 
         // If there is no response (or it is incomplete) open wrongsite/nomovie pages
         if (!response) {
-          return this.$router.push('/wrongsite')
+          if (this.$route.name != 'WrongSite') this.$router.push('/wrongsite')
+          return
         }
 
         if (firstTime && response.scenes) {

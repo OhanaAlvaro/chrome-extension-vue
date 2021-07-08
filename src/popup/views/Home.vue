@@ -4,11 +4,11 @@
     <!-- 1. HEADER -->
 
     <div>
-      <h2 @mouseover="mouseoverSample = 'Select the categories'" @mouseleave="mouseoverSample = ''">
+      <h2 @mouseover="mouseoverSample = $t('selectCategories')" @mouseleave="mouseoverSample = ''">
         <span v-if="data.metadata && data.metadata.title">
           {{ data.metadata.title }}
         </span>
-        <span v-else> {{ $('welcome') }} </span>
+        <span v-else> {{ $t('welcome') }} </span>
       </h2>
 
       <v-spacer></v-spacer>
@@ -65,8 +65,8 @@
                         sev +
                         '</b>: ' +
                         (selectedTags[index].includes(sev)
-                          ? 'You told us to skip this'
-                          : 'You didn\'t tell us to skip this')
+                          ? $t('youToldToSkip')
+                          : $t('youToldNotToSkip'))
                     "
                     :html="true"
                     position="top"
@@ -151,18 +151,18 @@
 
                 <div style="padding:5px" hidden>
                   <a @click="test = test == index ? -1 : index">{{
-                    test == index ? 'See less' : 'See more'
+                    test == index ? $t('seeLess') : $t('seeMore')
                   }}</a>
                 </div>
 
                 <div style=" padding: 7px;" hidden>
                   <div>
-                    <b>Severities</b>
+                    <b>{{ $t('severities') }}</b>
                     <ol>
                       <li v-for="(sev, i2) in severities[index]" :key="i2">{{ sev }}</li>
                     </ol>
                     <div>
-                      <b>Context</b>
+                      <b>{{ $t('context') }}</b>
                       <ol>
                         <li v-for="(cont, i2) in context[index]" :key="i2">{{ cont }}</li>
                       </ol>
@@ -178,15 +178,13 @@
       <!-- 3. SUMMARY TEXT -->
       <div id="SUMMARY_TEXT" align="center" justify="center" style="padding:10px; margin: auto; ">
         <div v-if="!data.success">
-          <h3 style="color: red">No movie!</h3>
-          Open a specific movie/show to start using Ohana. If you've already opened a movie, try
-          refreshing the page.
+          <h3 style="color: red">{{$t('h_noMovie')}}</h3>{{$t('noMovie')}}
         </div>
 
         <!-- NO skipTags -->
         <div v-if="finalSelectedTags.length == 0">
-          <h3 style="color: black">You are not using Ohana to skip content</h3>
-          To automagically skip unwanted scenes, let us know
+          <h3 style="color: black">{{$t('h_inactive')}}</h3>
+          {{$t('inactive')}}
           <router-link to="/preferences">your sensitivity</router-link>
         </div>
 
@@ -195,47 +193,40 @@
           v-else-if="(data.shield == `done` && skipScenesCount == 0) || data.shield == 'clean'"
           style="color: #00b359"
         >
-          <h3>Clean movie! <v-icon small color="green" class="mb-1">mdi-emoticon-happy</v-icon></h3>
-          Enjoy! This is a clean movie, there is no need to skip anything!
+          <h3>{{$t('h_cleanMovie')}}<v-icon small color="green" class="mb-1">mdi-emoticon-happy</v-icon></h3>{{$t('cleanMovie')}}
+          
         </div>
 
         <!-- Cut -->
         <div v-else-if="data.shield == `done`" style="color: #00b359">
-          <h3>Safe Movie! <v-icon small color="green" class="mb-1">mdi-content-cut</v-icon></h3>
-          Grab some popcorn and enjoy! We will skip {{ skipScenesCount == 1 ? 'the' : 'all' }}
+          <h3>{{$t('h_safeMovie')}} <v-icon small color="green" class="mb-1">mdi-content-cut</v-icon></h3>
+          Grab some popcorn and enjoy! We will skip
           {{ skipScenesCount }} unwanted {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}.
         </div>
 
         <!-- Unsafe / flagged -->
         <div v-else-if="data.shield == `missing`" style="color: red">
-          <h3>Unsafe Movie! <v-icon small color="red" class="mb-1">mdi-flag-variant</v-icon></h3>
+          <h3>{{$t('h_unsafeMovie')}} <v-icon small color="red" class="mb-1">mdi-flag-variant</v-icon></h3>
           This movie has unwanted scenes that we can't skip yet.
           <span v-if="skipScenesCount != 0">
-            We will skip {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }} , but
+            We will skip {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but
             there are more.
           </span>
-          Please consider
-          <a target="_blank" href="https://www.patreon.com/ohanamovies">donating</a> or
-          <a @click="showSidebar(true)">becoming an editor</a> to support the creation of new
-          filters.
+          <span v-html="$t('considerCollab')"></span>
         </div>
 
         <!-- Unknown-->
         <div v-else style="color: #DC6F08">
           <h3>
-            Warning! Unknown content
+            {{$t('h_unknownContent')}}
             <v-icon small color="gray" class="mb-1">mdi-progress-question</v-icon>
           </h3>
           This movie might contain unwanted scenes.
           <span v-if="skipScenesCount != 0">
-            We will skip
-            {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but there might
-            be more.
+            We will skip {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }},
+            but there might be more.
           </span>
-          Please consider
-          <a target="_blank" href="https://www.patreon.com/ohanamovies">donating</a> or
-          <a @click="showSidebar(true)">becoming an editor</a> to support the creation of new
-          filters.
+          <span v-html="$t('considerCollab')"></span>
         </div>
       </div>
 
@@ -243,11 +234,10 @@
       <div id="ACTION_BUTTONS">
         <v-row no-gutters>
           <v-col cols="4">
-            <v-btn block dense depressed tile text @click="goTo('/preferences')">Settings</v-btn>
+            <v-btn block dense depressed tile text @click="goTo('/preferences')">{{$t('btn_settings')}}</v-btn>
           </v-col>
           <v-col cols="4">
-            <v-btn text dark block dense depressed tile color="primary" @click="showSidebar(true)">
-              Editor
+            <v-btn text dark block dense depressed tile color="primary" @click="showSidebar(true)">{{$t('btn_editor')}}
             </v-btn>
           </v-col>
           <v-col cols="4">
@@ -259,7 +249,7 @@
               tile
               text
               @click="saveSkipTagsSettings(true)"
-              >Watch</v-btn
+              >{{$t('btn_watch')}}</v-btn
             >
           </v-col>
         </v-row>

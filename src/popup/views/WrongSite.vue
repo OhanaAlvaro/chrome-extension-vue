@@ -2,23 +2,28 @@
   <div class="size-wrapper">
     <br />
     <p>
-      To use Ohana please open one of our supported content providers: 
+      {{ $t('openValidProvider') }}
       <a href="https://www.netflix.com" target="_blank">Netflix</a>,
       <a href="https://es.hboespana.com/" target="_blank">HBO</a>,
       <a href="https://www.disneyplus.com/" target="_blank">Disney Plus</a>,
-      <a href="https://ver.movistarplus.es//" target="_blank">Movistar Plus</a>, or
+      <a href="https://ver.movistarplus.es/" target="_blank">Movistar Plus</a>, {{ $t('or') }}
       <a href="https://www.youtube.com/" target="_blank">Youtube.</a>
       <!-- Pending Amazon Prime Video -->
     </p>
     <p>
-      Visit <a href="https://www.ohanamovies.org/" target="_blank">Ohana Website</a> to find
-      out more about skipping content.
+      <span v-html="$t('moreOnWebsite')"></span>
     </p>
   </div>
 </template>
 
 <script>
-export default {}
+export default {
+  methods: {
+    $t(name) {
+      return chrome.i18n.getMessage(name)
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

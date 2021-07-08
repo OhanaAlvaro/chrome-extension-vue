@@ -10,7 +10,7 @@
     "message": "Welcome to Ohana!"
   },
   "preferencesTitle": {
-    "message": "What do you want to skip?"
+    "message": "¿Qué quieres saltar?"
   },
   "relaxAndEnjoy": {
     "message": "You can now relax and enjoy watching movies as usual! We will automagically skip any unwanted scene. <br> On every movie, we will let you know if it is:"
@@ -19,7 +19,7 @@
     "message": "Skip"
   },
   "clean": {
-    "message": "<b>Clean:</b> No need to skip anything."
+    "message": "<b>Limpio:</b> No hace falta saltar ninguna escena."
   },
   "cut": {
     "message": "<b>Cut:</b> All unwanted scenes will be skipped."
