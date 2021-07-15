@@ -6,8 +6,9 @@ This file implements 4 objects:
   + fc: main Ohana object, it keeps everything running, serving as main data hub for the other objects
 */
 
-var what2watch = require('./what2watch')
-var provider = require('./provider')
+let what2watch = require('./what2watch')
+let provider = require('./provider')
+let player = require('./player')
 
 /*
  
@@ -48,7 +49,10 @@ var fc = {
     fc.preview_skip = scene
     player.seek(fc.preview_skip.start - 4000)
     player.play()
-    setTimeout(fc.view_mode, 500)
+    setTimeout(function() {
+      fc.view_mode()
+      fc.preview_skip = scene
+    }, 500)
     return true
   },
 
@@ -195,14 +199,35 @@ var fc = {
     }
 
     if (!fc.metadata.id) {
-      return what2watch.init(fc.settings.skip_tags, server)
+      what2watch.init(fc.settings.skip_tags, server)
     }
 
     // Check video player controller is working
-    if (!player.duration() && !player.load()) return
+    if (!player.isLoaded()) {
+      if (!player.load()) return false
+
+      if (fc.metadata.provider == 'hboespana') fc.loadHBO()
+    }
 
     // Check if the current time needs to be skipped
     fc.check_needs_skip()
+  },
+
+  loadHBO: function() {
+    if (player.isCasting()) {
+      // On HBO, when player is casting, the url is reseted to home
+      // So we need to get the video metadata from the player
+      let metadata = player.getCastingMetadata()
+      metadata.provider = 'hboespana'
+      metadata.id = metadata.provider + '_' + metadata.pid
+      metadata.duration = player.duration()
+      console.log('Loaded metadata: ', metadata, metadata.pid)
+      fc.metadata = Object.assign({}, metadata)
+      server.getMovie()
+    } else {
+      // When we aren't casting, we hide the thumbnails
+      fc.hide_hbo_thumbnail()
+    }
   },
 
   loadNewMedia: function() {
@@ -272,10 +297,13 @@ var fc = {
       }
       if (!tags) return 'skip'
       if (tags.includes('Mute')) return 'mute'
+
+      if (player.isCasting()) return 'skip' // When casting, we default to skip instead of black/text
+
       if (tags.includes('Black screen')) return 'black'
       if (tags.includes('Just text')) return 'text'
     } catch (e) {
-      console.log('[skip_action] Error: ', e, scene)
+      console.error('[skip_action] Error: ', e, scene)
     }
     return 'skip'
   },
@@ -303,7 +331,7 @@ var fc = {
   },
 
   hide_hbo_thumbnail: function() {
-    console.log('[hide_hbo_thumbnail] activating')
+    console.log('[hide_hbo_thumbnail] Trying to activate')
     var target = document.querySelector('.vjs-mouse-display')
 
     if (!target) {
@@ -329,20 +357,20 @@ var fc = {
     })
     // pass in the element you wanna watch as well as the options
     observer.observe(target, { attributes: true })
+    console.log('[hide_hbo_thumbnail] Activated!')
   },
 
-
   muting_profanity: '',
-  mute_profanity: function(){
-    fc.settings.profanity = ['hijo','padre','traidor']
+  mute_profanity: function() {
+    fc.settings.profanity = ['hijo', 'padre', 'traidor']
     try {
       if (!fc.settings.profanity || !fc.settings.profanity.length) return console.log('empty')
       let text = document.querySelector('video').textTracks[0].activeCues[0].text
 
-      let reg = new RegExp(fc.settings.profanity.join("|"))
+      let reg = new RegExp(fc.settings.profanity.join('|'))
       if (reg.test(text)) {
         fc.show_plot(text)
-        if( fc.muting_profanity ) return
+        if (fc.muting_profanity) return
         fc.muting_profanity = player.volume(0)
         console.log(fc.muting_profanity)
       } else if (fc.muting_profanity) {
@@ -350,10 +378,9 @@ var fc = {
         fc.muting_profanity = 0
         fc.show_plot('')
       }
-    } catch(e){
+    } catch (e) {
       console.log(e)
     }
-    
   },
 
   best_action: function(skip_list, time) {
@@ -760,140 +787,6 @@ var server = {
     }
     var url = 'https://api.ohanamovies.org/dev?' + out.join('&')
     return url
-  }
-}
-
-var player = {
-  video: false,
-
-  load: function() {
-    var video = document.getElementsByTagName('video')
-    if (video.length != 1) {
-      //console.warn('[load] We have ', video.length, ' videos tags...')
-      return false
-    }
-    player.video = video[0]
-    fc.metadata.duration = player.duration()
-
-    if (fc.metadata.provider == 'hboespana') {
-      fc.hide_hbo_thumbnail()
-    } else if (fc.metadata.provider == 'netflix') {
-      if (!document.getElementById('fc-netflix-video-controller')) {
-        var script = document.createElement('script')
-        script.id = 'fc-netflix-video-controller'
-        script.innerHTML = `
-          document.addEventListener('netflix-video-controller', function (e) {
-            var data = e.detail;
-            var videoPlayer = netflix.appContext.state.playerApp.getAPI().videoPlayer;
-            var allSessions = videoPlayer.getAllPlayerSessionIds();
-            for (var i = allSessions.length - 1; i >= 0; i--) {
-              var netflix_player = videoPlayer.getVideoPlayerBySessionId(allSessions[i]);
-              console.log('[netflix-video-controller] Received: ', data, netflix_player);
-              if (data.pause) {
-                netflix_player.pause();
-              } else if (data.play) {
-                netflix_player.play();
-              }
-              if (data.time) {
-                netflix_player.seek(data.time);
-              }
-            }
-          });`
-        document.head.appendChild(script)
-      }
-    }
-    return true
-  },
-
-  hidden: function(state) {
-    if (!player.video) return
-
-    /*if (state) {
-      player.video.classList.add('fc-hidden-video')  
-    } else {
-      player.video.classList.remove('fc-hidden-video')  
-    }*/
-    player.video.style.visibility = state ? 'hidden' : 'visible'
-    return player.video.style.visibility
-  },
-
-  rate: function(rate) {
-    if (!player.video) return
-    player.video.playbackRate = rate ? rate : 1
-    return player.video.playbackRate
-  },
-
-  duration: function() {
-    if (!player.video) return 0
-    return player.video.duration * 1000
-  },
-
-  volume: function(vol) {
-    let old = player.video.volume
-    player.video.volume = vol
-    return old
-  },
-
-  mute: function(state) {
-    player.video.muted = state
-  },
-
-  blur: function(blur_level) {
-    if (!player.video) return
-    if (!blur_level) blur_level = 0
-    player.video.style.webkitFilter = 'blur(' + parseInt(blur_level) + 'px)'
-  },
-
-  pause: function() {
-    if (fc.metadata.provider == 'netflix') {
-      document.dispatchEvent(
-        new CustomEvent('netflix-video-controller', { detail: { pause: true } })
-      )
-    } else {
-      player.video.pause()
-    }
-  },
-
-  play: function() {
-    if (fc.metadata.provider == 'netflix') {
-      document.dispatchEvent(
-        new CustomEvent('netflix-video-controller', { detail: { play: true } })
-      )
-    } else {
-      player.video.play()
-    }
-  },
-
-  togglePlay: function() {
-    if (player.video.paused) {
-      player.play()
-    } else {
-      player.pause()
-    }
-  },
-
-  seek: function(time, mode) {
-    console.log('[seek_time] seeking time ', time)
-
-    // Check objective time is within range
-    if (!time || time < 0 || time > player.duration() ) {
-      console.log('Invalid time ', time, ', video length is ', player.duration())
-      return
-    }
-
-    // Seek requested time
-    if (fc.metadata.provider == 'netflix') {
-      document.dispatchEvent(
-        new CustomEvent('netflix-video-controller', { detail: { time: time } })
-      )
-    } else {
-      player.video.currentTime = time / 1000
-    }
-  },
-
-  // Get current time in milliseconds (all times are always in milliseconds!)
-  getTime: function() {
-    return player.video.currentTime * 1000
   }
 }
 

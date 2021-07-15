@@ -96,7 +96,7 @@
     <!-- New scene button -->
     <hr />
     <br />
-    <fc-tooltip :text="!data.state.marking ? t('clickToStartFilter') : t('clickToEndFilter')">
+    <fc-tooltip :text="!data.state.marking ? $t('clickToStartFilter') : $t('clickToEndFilter')">
       <v-btn block depressed @click="markCurrentTime()">
         <div v-if="data.state.marking"><v-icon>mdi-check</v-icon>{{$t('btn_endFilter')}}</div>
         <div v-else><v-icon>mdi-plus</v-icon>{{$t('btn_startFilter')}}</div>
@@ -134,7 +134,7 @@
         <v-icon :color="certifiedColor" small>mdi-content-cut</v-icon>
         <v-icon color="red" small>mdi-flag-variant</v-icon>
         <v-icon color="gray" small>mdi-progress-question</v-icon>
-        {{$t('blur')}}
+        {{$t('filterProgress')}}
       </fc-tooltip>
     </v-btn>
 
@@ -217,9 +217,6 @@ export default {
   },
 
   methods: {
-    $t(name) {
-      return chrome.i18n.getMessage(name)
-    },
     hideSidebar() {
       this.sendMessage({ msg: 'show-sidebar', show: false })
     },

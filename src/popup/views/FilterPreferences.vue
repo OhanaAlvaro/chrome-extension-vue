@@ -66,7 +66,7 @@
               </v-slider>
               <span style="font-size: 96%">
                 <!-- <b>{{ severities[index][protectionLevels[index]] }}: </b>-->
-                <b>This will skip:</b> {{ descriptions[index][protectionLevels[index]] }}
+                <b>{{ $t('thisWillSkip') }}</b> {{ descriptions[index][protectionLevels[index]] }}
               </span>
             </div>
           </v-expand-transition>
@@ -173,9 +173,6 @@ export default {
   },
 
   methods: {
-    $t(name) {
-      return chrome.i18n.getMessage(name)
-    },
     ui2skipTags() {
       console.log('hey')
       let new_skipTags = []

@@ -19,7 +19,7 @@
     "message": "Skip"
   },
   "clean": {
-    "message": "<b>Limpio:</b> No hace falta saltar ninguna escena."
+    "message": "<b>Clean:</b> No need to skip anything."
   },
   "cut": {
     "message": "<b>Cut:</b> All unwanted scenes will be skipped."
@@ -47,6 +47,18 @@
   },
   "btn_editor": {
     "message": "Editor"
+  },
+  "btn_donate": {
+    "message": "Donate"
+  },
+  "btn_feedback": {
+    "message": "Feedback"
+  },
+  "btn_learn": {
+    "message": "Learn"
+  },
+  "btn_edit": {
+    "message": "Edit"
   },
   "noFilters": {
     "message": "No filters for this film. Be the first one to add one!"
@@ -87,6 +99,9 @@
   "context": {
     "message": "Context"
   },
+  "scene": {
+    "message": "Scene"
+  },
   "h_noMovie": {
     "message": "No movie!"
   },
@@ -97,7 +112,7 @@
     "message": "You are not using Ohana to skip content"
   },
   "inactive": {
-    "message": "To automagically skip unwanted scenes, let us know"
+    "message": "To automagically skip unwanted scenes, let us know <router-link to='/preferences'>your sensitivity</router-link>"
   },
   "h_cleanMovie": {
     "message": "Clean movie!"
@@ -109,19 +124,22 @@
     "message": "Safe Movie!"
   },
   "safeMovie": {
-    "message": ""
+    "message": "Grab some popcorn and enjoy! We will skip {n} unwanted scene(s)"
   },
   "h_unsafeMovie": {
     "message": "Unsafe Movie!"
   },
   "unsafeMovie": {
-    "message": ""
+    "message": "This movie has unwanted scenes that we can't skip yet. | This movie has unwanted scenes that we can't skip yet. We will skip {n} scene(s), but there are more."
   },
   "h_unknownContent": {
     "message": "Warning! Unknown content"
   },
+  "unknownContent": {
+    "message": "This movie might contain unwanted scenes. | This movie might contain unwanted scenes. We will skip {n} scene(s), but there might be more."
+  },
   "considerCollab": {
-    "message": "Please consider  <a target='_blank' href='https://www.patreon.com/ohanamovies'>donating</a> or <a @click='showSidebar(true)'>becoming an editor</a> to support the creation of new filters."
+    "message": "Please consider  <a target='_blank' href='https://www.patreon.com/ohanamovies'>donating</a> or <a onclick='showSidebar(true)'>becoming an editor</a> to support the creation of new filters."
   },
   "btn_startFilter": {
     "message": "Start a new filter"
@@ -149,5 +167,38 @@
   },
   "or": {
     "message": "or"
+  },
+  "thisWillSkip": {
+    "message": "This will skip:"
+  },
+  "filter": {
+    "message": "filter"
+  },
+  "welcomeTo": {
+    "message": "Welcome to Ohana"
+  },
+  "hi": {
+    "message": "Hi"
+  },
+  "loginRequired": {
+    "message": "Login/register is required before creating or editing filters"
+  },
+  "lowestLevel": {
+    "message": "You are a level {n} Jedi. Some of your changes might require approval by higher ranking users. Edit movies and earn community recognition to grow into the higher ranks of Ohana."
+  },
+  "mediumLevel": {
+    "message": "You are a level {n} Jedi. You can approve changes done by lower ranking users, but some of your own changes might require approval."
+  },
+  "highLevel": {
+    "message": "You are a level {n} Jedi. You can do and undo all changes. But remember, with great power comes great responsibility!"
+  },
+  "helpUsImprove": {
+    "message": "How are we doing? Help us improve"
+  },
+  "scenesForTag": {
+    "message": "{n} scene(s) for "
+  },
+  "scenePopupDesc": {
+    "message": "Here you can take a quik look to the available scenes, and better understand what we will skip based on your settings from the previous page."
   }
 }

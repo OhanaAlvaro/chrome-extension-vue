@@ -17,13 +17,7 @@
 </template>
 
 <script>
-export default {
-  methods: {
-    $t(name) {
-      return chrome.i18n.getMessage(name)
-    }
-  }
-}
+export default {}
 </script>
 
 <style lang="scss" scoped>

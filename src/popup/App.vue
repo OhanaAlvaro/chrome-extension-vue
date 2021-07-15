@@ -98,7 +98,7 @@ export default {
           return
         }
 
-        // If there is no response (or it is incomplete) open wrongsite/nomovie pages
+        // If there is no response (or it is incomplete) open wrongsite page
         if (!response) {
           if (this.$route.name != 'WrongSite') this.$router.push('/wrongsite')
           return
@@ -115,7 +115,7 @@ export default {
 
         //TODO: @arrietaeguren, can you review? (you created the hasFilm key, but it seems not yet properly populated, I'm populating it here - a bit quick and dirty)
         if (response.metadata) {
-          if (!response.metadata.pid) {
+          if (!response.metadata.id) {
             response.hasFilm = false
           } else {
             response.hasFilm = true

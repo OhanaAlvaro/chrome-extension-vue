@@ -6,13 +6,12 @@
   <!-- //TODO: Think how to avoid tempting people to watch the bad scenes if offering the minute and the description... -->
 
   <div style="min-width: 300px;">
-    <h2>{{ scenes.length }} scenes for '{{ tag }}'</h2>
+    <h2>{{ $t('scenesForTag', scenes.length ) }} '{{ tag }}'</h2>
 
     <!-- {{ scenes }} -->
 
     <p style="color: grey; font-size: 90%">
-      Here you can take a quik look to the available scenes, and better understand what we will skip
-      based on your settings from the previous page.
+      {{ $t('scenePopupDesc') }}
     </p>
 
     <!--
@@ -41,15 +40,15 @@
         >
           <v-list-item-content>
             <v-list-item-title style="font-size: 110%; padding-bottom: 1px; pading-top: 2px"
-              >Scene #{{ index + 1 }}
+              >{{ $t('scene') }} #{{ index + 1 }}
               {{ scene.plotTag ? ' (' + scene.plotTag + ')' : '' }}</v-list-item-title
             >
             <v-list-item-subtitle style="font-size:95%"
-              ><b>Context: </b>{{ scene.context.join(', ') }}</v-list-item-subtitle
+              ><b>{{ $t('context') }}: </b>{{ scene.context.join(', ') }}</v-list-item-subtitle
             >
 
             <v-list-item-subtitle style="font-size:95%"
-              ><b>Duration:</b> {{ prettyTime(scene.end - scene.start)
+              ><b>{{ $t('duration') }}:</b> {{ prettyTime(scene.end - scene.start)
               }}<!-- | <b>Start:</b>
               {{ prettyTime(scene.start) }} -->
             </v-list-item-subtitle>
@@ -88,11 +87,12 @@
 
     <v-row>
       <v-col>
-        <v-btn color="primary" dark block depressed tile to="/">&lt; Back</v-btn>
+        <v-btn color="primary" dark block depressed tile to="/">&lt;{{ $t('btn_back') }}
+        </v-btn>
       </v-col>
       <v-col>
         <v-btn color="dark" dark block depressed tile @click="showSidebar(true)"
-          >Edit filters</v-btn
+          >{{ $t('btn_editor') }}</v-btn
         >
       </v-col>
     </v-row>

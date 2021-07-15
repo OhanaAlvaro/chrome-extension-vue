@@ -177,15 +177,16 @@
 
       <!-- 3. SUMMARY TEXT -->
       <div id="SUMMARY_TEXT" align="center" justify="center" style="padding:10px; margin: auto; ">
+        <!-- No movie -->
         <div v-if="!data.success">
-          <h3 style="color: red">{{$t('h_noMovie')}}</h3>{{$t('noMovie')}}
+          <h3 style="color: red">{{ $t('h_noMovie') }}</h3>
+          {{ $t('noMovie') }}
         </div>
 
-        <!-- NO skipTags -->
+        <!-- No skipTags -->
         <div v-if="finalSelectedTags.length == 0">
-          <h3 style="color: black">{{$t('h_inactive')}}</h3>
-          {{$t('inactive')}}
-          <router-link to="/preferences">your sensitivity</router-link>
+          <h3 style="color: black">{{ $t('h_inactive') }}</h3>
+          <span v-html="$t('inactive')"></span>
         </div>
 
         <!-- Clean -->
@@ -193,39 +194,39 @@
           v-else-if="(data.shield == `done` && skipScenesCount == 0) || data.shield == 'clean'"
           style="color: #00b359"
         >
-          <h3>{{$t('h_cleanMovie')}}<v-icon small color="green" class="mb-1">mdi-emoticon-happy</v-icon></h3>{{$t('cleanMovie')}}
-          
+          <h3>
+            {{ $t('h_cleanMovie')
+            }}<v-icon small color="green" class="mb-1">mdi-emoticon-happy</v-icon>
+          </h3>
+          {{ $t('cleanMovie') }}
         </div>
 
         <!-- Cut -->
         <div v-else-if="data.shield == `done`" style="color: #00b359">
-          <h3>{{$t('h_safeMovie')}} <v-icon small color="green" class="mb-1">mdi-content-cut</v-icon></h3>
-          Grab some popcorn and enjoy! We will skip
-          {{ skipScenesCount }} unwanted {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}.
+          <h3>
+            {{ $t('h_safeMovie') }}
+            <v-icon small color="green" class="mb-1">mdi-content-cut</v-icon>
+          </h3>
+          {{ $t('safeMovie', skipScenesCount) }}
         </div>
 
         <!-- Unsafe / flagged -->
         <div v-else-if="data.shield == `missing`" style="color: red">
-          <h3>{{$t('h_unsafeMovie')}} <v-icon small color="red" class="mb-1">mdi-flag-variant</v-icon></h3>
-          This movie has unwanted scenes that we can't skip yet.
-          <span v-if="skipScenesCount != 0">
-            We will skip {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }}, but
-            there are more.
-          </span>
+          <h3>
+            {{ $t('h_unsafeMovie') }}
+            <v-icon small color="red" class="mb-1">mdi-flag-variant</v-icon>
+          </h3>
+          {{$t('unsafeMovie', skipScenesCount)}}
           <span v-html="$t('considerCollab')"></span>
         </div>
 
         <!-- Unknown-->
         <div v-else style="color: #DC6F08">
           <h3>
-            {{$t('h_unknownContent')}}
+            {{ $t('h_unknownContent') }}
             <v-icon small color="gray" class="mb-1">mdi-progress-question</v-icon>
           </h3>
-          This movie might contain unwanted scenes.
-          <span v-if="skipScenesCount != 0">
-            We will skip {{ skipScenesCount }} {{ skipScenesCount == 1 ? 'scene' : 'scenes' }},
-            but there might be more.
-          </span>
+
           <span v-html="$t('considerCollab')"></span>
         </div>
       </div>
@@ -234,10 +235,13 @@
       <div id="ACTION_BUTTONS">
         <v-row no-gutters>
           <v-col cols="4">
-            <v-btn block dense depressed tile text @click="goTo('/preferences')">{{$t('btn_settings')}}</v-btn>
+            <v-btn block dense depressed tile text @click="goTo('/preferences')">{{
+              $t('btn_settings')
+            }}</v-btn>
           </v-col>
           <v-col cols="4">
-            <v-btn text dark block dense depressed tile color="primary" @click="showSidebar(true)">{{$t('btn_editor')}}
+            <v-btn text dark block dense depressed tile color="primary" @click="showSidebar(true)"
+              >{{ $t('btn_editor') }}
             </v-btn>
           </v-col>
           <v-col cols="4">
@@ -249,7 +253,7 @@
               tile
               text
               @click="saveSkipTagsSettings(true)"
-              >{{$t('btn_watch')}}</v-btn
+              >{{ $t('btn_watch') }}</v-btn
             >
           </v-col>
         </v-row>
@@ -388,9 +392,6 @@ export default {
       }
 
       return xx
-    },
-    extensionName() {
-      return browser.i18n.getMessage('extName')
     }
   },
 
@@ -436,9 +437,6 @@ export default {
   },
 
   methods: {
-    $t(name) {
-      return chrome.i18n.getMessage(name)
-    },
     severitySummaryText(sev) {
       let xx
       if (this.getTagStatus(sev) == 'done' && this.scenesCountByTag[sev] > 0) {
@@ -447,7 +445,7 @@ export default {
           : this.scenesCountByTag[sev] + ' filter(s) available'
       } else if (this.getTagStatus(sev) == 'done') {
         xx = this.finalSelectedTags.includes(sev)
-          ? 'Original was clean. No need to do skips'
+          ? 'Original was clean. No need to skip anything'
           : "Original doesn't have this kind of content"
       } else if (this.getTagStatus(sev) == 'missing') {
         xx = this.finalSelectedTags.includes(sev)

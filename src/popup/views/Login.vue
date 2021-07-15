@@ -2,9 +2,9 @@
   <div class="size-wrapper">
     <div>
       <h2 v-if="data.settings.username">
-        Hi {{ data.settings.username }}! ({{ rank[data.settings.level] }})
+        {{ $t('hi') }} {{ data.settings.username }}! ({{ rank[data.settings.level] }})
       </h2>
-      <h2 v-else>Welcome to {{ extensionName }}!</h2>
+      <h2 v-else>{{ $t('welcomeTo') }}!</h2>
       <span v-if="!data.sidebar" class="menu">
         <a v-if="data.hasFilm" @click="goTo('/')">
           <v-icon class="pb-1" small>mdi-movie</v-icon>
@@ -24,7 +24,7 @@
     </div>
 
     <div v-if="!data.settings.username" style="text-align: center; margin: 10px;font-size: 120%;">
-      Login/register is required before creating or editing filters
+      {{ $t('loginRequired') }}
     </div>
 
     <v-snackbar
@@ -47,105 +47,44 @@
       </v-col>
     </v-row>
 
-    <div v-if="data.settings.username">
+    <i v-if="data.settings.username">
       <div v-if="data.settings.level == 0">
-        <p>
-          As a <i>{{ rank[data.settings.level] }}</i
-          >, you are the lowest ranking Jedi. Some of your changes might require approval by higher
-          ranking users.
-        </p>
-
-        <p>
-          As you edit more movies and earn community recognition you will grow into the higher ranks
-          of Ohana.
-        </p>
+        {{ $t('lowestLevel') }}
       </div>
       <div v-else-if="data.settings.level < 6">
-        Hi {{ data.settings.username }}, as a <i>{{ rank[data.settings.level] }}</i
-        >, you can approve changes done by lower ranking users, but of your own changes might
-        require approval by a higher ranking users.
+        {{ $t('mediumLevel') }}
       </div>
       <div v-else>
-        Hi {{ data.settings.username }}, you are Master Yoda! You can do and undo all changes. With
-        great power comes great responsibility!
+        {{ $t('highLevel') }}
       </div>
-    </div>
+    </i>
 
     <!-- ACTION BUTTONS -->
-    <br>
-    <b>Help us improve</b>
+    <br />
+    <b>{{ $t('helpUsImprove') }}</b>
 
     <div style="margin: 10px 5px 0 5px">
       <v-btn plain text href="https://forms.gle/cPr7XQhdS7x1y9hx7" target="_blank">
-        Feedback
+        {{ $t('btn_feedback') }}
       </v-btn>
 
-<v-btn v-if="!data.sidebar && data.hasFilm" plain text color="primary" @click="showSidebar(true)">
-        Edit
+      <v-btn
+        v-if="!data.sidebar && data.hasFilm"
+        plain
+        text
+        color="primary"
+        @click="showSidebar(true)"
+      >
+        {{ $t('btn_edit') }}
       </v-btn>
       <v-btn v-else href="https://ohanamovies.org/" target="_blank" plain text color="primary">
-        Learn
+        {{ $t('btn_learn') }}
       </v-btn>
 
       <v-btn plain text color="success" href="https://www.patreon.com/ohanamovies" target="_blank">
-        Donate
+        {{ $t('btn_donate') }}
       </v-btn>
-
-      
-
-      
     </div>
-
-    <!--<v-row>
-      <v-col>
-        <h3>Manage your preferences</h3>
-        <span>
-          With Ohana, you decide what you watch. You can
-          <router-link to="/preferences">review or change your preferences here</router-link> at any
-          time.
-        </span>
-      </v-col>
-    </v-row>
-
-    <v-row>
-      <v-col>
-        <h3>Learn more</h3>
-        <span
-          >Visit <a href="https://ohanamovies.org/" target="_blank">Ohana Website</a> to find out
-          more about skipping content.
-        </span>
-      </v-col>
-    </v-row>
-
-    <v-row>
-      <v-col>
-        <h3>Contact us</h3>
-        <span
-          >If you have ideas on how we can improve, or just want to say hi, please
-          <a href="https://forms.gle/cPr7XQhdS7x1y9hx7" target="_blank">use this form</a>.
-        </span>
-      </v-col>
-    </v-row>-->
-
-    <!-- 
-    <v-row>
-      <v-col>
-        <!- - <b style="font-size:120%">Enjoy!</b><br />-->
-
-    <!--Enjoy movies as usual. Ohana will be working for you in the background, seamlessly skipping any unwanted content.<br /><br />
-
-        If you spot any unwanted content, press <b>"Alt+N"</b> or <b>"Improve filters"</b> to flag
-        it and help other users like you.<br /><br />
-
-        <span v-if="data.settings.username">
-          You can see all flagged scenes on the <a @click="$router.push('/')">film view.</a>
-        </span>
-        <span v-else>
-          You can see all flagged scenes on the film view (log in required).
-        </span> - ->
-      </v-col>
-    </v-row>
-    -->
 
     <!--<v-row>
       <v-col>
