@@ -20,7 +20,8 @@ PrimeVideo
 ==========
 https://app.primevideo.com/detail?gti=amzn1.dv.gti.a6abf5b7-d0f1-8109-2390-94e030d1190b\u0026ie=UTF8\u0026linkCode=xm2\u0026tag=just0a7-21
 https://app.primevideo.com/watch?gti=amzn1.dv.gti.a6abf5b7-d0f1-8109-2390-94e030d1190b\u0026ie=UTF8\u0026linkCode=xm2\u0026tag=just0a7-21
-
+https://www.primevideo.com/detail/0K677J96WQ96K6UY6BL15O70CO/ref=atv_dl_rdr?autoplay=1
+https://www.primevideo.com/gp/video/detail/?gti=amzn1.dv.gti.d4bc0a58-139a-abbc-046b-d9ffcd25c463
 
 Itunes
 ======
@@ -178,7 +179,11 @@ var provider = {
 			meta.provider = 'rakuten'
 		} else if (host.includes('primevideo')) {
 			meta.provider = 'primevideo'
-			meta.pid = urlParams.get('gti')
+
+			if(window.location.href.includes('com/detail'))
+				//meta.pid = urlParams.get('gti')
+				//You can find the gti in one of the HTML elements
+				meta.pid = document.getElementsByName("titleId")[0].value
 		} else if (host.includes('filmin')) {
 			meta.provider = 'filmin'
 		} else if (host.includes('itunes')) {

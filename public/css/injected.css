@@ -95,3 +95,9 @@ video {
   height: 100%;
   z-index: 2147483647;
 }
+
+/* This disables the play buttons on the amazon prime title cards, so you can only click on the image*/
+.tst-play-button {
+  pointer-events: none;
+}
+

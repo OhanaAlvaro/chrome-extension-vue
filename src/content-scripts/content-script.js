@@ -43,6 +43,8 @@ var fc = {
   editing: false,
   skip_ids: {},
   tagged: {},
+  subtitle_observer: '', //This is the current subtitles observer
+  subtitles_loaded: false, //True if the subtitles are loaded onto the page
 
   previewScene: function(scene) {
     console.log('Previewing scene: ', scene)
@@ -125,6 +127,9 @@ var fc = {
     fc.shield = shield
     console.log('[updateShield] new status ', fc.shield)
     browser.sendMessage({ msg: 'shield-status', status: fc.shield, override: override })
+
+    //If the user changed his settings, he may have changed the profanity censorship
+    fc.set_subtitles_observer()
   },
 
   unload: function() {
@@ -196,21 +201,115 @@ var fc = {
     // Check we have the right metadata
     if (!fc.metadata || fc.metadata.url != window.location.href) {
       fc.loadNewMedia()
+
     }
 
     if (!fc.metadata.id) {
       what2watch.init(fc.settings.skip_tags, server)
+      if(fc.metadata.provider == 'primevideo')
+        fc.prime_link_to_gti()
     }
 
     // Check video player controller is working
     if (!player.isLoaded()) {
+
       if (!player.load()) return false
 
       if (fc.metadata.provider == 'hboespana') fc.loadHBO()
+
+      fc.subtitles_loaded = false
+
+    }
+    // If the subtitles are not loaded onto the page:
+    else if (!fc.subtitles_loaded){
+      let subtitle_container = ''
+
+      if(fc.metadata.provider == 'netflix')
+        subtitle_container = document.getElementsByClassName('player-timedtext')[0]
+
+      else if(fc.metadata.provider == 'hboespana')
+        subtitle_container = document.getElementsByClassName('clpp-subtitles-container')[0]
+
+      else if(fc.metadata.provider == 'disneyplus')
+        subtitle_container = document.querySelector('video').textTracks[0]
+
+      else if(fc.metadata.provider == 'primevideo')
+        subtitle_container = document.getElementsByClassName('fk87jrb')[0]
+
+      //If the subtitles exist:
+      if(subtitle_container){
+        //We set the subtitle censorship if necessary
+        fc.set_subtitles_observer()
+        fc.subtitles_loaded = true
+      }
     }
 
     // Check if the current time needs to be skipped
     fc.check_needs_skip()
+  },
+
+  /*** This function, if needed, starts observing and monitoring subtitle changes in order to mute them or not ***/
+  set_subtitles_observer: function(){
+
+    var settings = fc.settings.skip_tags
+    var profanity_level = ''
+
+    //If the user has included skip profanity in his settings, the variable profanity_level has a non null value
+    for(set of settings){
+      if(set.includes('profane'))
+        profanity_level = set
+    }
+
+    //If the user has included skip profanity in his settings:
+    if(profanity_level){
+      var subtitle_container = ''
+      
+      //We disconnect any previous subtitle observer, otherwise it interferes with the new one
+      if(fc.subtitle_observer)
+        fc.subtitle_observer.disconnect()
+
+      //We proceed to locate the subtitle's container depending on the provider
+      if(fc.metadata.provider == 'netflix')
+        subtitle_container = document.getElementsByClassName('player-timedtext')[0]
+
+      else if(fc.metadata.provider == 'hboespana')
+        subtitle_container = document.getElementsByClassName('clpp-subtitles-container')[0]
+
+      else if(fc.metadata.provider == 'disneyplus'){
+      //On Disney+, because of how their subtitles work, there is already an attribute tha deals with changes
+        if(document.querySelector('video'))
+          document.querySelector('video').textTracks[0].oncuechange = fc.mute_profanity
+      }
+      else if(fc.metadata.provider == 'primevideo')
+        subtitle_container = document.getElementsByClassName('fk87jrb')[0]
+
+      //If the subtitle's container exists
+      if(subtitle_container) {
+        //We create a mutation observer that activates the function mute_profanity when the current subtitles change
+        const config = {attributes: true, childList: true, subtree: true}
+        fc.subtitle_observer = new MutationObserver(fc.mute_profanity)
+        fc.subtitle_observer.observe(subtitle_container, config)
+      }
+    }
+
+    //Else the user doesn't want to skip profanity:
+    else{
+      //Disconnect the observer if any
+      if(fc.subtitle_observer)
+        fc.subtitle_observer.disconnect()
+
+      //Same for Disney+'s oncuechange
+      else if (document.querySelector('video') && fc.metadata.provider == 'disneyplus'){
+        if(document.querySelector('video').textTracks[0].oncuechange)
+          document.querySelector('video').textTracks[0].oncuechange = null
+      }
+
+      //If the video was muted before, unmute it
+      if (fc.profanity_volume) {
+        player.volume(fc.profanity_volume)
+        fc.profanity_volume = 0
+      }
+    }
   },
 
   loadHBO: function() {
@@ -358,27 +457,115 @@ var fc = {
     // pass in the element you wanna watch as well as the options
     observer.observe(target, { attributes: true })
     console.log('[hide_hbo_thumbnail] Activated!')
+   
   },
+  
+  
+  profanity_volume: '', //This is the video's volume before being muted because of profanity
 
-  muting_profanity: '',
-  mute_profanity: function() {
-    fc.settings.profanity = ['hijo', 'padre', 'traidor']
+  /*** This function mutes profanity if the user has activated the skip profanity option ***/
+  mute_profanity: function(){
+    //TODO use a different profanity list for each setting level and maybe let the user change the list
+
+    //This is the list of word to censor
+    fc.settings.profanity = ['hijo','padre','traidor','hoy','quiso','hunter','punch', 'think']
+
     try {
-      if (!fc.settings.profanity || !fc.settings.profanity.length) return console.log('empty')
-      let text = document.querySelector('video').textTracks[0].activeCues[0].text
+      if (!fc.settings.profanity || !fc.settings.profanity.length) return console.log('Profanity list empty')
 
-      let reg = new RegExp(fc.settings.profanity.join('|'))
-      if (reg.test(text)) {
-        fc.show_plot(text)
-        if (fc.muting_profanity) return
-        fc.muting_profanity = player.volume(0)
-        console.log(fc.muting_profanity)
-      } else if (fc.muting_profanity) {
-        player.volume(fc.muting_profanity)
-        fc.muting_profanity = 0
-        fc.show_plot('')
+      var subtitle_container = ''
+      var text = ''
+      var subtitles = ''
+      var text_next = ''
+
+      //Depending on the provider, we look for the subtitles' text:
+      if(fc.metadata.provider == 'netflix'){
+        subtitle_container = document.getElementsByClassName('player-timedtext-text-container')[0]
+
+        if(subtitle_container)
+          subtitles = subtitle_container.getElementsByTagName('span')[0]
       }
-    } catch (e) {
+
+      else if(fc.metadata.provider == 'disneyplus'){
+        subtitle_container = document.querySelector('video').textTracks[0]
+
+        if(subtitle_container){
+          if(subtitle_container.activeCues[0]){
+            text = subtitle_container.activeCues[0].text
+            let cues_array = Array.from(document.querySelector('video').textTracks[0].cues)
+            var index = cues_array.indexOf(subtitle_container.activeCues[0])
+
+            //In Disney+'s case you cannot censor the current subtitle, so we censor preemptively the next one
+            if(index+1 < cues_array.length)
+              text_next = document.querySelector('video').textTracks[0].cues[index+1].text
+          }
+        }
+      }
+
+      else if(fc.metadata.provider == 'hboespana'){
+        subtitle_container = document.getElementsByClassName('clpp-subtitles-container')[0]
+        if(subtitle_container)
+          subtitles = subtitle_container.getElementsByClassName('clpp-subtitles')[0]
+      }
+
+      else if(fc.metadata.provider == 'primevideo'){
+        subtitle_container = document.getElementsByClassName('fk87jrb')[0]
+        if(subtitle_container)
+          subtitles = subtitle_container.getElementsByClassName('fg8afi5')[0]
+      }
+
+      if(subtitles)
+        text = subtitles.innerHTML
+
+
+      //This is the RegEx rule that includes all the profane words on the list
+      let reg = new RegExp(fc.settings.profanity.join('|') + '|\\*\\*\\*\\*\\*')
+      let reg_censored = new RegExp('\\*\\*\\*\\*\\*')
+
+      //If the current subtitle's text (or the next one's in Disney+) is already censored we return
+      if (reg_censored.test(text) || reg_censored.test(text_next)){return}
+
+      //If the text matches the regular expression (there is a profane word):
+      if (reg.test(text)) {
+        //We save an array containing the profane words in the text
+        const words_array = [...text.matchAll(fc.settings.profanity.join('|'))]
+        let replacement_str = text
+        //We replace every profane word with '*****'
+        for (word of words_array) {
+          replacement_str = replacement_str.replace(word,'*****')
+        }
+
+        //Then we override the original text with the censored one
+        if(fc.metadata.provider == 'disneyplus')
+          document.querySelector('video').textTracks[0].activeCues[0].text = replacement_str
+        else if(fc.metadata.provider == 'primhevideo')
+          subtitles.textContent = replacement_str
+        else
+          subtitles.innerHTML = replacement_str
+
+        console.log('Subtitles censored successfully')
+        if( fc.profanity_volume ) return
+        fc.profanity_volume = player.volume(0)
+      }
+
+      //If there isn't any profane words but the sound is muted we restore the original volume
+      else if (fc.profanity_volume) {
+        player.volume(fc.profanity_volume)
+        fc.profanity_volume = 0
+      }
+
+      //In Disney+'s case we also censor or not the next subtitle
+      if (reg.test(text_next)) {
+        const words_array = [...text_next.matchAll(fc.settings.profanity.join('|'))]
+        let replacement_str = text_next
+
+        for (word of words_array) {
+          replacement_str = replacement_str.replace(word,'*****')
+        }
+        document.querySelector('video').textTracks[0].cues[index+1].text = replacement_str
+      }
+
+    } catch(e){
       console.log(e)
     }
   },
@@ -899,3 +1086,5 @@ function show_sidebar(show) {
     document.body.appendChild(iframe)
   }
 }
+
+
