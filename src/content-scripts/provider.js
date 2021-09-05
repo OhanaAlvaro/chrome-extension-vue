@@ -172,18 +172,13 @@ var provider = {
 		} else if (host.includes('movistarplus')) {
 			meta.provider = 'movistarplus'
 			meta.pid = urlParams.get('id')
-			let mtitle = provider.match(/ficha\/([^\/]+)\//,path)
+			let mtitle = provider.match(/ficha\/([^\/]+)\//, path)
 			meta.title = provider.cleanTitle(mtitle)
-			
 		} else if (host.includes('rakuten')) {
 			meta.provider = 'rakuten'
 		} else if (host.includes('primevideo')) {
 			meta.provider = 'primevideo'
-
-			if(window.location.href.includes('com/detail'))
-				//meta.pid = urlParams.get('gti')
-				//You can find the gti in one of the HTML elements
-				meta.pid = document.getElementsByName("titleId")[0].value
+			meta.pid = urlParams.get('gti')
 		} else if (host.includes('filmin')) {
 			meta.provider = 'filmin'
 		} else if (host.includes('itunes')) {
@@ -244,6 +239,15 @@ var provider = {
 				meta.pid = provider.match(/\/([0123456789]+)/, themoviedb)
 			}
 			//console.log(meta.provider, meta.pid)
+		} else if (meta.provider == 'primevideo') {
+			//You can find the gti in one of the HTML elements
+			if (!meta.pid && url.includes('com/detail')) {
+				meta.pid = document.getElementsByName('titleId')[0].value
+				meta.id = 'primevideo_'+meta.pid
+				meta.title = document.title || ''
+				meta.title = meta.title.replace('Prime Video: ','')
+				
+			}
 		}
 		if (meta.onHomeView) {
 			meta.id = false

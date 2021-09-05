@@ -28,7 +28,7 @@ let player = {
   },
 
   load: function() {
-    console.warn('loading player!!')
+    console.warn('Trying to load player!!')
     player.inject_video_controller()
     // Perform some random action to check if the cast controller is active
     player.dispatch('cast-video-controller', { getTime: true })
@@ -40,13 +40,21 @@ let player = {
       return true
     }
 
+    let host = window.location.hostname
+
     // Otherwise, load the local video
     var video = document.getElementsByTagName('video')
-    if (video.length != 1) return false
-    player.video = video[0]
+    if (host.includes('primevideo')) {
+      for (var i = 0; i < video.length; i++) {
+        // Anything shorter than 5min can by a trailer...
+        if (video[i].duration > 300) player.video = video[i]
+      }
+    } else if (video.length == 1) {
+      player.video = video[0]
+    }
+    if (!player.video) return false
 
     // And choose between netflix or html5 controller
-    let host = window.location.hostname
     if (host.includes('netflix')) {
       player.controller = 'netflix'
       console.warn('Using netflix video controller')
@@ -259,7 +267,7 @@ let player = {
   getTime: function() {
     if (player.controller == 'cast') {
       player.dispatch('cast-video-controller', { getTime: true })
-      // this time is probably outdated but as we do this every 100ms, it should be too bad
+      // this time is probably outdated but as we do this every 100ms, it shouldn't be too bad
       return parseFloat(player.script.dataset.time) || 0
     } else {
       return player.video.currentTime * 1000

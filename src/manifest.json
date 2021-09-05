@@ -49,6 +49,7 @@
         "https://www.youtube.com/*",
         "https://es.hboespana.com/*",
         "https://ver.movistarplus.es/*",
+        "https://www.primevideo.com/*",       
         "https://rakuten.tv/*"
       ],
       "js": ["js/content-script.js"],

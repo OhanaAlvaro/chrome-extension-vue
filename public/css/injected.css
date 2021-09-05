@@ -50,6 +50,7 @@
   visibility: hidden;
 }
 
+/* Hide HBO thumbail */
 .fc-hidden-thumbnail .tmp_thumbnail {
   display: none;
 }
@@ -64,6 +65,12 @@ video {
   opacity: 0%;
 }
 
+/* This disables the play buttons on the amazon prime title cards, so you can only click on the image*/
+.tst-play-button {
+  pointer-events: none;
+}
+
+
 /***************************/
 /*       Side bar          */
 /***************************/
@@ -73,8 +80,9 @@ video {
 .fc-active .sizing-wrapper,
 .fc-active .app-container > div,
 .fc-active ytd-masthead, /* youtube header */
-.fc-active #object-player-multidrm /* movistarplus */
- {
+.fc-active #object-player-multidrm, /* movistarplus */
+.fc-active #dv-web-player /* primevideo */
+{
   right: 320px !important;
   width: calc(100% - 320px) !important;
 }
@@ -95,9 +103,3 @@ video {
   height: 100%;
   z-index: 2147483647;
 }
-
-/* This disables the play buttons on the amazon prime title cards, so you can only click on the image*/
-.tst-play-button {
-  pointer-events: none;
-}
-

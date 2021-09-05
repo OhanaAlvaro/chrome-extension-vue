@@ -4,7 +4,7 @@ var provider = require('./provider')
 var w2w = {
   tagged: {},
   num_links: 0,
-  init: function function_name(skip_tags, api, force) {
+  load: function function_name(skip_tags, api, force) {
     if (!w2w.api) w2w.api = api
     w2w.skip_tags = skip_tags
     if (skip_tags.length) {
@@ -25,13 +25,7 @@ var w2w = {
     let links = provider.getLinks()
 
     // Avoid going over every single item if we have already done so
-    if (!force && w2w.num_links == links.length) {
-      return
-      /*var shields = document.getElementsByClassName('ohana-shield')
-      if (shields.length == links.length) return
-      if (shields.length > links.length) return console.error('[w2w] more shilds than links...?')
-      console.log('recomputing', shields.length, links.length)*/
-    }
+    if (!force && w2w.num_links == links.length) return
     w2w.num_links = links.length
     console.log('Adding ', links.length, ' shields. Force ', force, w2w.skip_tags)
 
@@ -108,7 +102,7 @@ var w2w = {
   }
 }
 
-module.exports.init = w2w.init
+module.exports.load = w2w.load
 
 /*
 
